@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
@@ -16,6 +17,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
@@ -87,30 +89,48 @@ fun MainScreen(modifier: Modifier = Modifier) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopAppSearchBar(modifier: Modifier = Modifier) {
+    var query by remember {
+        mutableStateOf("")
+    }
+    val active = query.isNotEmpty()
+
     Row(
         modifier = modifier
             .padding(horizontal = 16.dp)
             .fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
+        //verticalAlignment = Alignment.CenterVertically
     ) {
         SearchBar(
-            modifier = Modifier.weight(1f).padding(bottom = 8.dp),
-            active = false,
+            modifier = Modifier
+                .weight(1f)
+                .padding(bottom = 8.dp),
+            active = active,
             onActiveChange = {},
-            query = "",
-            onQueryChange = {},
-            onSearch = {},
+            query = query,
+            onQueryChange = {query = it},
+            onSearch = {query = ""},
             leadingIcon = {
-                Icon(imageVector = Icons.Default.Search, contentDescription = null)
+                if (active) IconButton(onClick = { query = "" }) {
+                    Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)
+                }
+                else Icon(imageVector = Icons.Default.Search, contentDescription = null)
             },
             placeholder = {
-                Text(text = "search tasks")
+                Text(text = "Search")
             }
         ) {
         }
-        IconButton(onClick = { /*TODO*/ }) {
-            Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit")
+        if (active){
+            IconButton(modifier = Modifier.offset(y = 12.dp), onClick = { query = "" }) {
+                Icon(imageVector = Icons.Default.Search, contentDescription = "Search")
+            }
         }
+        else {
+            IconButton(modifier = Modifier.offset(y = 12.dp), onClick = { /*TODO*/ }) {
+                Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit")
+            }
+        }
+
     }
 
 }

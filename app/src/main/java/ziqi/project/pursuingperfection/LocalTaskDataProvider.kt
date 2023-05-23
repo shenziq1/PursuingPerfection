@@ -3,8 +3,8 @@ package ziqi.project.pursuingperfection
 object LocalTaskDataProvider {
     private val allTasks = listOf(
         TaskUiState(),
-        TaskUiState(name = "Sasa"),
-        TaskUiState(name = "Sasa"),
+        TaskUiState(name = "Nono"),
+        TaskUiState(name = "Nono"),
         TaskUiState(name = "blablabla")
     )
 
