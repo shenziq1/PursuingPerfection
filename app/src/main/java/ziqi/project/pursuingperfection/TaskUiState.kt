@@ -9,7 +9,10 @@ data class TaskUiState(
         "Estimated arrival time: 12:00 EST." to true,
         "While you may not at home, please let someone open the door." to false),
     @DrawableRes val profilePhoto: Int = R.drawable.ic_launcher_foreground,
-    val userName: String = "Google",
+    val name: String = "Google",
     val timeCreated: Int = 20,
-    val checked: Boolean = false
+    val checked: Boolean = false,
+    val priority: String = "High",
+    val lifeSpan: Int = 7,
+    val lifeSpent: Int = 3
 )

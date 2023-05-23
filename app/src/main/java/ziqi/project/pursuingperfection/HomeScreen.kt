@@ -1,35 +1,40 @@
 package ziqi.project.pursuingperfection
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.EaseIn
+import androidx.compose.animation.core.EaseOut
+import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.with
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Card
-import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -38,50 +43,113 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    items: List<String> = listOf("a", "B", "C", "D", "E", "F", "G")
 ) {
-    Column(modifier = modifier) {
-        LazyRow(
-            //modifier = modifier.padding(4.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(start = 16.dp, bottom = 8.dp)
-        ) {
-            items(items = items) {
-                Card(
-                    modifier = Modifier
-                        .widthIn(min = 80.dp)
-                        .heightIn(min = 80.dp)
-                ) {
-                    Text(modifier = Modifier.padding(8.dp), text = it)
+    var categoryName by remember {
+        mutableStateOf("All")
+    }
+    val taskOverViewListState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
+
+    Box(modifier = modifier) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(start = 16.dp, bottom = 8.dp)
+            ) {
+                items(items = LocalCategoryDataProvider.allCategories) { categoryUiState ->
+                    CategoryCard(categoryUiState = categoryUiState, onClick = { categoryName = it })
                 }
             }
-        }
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(items = List(5) { TaskUiState() }) {
-                TaskOverviewCard()
+            AnimatedContent(
+                targetState = categoryName,
+                transitionSpec = {
+                    slideIntoContainer(
+                        animationSpec = tween(300, easing = EaseIn),
+                        towards = AnimatedContentScope.SlideDirection.Down
+                    ).with(
+                        slideOutOfContainer(
+                            animationSpec = tween(300, easing = EaseOut),
+                            towards = AnimatedContentScope.SlideDirection.Up
+                        )
+                    )
+                }
+            ) {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    state = taskOverViewListState
+                ) {
+                    items(items = LocalTaskDataProvider.getTasksByCategory(categoryName)) {
+                        TaskOverviewCard(it)
+                    }
+                    item { Spacer(modifier = Modifier.height(8.dp)) }
+                }
             }
-            item { Spacer(modifier = Modifier.height(0.dp)) }
+
+        }
+//        FloatingActionButton(modifier = Modifier.align(Alignment.BottomCenter), onClick = {
+//            coroutineScope.launch {
+//                taskOverViewListState.animateScrollToItem(0)
+//            }
+//        }) {
+//            Icon(imageVector = Icons.Default.Check, contentDescription = null)
+//        }
+    }
+
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CategoryCard(
+    categoryUiState: CategoryUiState,
+    onClick: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Card(
+        modifier = modifier.size(80.dp), onClick = { onClick(categoryUiState.name) }
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                modifier = Modifier.weight(0.7f),
+                painter = painterResource(id = categoryUiState.picture),
+                contentDescription = null,
+                contentScale = ContentScale.Crop
+            )
+            Text(
+                modifier = Modifier
+                    .weight(0.3f)
+                    .padding(horizontal = 8.dp),
+                text = categoryUiState.name
+            )
         }
     }
 }
 
 @Composable
-fun TaskOverviewCard(taskUiState: TaskUiState = TaskUiState()) {
+fun TaskOverviewCard(
+    taskUiState: TaskUiState,
+    modifier: Modifier = Modifier
+) {
     val checkedIcon = Icons.Default.CheckCircle
     val uncheckedIcon = Icons.Default.Check
     var checked by remember { mutableStateOf(false) }
@@ -90,7 +158,7 @@ fun TaskOverviewCard(taskUiState: TaskUiState = TaskUiState()) {
     val expandedModifier = if (expanded) Modifier else Modifier.height(constraintHeight)
 
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
             .animateContentSize(
@@ -116,7 +184,7 @@ fun TaskOverviewCard(taskUiState: TaskUiState = TaskUiState()) {
                     Column() {
                         Text(
                             modifier = Modifier,
-                            text = taskUiState.userName,
+                            text = taskUiState.name,
                             style = MaterialTheme.typography.labelMedium
                         )
                         Text(
@@ -156,6 +224,35 @@ fun TaskOverviewCard(taskUiState: TaskUiState = TaskUiState()) {
                         style = MaterialTheme.typography.bodyLarge,
                     )
                 }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        modifier = Modifier.padding(top = 12.dp),
+                        text = "Priority: ${taskUiState.priority}",
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.SemiBold
+                    )
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            modifier = Modifier.padding(top = 12.dp),
+                            text = "•".repeat(taskUiState.lifeSpent),
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 20.sp
+                        )
+                        Text(
+                            modifier = Modifier.padding(top = 12.dp),
+                            text = "∘".repeat(taskUiState.lifeSpan - taskUiState.lifeSpent),
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                }
+
             }
 
             IconButton(
