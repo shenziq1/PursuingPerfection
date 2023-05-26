@@ -37,6 +37,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import dagger.hilt.android.AndroidEntryPoint
 import ziqi.project.pursuingperfection.data.Destination
 import ziqi.project.pursuingperfection.data.Destinations
 import ziqi.project.pursuingperfection.data.Done
@@ -48,11 +49,12 @@ import ziqi.project.pursuingperfection.screen.HomeScreen
 import ziqi.project.pursuingperfection.screen.SettingsScreen
 import ziqi.project.pursuingperfection.ui.theme.AppTheme
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            AppTheme() {
+            AppTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -196,7 +198,7 @@ fun BottomNavigationBar(
 @Preview(showBackground = true)
 @Composable
 fun MainScreenPreview() {
-    AppTheme() {
+    AppTheme {
         MainScreen()
     }
 }

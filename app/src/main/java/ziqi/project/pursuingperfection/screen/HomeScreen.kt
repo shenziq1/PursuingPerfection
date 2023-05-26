@@ -38,6 +38,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,16 +54,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import ziqi.project.pursuingperfection.uiState.CategoryUiState
 import ziqi.project.pursuingperfection.R
 import ziqi.project.pursuingperfection.uiState.TaskUiState
 import ziqi.project.pursuingperfection.data.LocalCategoryDataProvider
 import ziqi.project.pursuingperfection.data.LocalTaskDataProvider
+import ziqi.project.pursuingperfection.viewModel.TaskViewModel
+
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
+    viewModel: TaskViewModel = hiltViewModel(),
     checked: Boolean = false
 ) {
     var categoryName by remember {
@@ -100,10 +105,10 @@ fun HomeScreen(
                     state = taskOverViewListState
                 ) {
                     items(
-                        items = if (!checked) LocalTaskDataProvider.getPlannedTasksByCategory(categoryName)
-                        else LocalTaskDataProvider.getCheckedTasksByCategory(categoryName)
+                        items = if (!checked) viewModel.tasks.value
+                        else viewModel.tasks.value
                     ) {
-                        TaskOverviewCard(it)
+                        TaskOverviewCard(it, {})
                     }
                     item { Spacer(modifier = Modifier.height(8.dp)) }
                 }
@@ -154,6 +159,7 @@ fun CategoryCard(
 @Composable
 fun TaskOverviewCard(
     taskUiState: TaskUiState,
+    onCheck: (TaskUiState) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val checkedIcon = Icons.Default.CheckCircle
@@ -201,7 +207,10 @@ fun TaskOverviewCard(
                     }
                 }
 
-                IconButton(modifier = Modifier, onClick = { checked = !checked }) {
+                IconButton(modifier = Modifier, onClick = {
+                    checked = !checked
+                    if (checked) onCheck(taskUiState)
+                }) {
                     if (checked) Icon(
                         modifier = Modifier.size(32.dp),
                         imageVector = checkedIcon,
