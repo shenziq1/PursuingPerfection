@@ -38,7 +38,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -59,22 +58,24 @@ import ziqi.project.pursuingperfection.uiState.CategoryUiState
 import ziqi.project.pursuingperfection.R
 import ziqi.project.pursuingperfection.uiState.TaskUiState
 import ziqi.project.pursuingperfection.data.LocalCategoryDataProvider
-import ziqi.project.pursuingperfection.data.LocalTaskDataProvider
-import ziqi.project.pursuingperfection.viewModel.TaskViewModel
+import ziqi.project.pursuingperfection.viewModel.TaskListViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    viewModel: TaskViewModel = hiltViewModel(),
+    viewModel: TaskListViewModel = hiltViewModel(),
     checked: Boolean = false
 ) {
     var categoryName by remember {
         mutableStateOf("All")
     }
     val taskOverViewListState = rememberLazyListState()
-    val coroutineScope = rememberCoroutineScope()
+    val tasks =
+        if (checked) viewModel.checkedTasks.collectAsStateWithLifecycle()
+        else viewModel.plannedTasks.collectAsStateWithLifecycle()
 
     Box(modifier = modifier) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -83,7 +84,10 @@ fun HomeScreen(
                 contentPadding = PaddingValues(start = 16.dp, bottom = 8.dp)
             ) {
                 items(items = LocalCategoryDataProvider.allCategories) { categoryUiState ->
-                    CategoryCard(categoryUiState = categoryUiState, onClick = { categoryName = it })
+                    CategoryCard(categoryUiState = categoryUiState, onClick = {
+                        categoryName = it
+                        viewModel.updateTaskList(checked, categoryName)
+                    })
                 }
             }
             AnimatedContent(
@@ -105,8 +109,7 @@ fun HomeScreen(
                     state = taskOverViewListState
                 ) {
                     items(
-                        items = if (!checked) viewModel.tasks.value
-                        else viewModel.tasks.value
+                        items = tasks.value
                     ) {
                         TaskOverviewCard(it, {})
                     }
@@ -193,7 +196,7 @@ fun TaskOverviewCard(
                         painter = painterResource(id = R.drawable.ic_launcher_foreground),
                         contentDescription = "Profile Image"
                     )
-                    Column() {
+                    Column {
                         Text(
                             modifier = Modifier,
                             text = taskUiState.name,
