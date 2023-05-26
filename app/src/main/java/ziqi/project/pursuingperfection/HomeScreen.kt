@@ -6,7 +6,6 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.EaseIn
 import androidx.compose.animation.core.EaseOut
-import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
@@ -34,7 +33,6 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -55,12 +53,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
+    checked: Boolean = false
 ) {
     var categoryName by remember {
         mutableStateOf("All")
@@ -96,7 +94,10 @@ fun HomeScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     state = taskOverViewListState
                 ) {
-                    items(items = LocalTaskDataProvider.getTasksByCategory(categoryName)) {
+                    items(
+                        items = if (!checked) LocalTaskDataProvider.getPlannedTasksByCategory(categoryName)
+                        else LocalTaskDataProvider.getCheckedTasksByCategory(categoryName)
+                    ) {
                         TaskOverviewCard(it)
                     }
                     item { Spacer(modifier = Modifier.height(8.dp)) }

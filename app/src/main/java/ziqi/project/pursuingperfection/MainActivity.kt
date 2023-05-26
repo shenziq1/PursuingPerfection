@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
@@ -47,6 +48,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import ziqi.project.pursuingperfection.ui.theme.AppTheme
 
 class MainActivity : ComponentActivity() {
@@ -68,21 +73,44 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MainScreen(modifier: Modifier = Modifier) {
+    val navController = rememberNavController()
+    val currentBackStack by navController.currentBackStackEntryAsState()
+    val currentDestination = currentBackStack?.destination
     Scaffold(
         modifier = modifier,
-        topBar = { TopAppSearchBar() },
-        bottomBar = { BottomNavigationBar() },
+        topBar = {
+            if (currentDestination?.route in listOf(Home.route, Done.route))
+                TopAppSearchBar()
+        },
+        bottomBar = { BottomNavigationBar({ navController.navigate(it) }) },
         floatingActionButton = {
-            FloatingActionButton(
-                modifier = Modifier,
-                shape = MaterialTheme.shapes.medium,
-                onClick = { /*TODO*/ }) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Add")
-            }
+            if (currentDestination?.route in listOf(Home.route, Done.route))
+                FloatingActionButton(
+                    modifier = Modifier,
+                    shape = MaterialTheme.shapes.medium,
+                    onClick = { /*TODO*/ }) {
+                    Icon(imageVector = Icons.Default.Add, contentDescription = "Add")
+                }
         },
         floatingActionButtonPosition = FabPosition.End
     ) {
-        HomeScreen(modifier = Modifier.padding(it))
+        NavHost(
+            navController = navController,
+            startDestination = Home.route,
+            modifier = Modifier.padding(it)
+        ) {
+            composable(route = Home.route) {
+                HomeScreen()
+            }
+            composable(route = Done.route) {
+                DoneScreen()
+            }
+            composable(route = Settings.route) {
+                SettingsScreen()
+            }
+
+        }
+
     }
 }
 
@@ -107,8 +135,8 @@ fun TopAppSearchBar(modifier: Modifier = Modifier) {
             active = active,
             onActiveChange = {},
             query = query,
-            onQueryChange = {query = it},
-            onSearch = {query = ""},
+            onQueryChange = { query = it },
+            onSearch = { query = "" },
             leadingIcon = {
                 if (active) IconButton(onClick = { query = "" }) {
                     Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)
@@ -120,12 +148,11 @@ fun TopAppSearchBar(modifier: Modifier = Modifier) {
             }
         ) {
         }
-        if (active){
+        if (active) {
             IconButton(modifier = Modifier.offset(y = 12.dp), onClick = { query = "" }) {
                 Icon(imageVector = Icons.Default.Search, contentDescription = "Search")
             }
-        }
-        else {
+        } else {
             IconButton(modifier = Modifier.offset(y = 12.dp), onClick = { /*TODO*/ }) {
                 Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit")
             }
@@ -137,20 +164,31 @@ fun TopAppSearchBar(modifier: Modifier = Modifier) {
 
 @Composable
 fun BottomNavigationBar(
+    onNavigateTo: (String) -> Unit,
     modifier: Modifier = Modifier,
-    items: List<Pair<ImageVector, String>> = listOf(
-        Icons.Default.Home to "Home",
-        Icons.Default.Settings to "Settings"
-    )
+    destinations: List<Destination> = Destinations,
 ) {
     var selectedIndex by remember { mutableStateOf(0) }
     NavigationBar(modifier = modifier) {
-        items.forEachIndexed { index, item ->
+        destinations.forEachIndexed { index, destination ->
             NavigationBarItem(
                 selected = index == selectedIndex,
-                onClick = { selectedIndex = index },
-                icon = { Icon(imageVector = item.first, contentDescription = item.second) },
-                label = { Text(text = item.second, style = MaterialTheme.typography.labelMedium) }
+                onClick = {
+                    selectedIndex = index
+                    onNavigateTo(destination.route)
+                },
+                icon = {
+                    Icon(
+                        imageVector = destination.icon,
+                        contentDescription = destination.route
+                    )
+                },
+                label = {
+                    Text(
+                        text = destination.route,
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                }
             )
         }
     }
