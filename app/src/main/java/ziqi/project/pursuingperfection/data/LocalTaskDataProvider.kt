@@ -1,4 +1,6 @@
-package ziqi.project.pursuingperfection
+package ziqi.project.pursuingperfection.data
+
+import ziqi.project.pursuingperfection.uiState.TaskUiState
 
 object LocalTaskDataProvider {
     private val allTasks = listOf(

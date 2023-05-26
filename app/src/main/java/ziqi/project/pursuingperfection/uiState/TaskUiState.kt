@@ -1,6 +1,7 @@
-package ziqi.project.pursuingperfection
+package ziqi.project.pursuingperfection.uiState
 
 import androidx.annotation.DrawableRes
+import ziqi.project.pursuingperfection.R
 
 data class TaskUiState(
     val title: String = "Package Shipped",

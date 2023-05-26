@@ -1,4 +1,4 @@
-package ziqi.project.pursuingperfection
+package ziqi.project.pursuingperfection.screen
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentScope
@@ -53,6 +53,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import ziqi.project.pursuingperfection.uiState.CategoryUiState
+import ziqi.project.pursuingperfection.R
+import ziqi.project.pursuingperfection.uiState.TaskUiState
+import ziqi.project.pursuingperfection.data.LocalCategoryDataProvider
+import ziqi.project.pursuingperfection.data.LocalTaskDataProvider
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable

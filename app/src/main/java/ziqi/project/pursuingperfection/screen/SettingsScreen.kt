@@ -1,4 +1,4 @@
-package ziqi.project.pursuingperfection
+package ziqi.project.pursuingperfection.screen
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
