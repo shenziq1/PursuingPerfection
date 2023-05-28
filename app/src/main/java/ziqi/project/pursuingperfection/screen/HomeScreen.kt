@@ -33,6 +33,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -41,7 +42,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -118,13 +118,11 @@ fun HomeScreen(
             }
 
         }
-//        FloatingActionButton(modifier = Modifier.align(Alignment.BottomCenter), onClick = {
-//            coroutineScope.launch {
-//                taskOverViewListState.animateScrollToItem(0)
-//            }
-//        }) {
-//            Icon(imageVector = Icons.Default.Check, contentDescription = null)
-//        }
+        FloatingActionButton(modifier = Modifier.align(Alignment.BottomCenter), onClick = {
+            viewModel.insertTask()
+        }) {
+            Icon(imageVector = Icons.Default.Check, contentDescription = null)
+        }
     }
 
 }
@@ -199,7 +197,7 @@ fun TaskOverviewCard(
                     Column {
                         Text(
                             modifier = Modifier,
-                            text = taskUiState.name,
+                            text = taskUiState.category,
                             style = MaterialTheme.typography.labelMedium
                         )
                         Text(
