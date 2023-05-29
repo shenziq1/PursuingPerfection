@@ -16,8 +16,17 @@ interface TaskDao {
     @Query("select * from taskEntity where checked = 1 and category = :category")
     fun getCheckedTasks(category: String): Flow<List<TaskEntity>>
 
-    @Query("select * from taskEntity where checked = 0 and category = :category ")
+    @Query("select * from taskEntity where checked = 1")
+    fun getAllCheckedTasks(): Flow<List<TaskEntity>>
+
+    @Query("SELECT * FROM taskEntity WHERE checked = 0 AND category = :category ")
     fun getPlannedTasks(category: String): Flow<List<TaskEntity>>
+
+    @Query("select * from taskEntity where checked = 0")
+    fun getAllPlannedTasks(): Flow<List<TaskEntity>>
+
+    @Query("SELECT * FROM taskEntity WHERE id = :id")
+    fun getTaskById(id: Int): Flow<TaskEntity>
 
     @Insert
     suspend fun insertTask(taskEntity: TaskEntity)

@@ -22,11 +22,17 @@ class TaskRepository @Inject constructor(val taskDao: TaskDao) {
     }
 
     fun getPlannedTasks(category: String): Flow<List<TaskEntity>>{
-        return taskDao.getPlannedTasks(category)
+        return if (category == "All") taskDao.getAllPlannedTasks()
+        else taskDao.getPlannedTasks(category)
     }
 
     fun getCheckedTasks(category: String): Flow<List<TaskEntity>>{
-        return taskDao.getCheckedTasks(category)
+        return if (category == "All") taskDao.getAllCheckedTasks()
+        else taskDao.getCheckedTasks(category)
+    }
+
+    fun getTaskById(id: Int): Flow<TaskEntity>{
+        return taskDao.getTaskById(id)
     }
 
     suspend fun insertTask(taskEntity: TaskEntity){

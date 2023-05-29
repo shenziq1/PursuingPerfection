@@ -1,5 +1,6 @@
 package ziqi.project.pursuingperfection.screen
 
+import android.util.Log
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -39,6 +40,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -60,6 +62,7 @@ import ziqi.project.pursuingperfection.uiState.TaskUiState
 import ziqi.project.pursuingperfection.data.LocalCategoryDataProvider
 import ziqi.project.pursuingperfection.viewModel.TaskListViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import ziqi.project.pursuingperfection.database.TaskEntity
 
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -73,9 +76,8 @@ fun HomeScreen(
         mutableStateOf("All")
     }
     val taskOverViewListState = rememberLazyListState()
-    val tasks =
-        if (checked) viewModel.checkedTasks.collectAsStateWithLifecycle()
-        else viewModel.plannedTasks.collectAsStateWithLifecycle()
+    val tasks = viewModel.plannedTasks.collectAsStateWithLifecycle()
+
 
     Box(modifier = modifier) {
         Column(modifier = Modifier.fillMaxSize()) {

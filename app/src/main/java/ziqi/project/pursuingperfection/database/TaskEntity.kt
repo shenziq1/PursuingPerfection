@@ -20,12 +20,12 @@ data class TaskEntity(
     val lifeSpent: Int
 )
 
-fun TaskEntity.taskEntityToTaskUiState(): TaskUiState{
+fun TaskEntity.toTaskUiState(): TaskUiState{
     return TaskUiState(
         this.id,
         this.title,
         //this.content,
-        listOf(),
+        listOf("A" to true),
         this.profilePhoto,
         this.category,
         this.timeCreated,
