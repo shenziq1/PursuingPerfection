@@ -37,14 +37,6 @@ class DoneListViewModel @Inject constructor(private val taskRepository: TaskRepo
         }
     }
 
-    //
-    suspend fun insertTask() {
-        viewModelScope.launch {
-            taskRepository.insertTask(LocalTaskDataProvider.allTasks[0].toTaskEntity())
-            taskRepository.insertTask(LocalTaskDataProvider.allTasks[1].toTaskEntity())
-        }
-    }
-
     suspend fun uncheckTask(taskUiState: TaskUiState) {
         viewModelScope.launch {
             taskRepository.updateTask(taskUiState.toTaskEntity().copy(checked = false))

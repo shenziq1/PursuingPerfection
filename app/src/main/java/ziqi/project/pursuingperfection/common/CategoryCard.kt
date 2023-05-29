@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -20,11 +22,14 @@ import ziqi.project.pursuingperfection.uiState.CategoryUiState
 @Composable
 fun CategoryCard(
     categoryUiState: CategoryUiState,
+    selected: Boolean,
     onClick: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Card(
-        modifier = modifier.size(80.dp), onClick = { onClick(categoryUiState.name) }
+        modifier = modifier.size(80.dp), onClick = { onClick(categoryUiState.name) },
+        colors = if (selected) CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
+                else CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
         Column(
             modifier = Modifier.fillMaxWidth(),

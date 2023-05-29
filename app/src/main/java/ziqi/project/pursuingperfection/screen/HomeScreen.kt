@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -20,6 +21,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
@@ -54,17 +57,24 @@ fun HomeScreen(
     val coroutineScope = rememberCoroutineScope()
 
 
+
     Box(modifier = modifier) {
         Column(modifier = Modifier.fillMaxSize()) {
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 contentPadding = PaddingValues(start = 16.dp, bottom = 8.dp)
             ) {
-                items(items = LocalCategoryDataProvider.allCategories) { categoryUiState ->
-                    CategoryCard(categoryUiState = categoryUiState, onClick = {
-                        categoryName = it
-                        viewModel.updateTaskList(categoryName)
-                    })
+                items(
+                    items = LocalCategoryDataProvider.allCategories,
+                    key = { it.id }
+                ) { categoryUiState ->
+                    CategoryCard(
+                        categoryUiState = categoryUiState,
+                        selected = categoryUiState.name == categoryName,
+                        onClick = {
+                            categoryName = it
+                            viewModel.updateTaskList(categoryName)
+                        })
                 }
             }
             AnimatedContent(
@@ -87,7 +97,7 @@ fun HomeScreen(
                 ) {
                     items(
                         items = tasks.value,
-                        key = {it.id}
+                        key = { it.id }
                     ) { taskUiState ->
                         TaskOverviewCard(false, taskUiState, {
                             coroutineScope.launch {
@@ -100,12 +110,27 @@ fun HomeScreen(
             }
 
         }
-        FloatingActionButton(modifier = Modifier.align(Alignment.BottomCenter), onClick = {
-            coroutineScope.launch {
-                viewModel.insertTask()
+        Row(
+            modifier = Modifier
+                .fillMaxSize(1f),
+            verticalAlignment = Alignment.Bottom,
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            Button(onClick = {
+                coroutineScope.launch {
+                    viewModel.insertAllTasks()
+                }
+            }) {
+                Icon(imageVector = Icons.Default.Check, contentDescription = null)
             }
-        }) {
-            Icon(imageVector = Icons.Default.Check, contentDescription = null)
+            Button(onClick = {
+                coroutineScope.launch {
+                    viewModel.deleteAllTasks()
+                }
+            }) {
+                Icon(imageVector = Icons.Default.Clear, contentDescription = null)
+            }
+
         }
     }
 

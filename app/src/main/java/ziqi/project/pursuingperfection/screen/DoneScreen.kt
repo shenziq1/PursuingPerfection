@@ -63,10 +63,13 @@ fun DoneScreen(
                 contentPadding = PaddingValues(start = 16.dp, bottom = 8.dp)
             ) {
                 items(items = LocalCategoryDataProvider.allCategories) { categoryUiState ->
-                    CategoryCard(categoryUiState = categoryUiState, onClick = {
-                        categoryName = it
-                        viewModel.updateTaskList(categoryName)
-                    })
+                    CategoryCard(
+                        categoryUiState = categoryUiState,
+                        selected = categoryUiState.name == categoryName,
+                        onClick = {
+                            categoryName = it
+                            viewModel.updateTaskList(categoryName)
+                        })
                 }
             }
             AnimatedContent(
@@ -101,13 +104,6 @@ fun DoneScreen(
                 }
             }
 
-        }
-        FloatingActionButton(modifier = Modifier.align(Alignment.BottomCenter), onClick = {
-            coroutineScope.launch{
-                viewModel.insertTask()
-            }
-        }) {
-            Icon(imageVector = Icons.Default.Check, contentDescription = null)
         }
     }
 

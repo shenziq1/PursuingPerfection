@@ -10,16 +10,6 @@ import ziqi.project.pursuingperfection.uiState.toTaskEntity
 import javax.inject.Inject
 
 class TaskRepository @Inject constructor(val taskDao: TaskDao) {
-    val allTasks = LocalTaskDataProvider.allTasks
-    fun getTasks(checked: Boolean, category: String): List<TaskUiState>{
-        return if (checked){
-            if (category == "All") LocalTaskDataProvider.allTasks.filter { it.checked }
-            else LocalTaskDataProvider.allTasks.filter { it.category == category && it.checked }
-        } else {
-            if (category == "All") LocalTaskDataProvider.allTasks.filter { !it.checked }
-            else LocalTaskDataProvider.allTasks.filter { it.category == category && !it.checked }
-        }
-    }
 
     fun getPlannedTasks(category: String): Flow<List<TaskEntity>>{
         return if (category == "All") taskDao.getAllPlannedTasks()
@@ -38,6 +28,15 @@ class TaskRepository @Inject constructor(val taskDao: TaskDao) {
     suspend fun insertTask(taskEntity: TaskEntity){
         taskDao.insertTask(taskEntity)
     }
+
+    suspend fun deleteTask(taskEntity: TaskEntity){
+        taskDao.deleteTask(taskEntity)
+    }
+
+    suspend fun deleteAllTasks(){
+        taskDao.deleteAllTasks()
+    }
+
     suspend fun updateTask(taskEntity: TaskEntity){
         taskDao.updateTask(taskEntity)
     }

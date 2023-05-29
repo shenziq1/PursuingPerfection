@@ -4,7 +4,7 @@ import ziqi.project.pursuingperfection.uiState.CategoryUiState
 
 object LocalCategoryDataProvider {
     val allCategories = listOf(
-        CategoryUiState(),
-        CategoryUiState(name = "Nono")
+        CategoryUiState(id = 0),
+        CategoryUiState(id = 1, name = "Nono")
     )
 }

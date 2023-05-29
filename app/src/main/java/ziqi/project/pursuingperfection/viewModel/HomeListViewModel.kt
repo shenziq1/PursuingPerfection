@@ -37,10 +37,17 @@ class HomeListViewModel @Inject constructor(private val taskRepository: TaskRepo
     }
 
     //
-    suspend fun insertTask() {
+    suspend fun insertAllTasks() {
         viewModelScope.launch {
-            taskRepository.insertTask(LocalTaskDataProvider.allTasks[0].toTaskEntity())
-            taskRepository.insertTask(LocalTaskDataProvider.allTasks[1].toTaskEntity())
+            LocalTaskDataProvider.allTasks.forEach {
+                taskRepository.insertTask(it.toTaskEntity())
+            }
+        }
+    }
+
+    suspend fun deleteAllTasks(){
+        viewModelScope.launch{
+            taskRepository.deleteAllTasks()
         }
     }
 
