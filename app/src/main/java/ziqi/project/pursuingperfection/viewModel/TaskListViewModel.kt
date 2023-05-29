@@ -1,18 +1,11 @@
 package ziqi.project.pursuingperfection.viewModel
 
-import android.util.Log
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import ziqi.project.pursuingperfection.data.LocalTaskDataProvider
 import ziqi.project.pursuingperfection.data.TaskRepository
@@ -24,16 +17,34 @@ import javax.inject.Inject
 @HiltViewModel
 class TaskListViewModel @Inject constructor(private val taskRepository: TaskRepository) :
     ViewModel() {
-    var plannedTasks: StateFlow<List<TaskUiState>> =
-        taskRepository.getPlannedTasks("All").map { taskEntities ->
-            taskEntities.map { it.toTaskUiState() }
-        }.stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(5000),
-            listOf(TaskUiState())
-        )
+    private var _plannedTasks: MutableStateFlow<List<TaskUiState>> = MutableStateFlow(emptyList())
+    val plannedTasks: StateFlow<List<TaskUiState>> = _plannedTasks.asStateFlow()
+    private var _checkedTasks: MutableStateFlow<List<TaskUiState>> = MutableStateFlow(emptyList())
+    val checkedTasks: StateFlow<List<TaskUiState>> = _checkedTasks.asStateFlow()
+
+    init {
+        viewModelScope.launch{
+            taskRepository.getPlannedTasks("All").collect{ taskEntities ->
+                _plannedTasks.value = taskEntities.map { it.toTaskUiState() }
+            }
+            taskRepository.getCheckedTasks("All").collect{ taskEntities ->
+                _checkedTasks.value = taskEntities.map { it.toTaskUiState() }
+            }
+        }
+    }
 
     fun updateTaskList(checked: Boolean, category: String) {
+        viewModelScope.launch{
+            if (checked){
+                taskRepository.getCheckedTasks(category).collect{ taskEntities ->
+                    _checkedTasks.value = taskEntities.map { it.toTaskUiState() }
+                }
+            } else {
+                taskRepository.getPlannedTasks(category).collect{ taskEntities ->
+                    _plannedTasks.value = taskEntities.map { it.toTaskUiState() }
+                }
+            }
+        }
     }
 
     //

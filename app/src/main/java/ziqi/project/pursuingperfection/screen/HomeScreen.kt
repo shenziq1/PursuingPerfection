@@ -1,6 +1,5 @@
 package ziqi.project.pursuingperfection.screen
 
-import android.util.Log
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -76,7 +75,8 @@ fun HomeScreen(
         mutableStateOf("All")
     }
     val taskOverViewListState = rememberLazyListState()
-    val tasks = viewModel.plannedTasks.collectAsStateWithLifecycle()
+    val tasks = if (checked) viewModel.checkedTasks.collectAsStateWithLifecycle()
+                else viewModel.plannedTasks.collectAsStateWithLifecycle()
 
 
     Box(modifier = modifier) {
