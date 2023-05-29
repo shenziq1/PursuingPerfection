@@ -41,4 +41,5 @@ class TaskRepository @Inject constructor(val taskDao: TaskDao) {
     suspend fun updateTask(taskEntity: TaskEntity){
         taskDao.updateTask(taskEntity)
     }
+
 }
