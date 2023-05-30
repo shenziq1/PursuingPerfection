@@ -3,14 +3,16 @@ package ziqi.project.pursuingperfection.uiState
 import androidx.annotation.DrawableRes
 import ziqi.project.pursuingperfection.R
 import ziqi.project.pursuingperfection.database.TaskEntity
+import ziqi.project.pursuingperfection.utils.Converters
 
 data class TaskUiState(
     val id: Int = 0,
     val title: String = "Package Shipped",
-    val content: List<Pair<String, Boolean>> = listOf(
-        "Your Call of Duty disk has shipped, prepare to pick up." to true,
-        "Estimated arrival time: 12:00 EST." to true,
-        "While you may not at home, please let someone open the door." to false),
+    val contents: List<Item> = listOf(
+        Item("Your Call of Duty disk has shipped, prepare to pick up.", true),
+        Item("Estimated arrival time: 12:00 EST.", true),
+        Item("While you may not at home, please let someone open the door.", false)
+    ),
     @DrawableRes val profilePhoto: Int = R.drawable.ic_launcher_foreground,
     val category: String = "Google",
     val timeCreated: Int = 20,
@@ -24,10 +26,16 @@ data class TaskUiState(
     }
 }
 
+data class Item(
+    val content: String = "",
+    val checked: Boolean = true
+)
+
 fun TaskUiState.toTaskEntity(): TaskEntity{
     return TaskEntity(
         this.id,
         this.title,
+        Converters.listMyModelToJsonStr(this.contents),
         this.profilePhoto,
         this.category,
         this.timeCreated,

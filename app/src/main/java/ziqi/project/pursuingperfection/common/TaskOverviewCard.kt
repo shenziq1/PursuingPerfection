@@ -50,7 +50,7 @@ fun TaskOverviewCard(
     val uncheckedIcon = Icons.Default.Check
     var checked by remember { mutableStateOf(currentChecked) }
     var expanded by remember { mutableStateOf(false) }
-    val constraintHeight = 60.dp
+    val constraintHeight = 64.dp
     val expandedModifier = if (expanded) Modifier else Modifier.height(constraintHeight)
 
     Card(
@@ -110,16 +110,16 @@ fun TaskOverviewCard(
             )
 
             Column(modifier = expandedModifier) {
-                taskUiState.content.forEach {
-                    if (it.second) Text(
+                taskUiState.contents.forEach {
+                    if (it.checked) Text(
                         modifier = Modifier,
-                        text = it.first,
+                        text = it.content,
                         textDecoration = TextDecoration.LineThrough,
                         style = MaterialTheme.typography.bodyLarge
                     )
                     else Text(
                         modifier = Modifier,
-                        text = it.first,
+                        text = it.content,
                         style = MaterialTheme.typography.bodyLarge,
                     )
                 }
@@ -128,26 +128,27 @@ fun TaskOverviewCard(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        modifier = Modifier.padding(top = 12.dp),
+                    Text(modifier = Modifier.padding(top = 12.dp),
                         text = "Priority: ${taskUiState.priority}",
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.SemiBold
                     )
 
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(modifier = Modifier.padding(top = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            modifier = Modifier.padding(top = 12.dp),
                             text = "•".repeat(taskUiState.lifeSpent),
                             style = MaterialTheme.typography.bodyLarge,
                             fontWeight = FontWeight.SemiBold,
-                            fontSize = 20.sp
+                            fontSize = 26.sp,
+                            color = MaterialTheme.colorScheme.outlineVariant
                         )
                         Text(
-                            modifier = Modifier.padding(top = 12.dp),
-                            text = "∘".repeat(taskUiState.lifeSpan - taskUiState.lifeSpent),
+                            text = "•".repeat(taskUiState.lifeSpan - taskUiState.lifeSpent),
                             style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.SemiBold
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 26.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }

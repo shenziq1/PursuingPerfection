@@ -3,14 +3,18 @@ package ziqi.project.pursuingperfection.database
 import androidx.annotation.DrawableRes
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
+import ziqi.project.pursuingperfection.uiState.Item
 import ziqi.project.pursuingperfection.uiState.TaskUiState
+import ziqi.project.pursuingperfection.utils.Converters
+
 
 @Entity(tableName = "taskEntity")
 data class TaskEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int,
     val title: String,
-    //val content: List<Pair<String, Boolean>>,
+    val contents: String,
     @DrawableRes val profilePhoto: Int,
     val category: String,
     val timeCreated: Int,
@@ -20,12 +24,12 @@ data class TaskEntity(
     val lifeSpent: Int
 )
 
+
 fun TaskEntity.toTaskUiState(): TaskUiState{
     return TaskUiState(
         this.id,
         this.title,
-        //this.content,
-        listOf("A" to true),
+        Converters.jsonStrToListMyModel(this.contents)?: listOf(Item()),
         this.profilePhoto,
         this.category,
         this.timeCreated,
