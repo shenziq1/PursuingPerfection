@@ -3,16 +3,22 @@ package ziqi.project.pursuingperfection
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
@@ -30,7 +36,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
@@ -38,6 +47,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
+import ziqi.project.pursuingperfection.common.BottomNavigationBar
+import ziqi.project.pursuingperfection.common.TopAppSearchBar
 import ziqi.project.pursuingperfection.data.Destination
 import ziqi.project.pursuingperfection.data.Destinations
 import ziqi.project.pursuingperfection.data.Done
@@ -76,8 +87,9 @@ fun MainScreen(modifier: Modifier = Modifier) {
     Scaffold(
         modifier = modifier,
         topBar = {
-            if (currentNavDestination?.route in listOf(Home.route, Done.route))
-                TopAppSearchBar()
+            if (currentNavDestination?.route in listOf(Home.route, Done.route)){
+                TopAppSearchBar(currentNavDestination?.route!!)
+            }
         },
         bottomBar = {
             BottomNavigationBar(
@@ -113,85 +125,6 @@ fun MainScreen(modifier: Modifier = Modifier) {
 
         }
 
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun TopAppSearchBar(modifier: Modifier = Modifier) {
-    var query by remember {
-        mutableStateOf("")
-    }
-    val active = query.isNotEmpty()
-
-    Row(
-        modifier = modifier
-            .padding(horizontal = 16.dp)
-            .fillMaxWidth(),
-        //verticalAlignment = Alignment.CenterVertically
-    ) {
-        SearchBar(
-            modifier = Modifier
-                .weight(1f)
-                .padding(bottom = 8.dp),
-            active = active,
-            onActiveChange = {},
-            query = query,
-            onQueryChange = { query = it },
-            onSearch = { query = "" },
-            leadingIcon = {
-                if (active) IconButton(onClick = { query = "" }) {
-                    Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)
-                }
-                else Icon(imageVector = Icons.Default.Search, contentDescription = null)
-            },
-            placeholder = {
-                Text(text = "Search")
-            }
-        ) {
-        }
-        if (active) {
-            IconButton(modifier = Modifier.offset(y = 12.dp), onClick = { query = "" }) {
-                Icon(imageVector = Icons.Default.Search, contentDescription = "Search")
-            }
-        } else {
-            IconButton(modifier = Modifier.offset(y = 12.dp), onClick = { /*TODO*/ }) {
-                Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit")
-            }
-        }
-
-    }
-
-}
-
-@Composable
-fun BottomNavigationBar(
-    navigateTo: (String) -> Unit,
-    currentDestination: Destination,
-    modifier: Modifier = Modifier,
-    destinations: List<Destination> = Destinations,
-) {
-    NavigationBar(modifier = modifier) {
-        destinations.forEach { destination ->
-            NavigationBarItem(
-                selected = currentDestination.route == destination.route,
-                onClick = {
-                    navigateTo(destination.route)
-                },
-                icon = {
-                    Icon(
-                        imageVector = destination.icon,
-                        contentDescription = destination.route
-                    )
-                },
-                label = {
-                    Text(
-                        text = destination.route,
-                        style = MaterialTheme.typography.labelMedium
-                    )
-                }
-            )
-        }
     }
 }
 
