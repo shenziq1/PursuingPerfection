@@ -4,9 +4,9 @@ import ziqi.project.pursuingperfection.uiState.TaskUiState
 
 object LocalTaskDataProvider {
     val allTasks = listOf(
-        TaskUiState(),
-        TaskUiState(category = "Nono"),
-        TaskUiState(category = "Nono", checked = true),
-        TaskUiState(category = "blablabla")
+        TaskUiState(checked = true),
+        TaskUiState(category = "Nono", title = "Abc"),
+        TaskUiState(category = "Nono", title = "CBa",checked = true),
+        TaskUiState(category = "blablabla", title = "Math")
     )
 }

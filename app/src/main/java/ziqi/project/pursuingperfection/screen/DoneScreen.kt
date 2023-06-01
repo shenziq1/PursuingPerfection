@@ -52,7 +52,6 @@ fun DoneScreen(
     }
     val taskOverViewListState = rememberLazyListState()
     val tasks = viewModel.checkedTasks.collectAsStateWithLifecycle()
-
     val coroutineScope = rememberCoroutineScope()
 
 

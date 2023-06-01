@@ -1,5 +1,6 @@
 package ziqi.project.pursuingperfection.viewModel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -33,7 +34,9 @@ class HomeListViewModel @Inject constructor(private val taskRepository: TaskRepo
             taskRepository.getPlannedTasks(category).collect { taskEntities ->
                 _plannedTasks.value = taskEntities.map { it.toTaskUiState() }
             }
+
         }
+        Log.d("searchResultTest", plannedTasks.value.toString())
     }
 
     //

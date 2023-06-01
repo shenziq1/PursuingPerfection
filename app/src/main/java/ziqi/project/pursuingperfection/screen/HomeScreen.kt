@@ -82,11 +82,11 @@ fun HomeScreen(
                 transitionSpec = {
                     slideIntoContainer(
                         animationSpec = tween(300, easing = EaseIn),
-                        towards = AnimatedContentScope.SlideDirection.Down
+                        towards = AnimatedContentScope.SlideDirection.Left
                     ).with(
                         slideOutOfContainer(
                             animationSpec = tween(300, easing = EaseOut),
-                            towards = AnimatedContentScope.SlideDirection.Up
+                            towards = AnimatedContentScope.SlideDirection.Right
                         )
                     )
                 }

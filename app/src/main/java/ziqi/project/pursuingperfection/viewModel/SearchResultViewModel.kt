@@ -1,13 +1,19 @@
 package ziqi.project.pursuingperfection.viewModel
 
-import androidx.annotation.DrawableRes
+import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import ziqi.project.pursuingperfection.data.Home
 import ziqi.project.pursuingperfection.data.TaskRepository
-import ziqi.project.pursuingperfection.uiState.Item
+import ziqi.project.pursuingperfection.database.toSearchResultUiState
+import ziqi.project.pursuingperfection.uiState.SearchResultUiState
 import javax.inject.Inject
 
+@HiltViewModel
 class SearchResultViewModel @Inject constructor(private val taskRepository: TaskRepository) :
     ViewModel() {
     private var _homeScreenSearchResult: MutableStateFlow<List<SearchResultUiState>> =
@@ -17,15 +23,25 @@ class SearchResultViewModel @Inject constructor(private val taskRepository: Task
         MutableStateFlow(emptyList())
     val donePageSearchResult = _doneScreenSearchResult.asStateFlow()
 
-    fun updateSearchResult(route: String, searchInput: String){
-
+    fun updateSearchResult(route: String, searchInput: String) {
+        viewModelScope.launch {
+            if (route == Home.route) {
+                launch {
+                    taskRepository.searchTask(searchInput, false).collect { taskEntities ->
+                        _homeScreenSearchResult.value =
+                            taskEntities.map { it.toSearchResultUiState(searchInput) }
+                    }
+                }
+            } else {
+                launch {
+                    taskRepository.searchTask(searchInput, true).collect { taskEntities ->
+                        _doneScreenSearchResult.value =
+                            taskEntities.map { it.toSearchResultUiState(searchInput) }
+                    }
+                }
+            }
+        }
+        Log.d("searchResultValue", "${_homeScreenSearchResult.value}")
     }
-
 }
 
-data class SearchResultUiState(
-    val id: Int,
-    val title: String,
-    val content: Item,
-    @DrawableRes val profilePhoto: Int,
-)

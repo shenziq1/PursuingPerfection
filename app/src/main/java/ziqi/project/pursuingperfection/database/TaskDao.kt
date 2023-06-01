@@ -28,6 +28,15 @@ interface TaskDao {
     @Query("SELECT * FROM taskEntity WHERE id = :id")
     fun getTaskById(id: Int): Flow<TaskEntity>
 
+    @Query("SELECT * FROM taskEntity WHERE title LIKE '%' || :title || '%' AND checked = :checked")
+    fun searchTaskByTitle(title: String, checked: Boolean): Flow<List<TaskEntity>>
+
+    @Query("SELECT * FROM taskEntity WHERE contents LIKE '%' || :content || '%' AND checked = :checked")
+    fun searchTaskByContent(content: String, checked: Boolean): Flow<List<TaskEntity>>
+
+    @Query("SELECT * FROM taskEntity WHERE (contents LIKE '%' || :searchInput || '%' OR title LIKE '%' || :searchInput || '%') AND checked = :checked")
+    fun searchTask(searchInput: String, checked: Boolean): Flow<List<TaskEntity>>
+
     @Insert
     suspend fun insertTask(taskEntity: TaskEntity)
 
