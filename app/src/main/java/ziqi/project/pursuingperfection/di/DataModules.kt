@@ -12,11 +12,23 @@ import dagger.hilt.components.SingletonComponent
 import ziqi.project.pursuingperfection.data.TaskRepository
 import ziqi.project.pursuingperfection.database.TaskDao
 import ziqi.project.pursuingperfection.database.TaskDatabase
+import ziqi.project.pursuingperfection.utils.Converters
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
+object DataModules {
+    @Singleton
+    @Provides
+    fun provideMoshi(): Moshi{
+        return Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
+    }
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
 object RepositoryModule{
+
     @Provides
     fun provideRepository(taskDao: TaskDao): TaskRepository{
         return TaskRepository(taskDao = taskDao)
@@ -28,10 +40,10 @@ object RepositoryModule{
     }
 
 
-
     @Singleton
     @Provides
-    fun provideDatabase(@ApplicationContext context: Context): TaskDatabase{
+    fun provideDatabase(@ApplicationContext context: Context, moshi: Moshi): TaskDatabase{
+        Converters.initialize(moshi = moshi)
         return Room.databaseBuilder(
             context,
             TaskDatabase::class.java,
@@ -40,12 +52,3 @@ object RepositoryModule{
     }
 }
 
-@Module
-@InstallIn(SingletonComponent::class)
-object DataModules {
-    @Singleton
-    @Provides
-    fun provideMoshi(): Moshi{
-        return Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
-    }
-}

@@ -1,7 +1,6 @@
 package ziqi.project.pursuingperfection.common
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -29,13 +28,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
@@ -110,7 +106,8 @@ fun TopAppSearchBar(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopAppSearchResultCard(query: String, searchResultUiState: SearchResultUiState) {
-    val matchedQuery = query.toRegex(RegexOption.IGNORE_CASE).find(searchResultUiState.content)?.value
+    val matchedTitle = query.toRegex(RegexOption.IGNORE_CASE).find(searchResultUiState.title)?.value
+    val matchedContent = query.toRegex(RegexOption.IGNORE_CASE).find(searchResultUiState.content)?.value
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -133,22 +130,36 @@ fun TopAppSearchResultCard(query: String, searchResultUiState: SearchResultUiSta
             Spacer(modifier = Modifier.width(16.dp))
             Column() {
                 Text(
-                    text = searchResultUiState.title,
-                    style = MaterialTheme.typography.labelMedium
-                )
-                Text(
-                    text = if (matchedQuery == null) AnnotatedString(searchResultUiState.content)
+                    text = if (matchedTitle == null) AnnotatedString(searchResultUiState.title)
                     else buildAnnotatedString {
-                        append(searchResultUiState.content.substringBefore(matchedQuery))
+                        append(searchResultUiState.title.substringBefore(matchedTitle))
                         withStyle(
                             style = SpanStyle(
                                 color = MaterialTheme.colorScheme.onSecondaryContainer,
                                 background = MaterialTheme.colorScheme.secondaryContainer
                             )
                         ) {
-                            append(matchedQuery)
+                            append(matchedTitle)
                         }
-                        append(searchResultUiState.content.substringAfter(matchedQuery, ""))
+                        append(searchResultUiState.title.substringAfter(matchedTitle, ""))
+                    },
+                    style = MaterialTheme.typography.labelMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = if (matchedContent == null) AnnotatedString(searchResultUiState.content)
+                    else buildAnnotatedString {
+                        append(searchResultUiState.content.substringBefore(matchedContent))
+                        withStyle(
+                            style = SpanStyle(
+                                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                background = MaterialTheme.colorScheme.secondaryContainer
+                            )
+                        ) {
+                            append(matchedContent)
+                        }
+                        append(searchResultUiState.content.substringAfter(matchedContent, ""))
                     },
                     style = MaterialTheme.typography.labelSmall,
                     maxLines = 2,
