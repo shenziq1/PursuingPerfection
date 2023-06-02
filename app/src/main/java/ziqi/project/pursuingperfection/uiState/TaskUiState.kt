@@ -20,11 +20,7 @@ data class TaskUiState(
     val priority: String = "High",
     val lifeSpan: Int = 7,
     val lifeSpent: Int = 3
-){
-    fun asString(): String{
-        return "id: $id, title: $title"
-    }
-}
+)
 
 data class Item(
     val content: String = "",

@@ -2,9 +2,7 @@ package ziqi.project.pursuingperfection.di
 
 import android.content.Context
 import androidx.room.Room
-import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
-import com.squareup.moshi.Types
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
 import dagger.Provides
@@ -14,8 +12,6 @@ import dagger.hilt.components.SingletonComponent
 import ziqi.project.pursuingperfection.data.TaskRepository
 import ziqi.project.pursuingperfection.database.TaskDao
 import ziqi.project.pursuingperfection.database.TaskDatabase
-import ziqi.project.pursuingperfection.uiState.Item
-import java.lang.reflect.ParameterizedType
 import javax.inject.Singleton
 
 @Module

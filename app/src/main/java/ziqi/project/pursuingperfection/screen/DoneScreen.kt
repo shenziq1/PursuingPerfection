@@ -1,13 +1,6 @@
 package ziqi.project.pursuingperfection.screen
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedContentScope
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.EaseIn
-import androidx.compose.animation.core.EaseOut
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.with
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,17 +12,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -38,11 +26,8 @@ import kotlinx.coroutines.launch
 import ziqi.project.pursuingperfection.common.CategoryCard
 import ziqi.project.pursuingperfection.common.TaskOverviewCard
 import ziqi.project.pursuingperfection.data.LocalCategoryDataProvider
-import ziqi.project.pursuingperfection.screen.HomeScreen
 import ziqi.project.pursuingperfection.viewModel.DoneListViewModel
-import ziqi.project.pursuingperfection.viewModel.HomeListViewModel
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun DoneScreen(
     modifier: Modifier = Modifier,
@@ -70,13 +55,13 @@ fun DoneScreen(
                             categoryName = it
                             viewModel.updateTaskList(categoryName)
                             coroutineScope.launch {
-                                taskOverViewListState.animateScrollToItem(0, 0)
+                                taskOverViewListState.scrollToItem(0, 0)
                             }
                         }
                     )
                 }
             }
-            Box(modifier = Modifier.animateContentSize()){
+            Box(modifier = Modifier.animateContentSize()) {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     state = taskOverViewListState

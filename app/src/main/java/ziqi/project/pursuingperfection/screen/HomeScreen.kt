@@ -71,7 +71,7 @@ fun HomeScreen(
                             categoryName = it
                             viewModel.updateTaskList(categoryName)
                             coroutineScope.launch {
-                                taskOverViewListState.animateScrollToItem(0, 0)
+                                taskOverViewListState.scrollToItem(0, 0)
                             }
                         }
                     )

@@ -1,10 +1,8 @@
 package ziqi.project.pursuingperfection.database
 
 import androidx.annotation.DrawableRes
-import androidx.compose.ui.text.toLowerCase
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import androidx.room.TypeConverters
 import ziqi.project.pursuingperfection.uiState.Item
 import ziqi.project.pursuingperfection.uiState.SearchResultUiState
 import ziqi.project.pursuingperfection.uiState.TaskUiState
