@@ -98,11 +98,11 @@ fun TopAppSearchBar(
                 TopAppSearchResultCard(searchResultUiState = it)
             }
         }
-        if (!active) {
-            IconButton(modifier = Modifier.offset(y = 12.dp), onClick = { }) {
-                Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit")
-            }
-        }
+//        if (!active) {
+//            IconButton(modifier = Modifier.offset(y = 12.dp), onClick = { }) {
+//                Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit")
+//            }
+//        }
     }
 }
 
@@ -121,13 +121,11 @@ fun TopAppSearchResultCard(searchResultUiState: SearchResultUiState) {
                 painter = painterResource(id = searchResultUiState.profilePhoto),
                 contentDescription = null,
                 modifier = Modifier
-                    .clip(
-                        MaterialTheme.shapes.medium
-                    )
+                    .clip(MaterialTheme.shapes.small)
                     .border(
                         1.dp,
                         MaterialTheme.colorScheme.outlineVariant,
-                        MaterialTheme.shapes.medium
+                        MaterialTheme.shapes.small
                     ),
             )
             Spacer(modifier = Modifier.width(16.dp))

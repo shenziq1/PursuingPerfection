@@ -1,12 +1,8 @@
 package ziqi.project.pursuingperfection.screen
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedContentScope
+import android.annotation.SuppressLint
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.EaseIn
-import androidx.compose.animation.core.EaseOut
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.with
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,7 +19,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.Button
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -35,14 +30,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import ziqi.project.pursuingperfection.data.LocalCategoryDataProvider
-import ziqi.project.pursuingperfection.viewModel.HomeListViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
 import ziqi.project.pursuingperfection.common.CategoryCard
 import ziqi.project.pursuingperfection.common.TaskOverviewCard
+import ziqi.project.pursuingperfection.data.LocalCategoryDataProvider
+import ziqi.project.pursuingperfection.viewModel.HomeListViewModel
 
 
+@SuppressLint("UnusedCrossfadeTargetStateParameter")
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun HomeScreen(
@@ -74,23 +70,14 @@ fun HomeScreen(
                         onClick = {
                             categoryName = it
                             viewModel.updateTaskList(categoryName)
-                        })
-                }
-            }
-            AnimatedContent(
-                targetState = categoryName,
-                transitionSpec = {
-                    slideIntoContainer(
-                        animationSpec = tween(300, easing = EaseIn),
-                        towards = AnimatedContentScope.SlideDirection.Left
-                    ).with(
-                        slideOutOfContainer(
-                            animationSpec = tween(300, easing = EaseOut),
-                            towards = AnimatedContentScope.SlideDirection.Right
-                        )
+                            coroutineScope.launch {
+                                taskOverViewListState.animateScrollToItem(0, 0)
+                            }
+                        }
                     )
                 }
-            ) {
+            }
+            Box(modifier = Modifier.animateContentSize()){
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     state = taskOverViewListState

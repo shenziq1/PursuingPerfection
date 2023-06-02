@@ -27,9 +27,11 @@ fun CategoryCard(
     modifier: Modifier = Modifier,
 ) {
     Card(
-        modifier = modifier.size(80.dp), onClick = { onClick(categoryUiState.name) },
+        modifier = modifier.size(80.dp),
+        onClick = { onClick(categoryUiState.name) },
+        shape = MaterialTheme.shapes.small,
         colors = if (selected) CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
-                else CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+        else CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
         Column(
             modifier = Modifier.fillMaxWidth(),

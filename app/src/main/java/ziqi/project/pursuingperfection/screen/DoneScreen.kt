@@ -3,6 +3,7 @@ package ziqi.project.pursuingperfection.screen
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.EaseIn
 import androidx.compose.animation.core.EaseOut
 import androidx.compose.animation.core.tween
@@ -68,23 +69,14 @@ fun DoneScreen(
                         onClick = {
                             categoryName = it
                             viewModel.updateTaskList(categoryName)
-                        })
-                }
-            }
-            AnimatedContent(
-                targetState = categoryName,
-                transitionSpec = {
-                    slideIntoContainer(
-                        animationSpec = tween(300, easing = EaseIn),
-                        towards = AnimatedContentScope.SlideDirection.Down
-                    ).with(
-                        slideOutOfContainer(
-                            animationSpec = tween(300, easing = EaseOut),
-                            towards = AnimatedContentScope.SlideDirection.Up
-                        )
+                            coroutineScope.launch {
+                                taskOverViewListState.animateScrollToItem(0, 0)
+                            }
+                        }
                     )
                 }
-            ) {
+            }
+            Box(modifier = Modifier.animateContentSize()){
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     state = taskOverViewListState
