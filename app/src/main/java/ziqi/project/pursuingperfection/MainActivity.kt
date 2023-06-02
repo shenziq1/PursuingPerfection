@@ -31,6 +31,7 @@ import ziqi.project.pursuingperfection.data.Settings
 import ziqi.project.pursuingperfection.data.navigateSingleTopTo
 import ziqi.project.pursuingperfection.screen.DoneScreen
 import ziqi.project.pursuingperfection.screen.HomeScreen
+import ziqi.project.pursuingperfection.screen.MainScreen
 import ziqi.project.pursuingperfection.screen.SettingsScreen
 import ziqi.project.pursuingperfection.ui.theme.AppTheme
 
@@ -49,56 +50,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-    }
-}
-
-@Composable
-fun MainScreen(modifier: Modifier = Modifier) {
-    val navController = rememberNavController()
-    val currentBackStack by navController.currentBackStackEntryAsState()
-    val currentNavDestination = currentBackStack?.destination
-    val currentDestination = Destinations.find { it.route == currentNavDestination?.route } ?: Home
-    Scaffold(
-        modifier = modifier,
-        topBar = {
-            if (currentNavDestination?.route in listOf(Home.route, Done.route)){
-                TopAppSearchBar(currentNavDestination?.route!!)
-            }
-        },
-        bottomBar = {
-            BottomNavigationBar(
-                navigateTo = { navController.navigateSingleTopTo(it) },
-                currentDestination = currentDestination
-            )
-        },
-        floatingActionButton = {
-            if (currentNavDestination?.route in listOf(Home.route, Done.route))
-                FloatingActionButton(
-                    modifier = Modifier,
-                    shape = MaterialTheme.shapes.medium,
-                    onClick = { /*TODO*/ }) {
-                    Icon(imageVector = Icons.Default.Add, contentDescription = "Add")
-                }
-        },
-        floatingActionButtonPosition = FabPosition.End
-    ) {
-        NavHost(
-            navController = navController,
-            startDestination = Home.route,
-            modifier = Modifier.padding(it)
-        ) {
-            composable(route = Home.route) {
-                HomeScreen()
-            }
-            composable(route = Done.route) {
-                DoneScreen()
-            }
-            composable(route = Settings.route) {
-                SettingsScreen()
-            }
-
-        }
-
     }
 }
 

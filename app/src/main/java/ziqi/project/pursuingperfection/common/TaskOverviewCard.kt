@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -39,11 +40,13 @@ import ziqi.project.pursuingperfection.R
 import ziqi.project.pursuingperfection.uiState.TaskUiState
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskOverviewCard(
     currentChecked: Boolean,
     taskUiState: TaskUiState,
     onCheck: (TaskUiState) -> Unit,
+    onClick: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val checkedIcon = Icons.Default.CheckCircle
@@ -62,7 +65,8 @@ fun TaskOverviewCard(
                     dampingRatio = Spring.DampingRatioMediumBouncy,
                     stiffness = Spring.StiffnessLow
                 )
-            )
+            ),
+        onClick = {onClick(taskUiState.id)}
     ) {
         Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)) {
             Row(modifier = Modifier, verticalAlignment = Alignment.CenterVertically) {

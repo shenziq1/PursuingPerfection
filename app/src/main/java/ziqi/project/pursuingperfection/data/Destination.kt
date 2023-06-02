@@ -7,6 +7,8 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 
 interface Destination{
     val icon: ImageVector
@@ -16,6 +18,15 @@ interface Destination{
 object Home: Destination {
     override val icon = Icons.Default.Home
     override val route = "home"
+    const val detail = "home/{id}"
+    val arguments = listOf(
+        navArgument("id"){
+            type = NavType.IntType
+        }
+    )
+    fun passId(id: Int): String{
+        return "home/$id"
+    }
 }
 
 object Done: Destination {

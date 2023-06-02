@@ -42,6 +42,7 @@ import ziqi.project.pursuingperfection.viewModel.HomeListViewModel
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun HomeScreen(
+    onClick: (Int)-> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeListViewModel = hiltViewModel(),
 ) {
@@ -77,7 +78,7 @@ fun HomeScreen(
                     )
                 }
             }
-            Box(modifier = Modifier.animateContentSize()){
+            Box(modifier = Modifier.animateContentSize()) {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     state = taskOverViewListState
@@ -86,11 +87,16 @@ fun HomeScreen(
                         items = tasks.value,
                         key = { it.id }
                     ) { taskUiState ->
-                        TaskOverviewCard(false, taskUiState, {
-                            coroutineScope.launch {
-                                viewModel.checkTask(it)
-                            }
-                        })
+                        TaskOverviewCard(
+                            currentChecked = false,
+                            taskUiState = taskUiState,
+                            onCheck = {
+                                coroutineScope.launch {
+                                    viewModel.checkTask(it)
+                                }
+                            },
+                            onClick = onClick
+                        )
                     }
                     item { Spacer(modifier = Modifier.height(8.dp)) }
                 }

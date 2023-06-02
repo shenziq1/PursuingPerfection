@@ -30,6 +30,7 @@ import ziqi.project.pursuingperfection.viewModel.DoneListViewModel
 
 @Composable
 fun DoneScreen(
+    onClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: DoneListViewModel = hiltViewModel()
 ) {
@@ -70,11 +71,16 @@ fun DoneScreen(
                         items = tasks.value,
                         key = { it.id }
                     ) { taskUiState ->
-                        TaskOverviewCard(true, taskUiState, {
-                            coroutineScope.launch {
-                                viewModel.uncheckTask(it)
-                            }
-                        })
+                        TaskOverviewCard(
+                            currentChecked = true,
+                            taskUiState = taskUiState,
+                            onCheck = {
+                                coroutineScope.launch {
+                                    viewModel.uncheckTask(it)
+                                }
+                            },
+                            onClick = onClick
+                        )
                     }
                     item { Spacer(modifier = Modifier.height(8.dp)) }
                 }
