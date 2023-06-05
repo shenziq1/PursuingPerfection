@@ -33,11 +33,14 @@ fun MainScreen(modifier: Modifier = Modifier) {
     Scaffold(
         modifier = modifier,
         topBar = {
-            if (currentNavDestination?.route in listOf(Home.route, Done.route)) {
-                TopAppSearchBar(currentNavDestination?.route!!)
+            when (currentNavDestination?.route){
+                Home.route -> TopAppSearchBar(route = currentNavDestination.route!!, onResultClick = {navController.navigateSingleTopTo(Home.passId(it))})
+                Done.route -> TopAppSearchBar(route = currentNavDestination.route!!, onResultClick = {navController.navigateSingleTopTo(Done.passId(it))})
+                else -> {}
             }
         },
         bottomBar = {
+            if (currentNavDestination?.route in listOf(Home.route, Done.route, Settings.route))
             BottomNavigationBar(
                 navigateTo = { navController.navigateSingleTopTo(it) },
                 currentDestination = currentDestination
@@ -70,10 +73,19 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 Log.d("nav", it.destination.route.toString())
                 Log.d("nav", it.arguments?.getInt("id").toString())
                 Log.d("nav", currentBackStack?.destination?.route.toString())
-                TaskScreen()
+                TaskScreen({navController.popBackStack()})
             }
             composable(route = Done.route) {
-                DoneScreen({id -> navController.navigate(Home.detail)})
+                DoneScreen({id -> navController.navigate(Done.passId(id))})
+            }
+            composable(
+                route = Done.detail,
+                arguments = Done.arguments
+            ) {
+                Log.d("nav", it.destination.route.toString())
+                Log.d("nav", it.arguments?.getInt("id").toString())
+                Log.d("nav", currentBackStack?.destination?.route.toString())
+                TaskScreen({navController.popBackStack()})
             }
             composable(route = Settings.route) {
                 SettingsScreen()

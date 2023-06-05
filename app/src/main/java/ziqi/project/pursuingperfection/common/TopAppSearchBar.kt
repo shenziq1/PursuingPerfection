@@ -45,6 +45,7 @@ import ziqi.project.pursuingperfection.viewModel.SearchResultViewModel
 @Composable
 fun TopAppSearchBar(
     route: String,
+    onResultClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SearchResultViewModel = hiltViewModel()
 ) {
@@ -92,7 +93,7 @@ fun TopAppSearchBar(
             }
         ) {
             searchResult.value.forEach {
-                TopAppSearchResultCard(query = query, searchResultUiState = it)
+                TopAppSearchResultCard(query = query, onClick = onResultClick, uiState = it)
             }
         }
 //        if (!active) {
@@ -105,19 +106,19 @@ fun TopAppSearchBar(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopAppSearchResultCard(query: String, searchResultUiState: SearchResultUiState) {
-    val matchedTitle = query.toRegex(RegexOption.IGNORE_CASE).find(searchResultUiState.title)?.value
-    val matchedContent = query.toRegex(RegexOption.IGNORE_CASE).find(searchResultUiState.content)?.value
+fun TopAppSearchResultCard(query: String, onClick: (Int) -> Unit, uiState: SearchResultUiState) {
+    val matchedTitle = query.toRegex(RegexOption.IGNORE_CASE).find(uiState.title)?.value
+    val matchedContent = query.toRegex(RegexOption.IGNORE_CASE).find(uiState.content)?.value
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .height(80.dp),
-        onClick = { /*TODO*/ },
+        onClick = { onClick(uiState.id) },
         shape = RoundedCornerShape(0.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(16.dp)) {
             Image(
-                painter = painterResource(id = searchResultUiState.profilePhoto),
+                painter = painterResource(id = uiState.profilePhoto),
                 contentDescription = null,
                 modifier = Modifier
                     .clip(MaterialTheme.shapes.small)
@@ -130,9 +131,9 @@ fun TopAppSearchResultCard(query: String, searchResultUiState: SearchResultUiSta
             Spacer(modifier = Modifier.width(16.dp))
             Column() {
                 Text(
-                    text = if (matchedTitle == null) AnnotatedString(searchResultUiState.title)
+                    text = if (matchedTitle == null) AnnotatedString(uiState.title)
                     else buildAnnotatedString {
-                        append(searchResultUiState.title.substringBefore(matchedTitle))
+                        append(uiState.title.substringBefore(matchedTitle))
                         withStyle(
                             style = SpanStyle(
                                 color = MaterialTheme.colorScheme.onSecondaryContainer,
@@ -141,16 +142,16 @@ fun TopAppSearchResultCard(query: String, searchResultUiState: SearchResultUiSta
                         ) {
                             append(matchedTitle)
                         }
-                        append(searchResultUiState.title.substringAfter(matchedTitle, ""))
+                        append(uiState.title.substringAfter(matchedTitle, ""))
                     },
                     style = MaterialTheme.typography.labelMedium,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = if (matchedContent == null) AnnotatedString(searchResultUiState.content)
+                    text = if (matchedContent == null) AnnotatedString(uiState.content)
                     else buildAnnotatedString {
-                        append(searchResultUiState.content.substringBefore(matchedContent))
+                        append(uiState.content.substringBefore(matchedContent))
                         withStyle(
                             style = SpanStyle(
                                 color = MaterialTheme.colorScheme.onSecondaryContainer,
@@ -159,7 +160,7 @@ fun TopAppSearchResultCard(query: String, searchResultUiState: SearchResultUiSta
                         ) {
                             append(matchedContent)
                         }
-                        append(searchResultUiState.content.substringAfter(matchedContent, ""))
+                        append(uiState.content.substringAfter(matchedContent, ""))
                     },
                     style = MaterialTheme.typography.labelSmall,
                     maxLines = 2,

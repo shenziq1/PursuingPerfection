@@ -74,13 +74,7 @@ fun TaskOverviewCard(
                     modifier = Modifier.weight(1f),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Image(
-                        modifier = Modifier
-                            .size(48.dp)
-                            .clip(CircleShape),
-                        painter = painterResource(id = R.drawable.ic_launcher_foreground),
-                        contentDescription = "Profile Image"
-                    )
+                    SmallAvatar()
                     Column {
                         Text(
                             modifier = Modifier,

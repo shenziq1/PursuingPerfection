@@ -32,6 +32,15 @@ object Home: Destination {
 object Done: Destination {
     override val icon = Icons.Default.Done
     override val route = "done"
+    const val detail = "done/{id}"
+    val arguments = listOf(
+        navArgument("id"){
+            type = NavType.IntType
+        }
+    )
+    fun passId(id: Int): String{
+        return "done/$id"
+    }
 }
 
 object Settings: Destination {
