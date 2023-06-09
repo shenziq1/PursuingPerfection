@@ -3,7 +3,6 @@ package ziqi.project.pursuingperfection.common
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,17 +10,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,9 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -40,7 +38,6 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import ziqi.project.pursuingperfection.R
 import ziqi.project.pursuingperfection.uiState.TaskUiState
 
 
@@ -48,7 +45,7 @@ import ziqi.project.pursuingperfection.uiState.TaskUiState
 @Composable
 fun TaskOverviewCard(
     currentChecked: Boolean,
-    taskUiState: TaskUiState,
+    uiState: TaskUiState,
     onCheck: (TaskUiState) -> Unit,
     onClick: (Int) -> Unit,
     modifier: Modifier = Modifier
@@ -59,6 +56,11 @@ fun TaskOverviewCard(
     var expanded by remember { mutableStateOf(false) }
     val constraintHeight = 100.dp
     val expandedModifier = if (expanded) Modifier else Modifier.height(constraintHeight)
+    val cardContainerColor = when (uiState.priority){
+        "High" -> MaterialTheme.colorScheme.surfaceColorAtElevation(6.dp)
+        "Medium" -> MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
+        else -> MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
+    }
 
     Card(
         modifier = modifier
@@ -70,7 +72,8 @@ fun TaskOverviewCard(
                     stiffness = Spring.StiffnessLow
                 )
             ),
-        onClick = {onClick(taskUiState.id)}
+        onClick = {onClick(uiState.id)},
+        colors = CardDefaults.cardColors(containerColor = cardContainerColor),
     ) {
         Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)) {
             Row(modifier = Modifier, verticalAlignment = Alignment.CenterVertically) {
@@ -82,12 +85,12 @@ fun TaskOverviewCard(
                     Column {
                         Text(
                             modifier = Modifier,
-                            text = taskUiState.category,
+                            text = uiState.category,
                             style = MaterialTheme.typography.labelMedium
                         )
                         Text(
                             modifier = Modifier,
-                            text = taskUiState.timeCreated.toString(),
+                            text = uiState.timeCreated.toString(),
                             style = MaterialTheme.typography.labelMedium
                         )
                     }
@@ -95,7 +98,7 @@ fun TaskOverviewCard(
 
                 IconButton(modifier = Modifier, onClick = {
                     checked = !checked
-                    onCheck(taskUiState)
+                    onCheck(uiState)
                 }) {
                     if (checked) Icon(
                         modifier = Modifier.size(32.dp),
@@ -107,12 +110,14 @@ fun TaskOverviewCard(
             }
             Text(
                 modifier = Modifier.padding(top = 4.dp, bottom = 8.dp),
-                text = taskUiState.title,
+                text = uiState.title,
                 style = MaterialTheme.typography.titleLarge
             )
 
-            Column(modifier = expandedModifier) {
-                taskUiState.contents.forEach {
+            Column(modifier = Modifier) {
+                val contents = if (expanded) uiState.contents
+                else uiState.contents.subList(0, minOf(3, uiState.contents.size))
+                contents.forEach {
                     if (it.checked) Text(
                         modifier = Modifier,
                         text = buildAnnotatedString {
@@ -154,7 +159,7 @@ fun TaskOverviewCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(modifier = Modifier.padding(top = 12.dp),
-                        text = "Priority: ${taskUiState.priority}",
+                        text = "Priority: ${uiState.priority}",
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -162,14 +167,14 @@ fun TaskOverviewCard(
                     Row(modifier = Modifier.padding(top = 12.dp),
                         verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = "•".repeat(taskUiState.lifeSpent),
+                            text = "•".repeat(uiState.lifeSpent),
                             style = MaterialTheme.typography.bodyLarge,
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 26.sp,
                             color = MaterialTheme.colorScheme.outlineVariant
                         )
                         Text(
-                            text = "•".repeat(taskUiState.lifeSpan - taskUiState.lifeSpent),
+                            text = "•".repeat(uiState.lifeSpan - uiState.lifeSpent),
                             style = MaterialTheme.typography.bodyLarge,
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 26.sp,

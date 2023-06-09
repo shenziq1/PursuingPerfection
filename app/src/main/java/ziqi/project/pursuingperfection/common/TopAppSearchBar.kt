@@ -19,7 +19,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBar
+import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -90,7 +92,8 @@ fun TopAppSearchBar(
             },
             placeholder = {
                 Text(text = "Search")
-            }
+            },
+            colors = SearchBarDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(12.dp))
         ) {
             searchResult.value.forEach {
                 TopAppSearchResultCard(query = query, onClick = onResultClick, uiState = it)

@@ -1,6 +1,7 @@
 package ziqi.project.pursuingperfection.screen
 
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -33,18 +34,24 @@ fun MainScreen(modifier: Modifier = Modifier) {
     Scaffold(
         modifier = modifier,
         topBar = {
-            when (currentNavDestination?.route){
-                Home.route -> TopAppSearchBar(route = currentNavDestination.route!!, onResultClick = {navController.navigateSingleTopTo(Home.passId(it))})
-                Done.route -> TopAppSearchBar(route = currentNavDestination.route!!, onResultClick = {navController.navigateSingleTopTo(Done.passId(it))})
+            when (currentNavDestination?.route) {
+                Home.route -> TopAppSearchBar(
+                    route = currentNavDestination.route!!,
+                    onResultClick = { navController.navigateSingleTopTo(Home.passId(it)) })
+
+                Done.route -> TopAppSearchBar(
+                    route = currentNavDestination.route!!,
+                    onResultClick = { navController.navigateSingleTopTo(Done.passId(it)) })
+
                 else -> {}
             }
         },
         bottomBar = {
             if (currentNavDestination?.route in listOf(Home.route, Done.route, Settings.route))
-            BottomNavigationBar(
-                navigateTo = { navController.navigateSingleTopTo(it) },
-                currentDestination = currentDestination
-            )
+                BottomNavigationBar(
+                    navigateTo = { navController.navigateSingleTopTo(it) },
+                    currentDestination = currentDestination
+                )
         },
         floatingActionButton = {
             if (currentNavDestination?.route in listOf(Home.route, Done.route))
@@ -60,11 +67,11 @@ fun MainScreen(modifier: Modifier = Modifier) {
         NavHost(
             navController = navController,
             startDestination = Home.route,
-            modifier = Modifier.padding(padding)
+            modifier = Modifier.padding(padding).background(MaterialTheme.colorScheme.background)
         ) {
             composable(route = Home.route) {
                 Log.d("nav", it.destination.route.toString())
-                HomeScreen({id -> navController.navigate(Home.passId(id))})
+                HomeScreen({ id -> navController.navigate(Home.passId(id)) })
             }
             composable(
                 route = Home.detail,
@@ -73,10 +80,10 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 Log.d("nav", it.destination.route.toString())
                 Log.d("nav", it.arguments?.getInt("id").toString())
                 Log.d("nav", currentBackStack?.destination?.route.toString())
-                TaskScreen({navController.popBackStack()})
+                TaskScreen({ navController.popBackStack() })
             }
             composable(route = Done.route) {
-                DoneScreen({id -> navController.navigate(Done.passId(id))})
+                DoneScreen({ id -> navController.navigate(Done.passId(id)) })
             }
             composable(
                 route = Done.detail,
@@ -85,7 +92,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 Log.d("nav", it.destination.route.toString())
                 Log.d("nav", it.arguments?.getInt("id").toString())
                 Log.d("nav", currentBackStack?.destination?.route.toString())
-                TaskScreen({navController.popBackStack()})
+                TaskScreen({ navController.popBackStack() })
             }
             composable(route = Settings.route) {
                 SettingsScreen()

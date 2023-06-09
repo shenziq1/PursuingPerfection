@@ -1,6 +1,5 @@
 package ziqi.project.pursuingperfection.screen
 
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -77,7 +76,7 @@ fun DoneScreen(
                 ) { taskUiState ->
                     TaskOverviewCard(
                         currentChecked = true,
-                        taskUiState = taskUiState,
+                        uiState = taskUiState,
                         onCheck = {
                             coroutineScope.launch {
                                 viewModel.uncheckTask(it)

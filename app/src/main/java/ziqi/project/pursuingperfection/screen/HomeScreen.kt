@@ -1,7 +1,5 @@
 package ziqi.project.pursuingperfection.screen
 
-import android.util.Log
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -90,7 +88,7 @@ fun HomeScreen(
                 ) { taskUiState ->
                     TaskOverviewCard(
                         currentChecked = false,
-                        taskUiState = taskUiState,
+                        uiState = taskUiState,
                         onCheck = {
                             coroutineScope.launch {
                                 viewModel.checkTask(it)

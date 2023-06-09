@@ -5,10 +5,17 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import ziqi.project.pursuingperfection.data.Destination
 import ziqi.project.pursuingperfection.data.Destinations
+import ziqi.project.pursuingperfection.data.Home
+import ziqi.project.pursuingperfection.ui.theme.AppTheme
+import ziqi.project.pursuingperfection.ui.theme.md_theme_light_surface
+import ziqi.project.pursuingperfection.ui.theme.md_theme_light_surfaceVariant
 
 @Composable
 fun BottomNavigationBar(
@@ -17,7 +24,11 @@ fun BottomNavigationBar(
     modifier: Modifier = Modifier,
     destinations: List<Destination> = Destinations,
 ) {
-    NavigationBar(modifier = modifier) {
+    NavigationBar(
+        modifier = modifier,
+        //contentColor = MaterialTheme.colorScheme.surfaceTint,
+        containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(12.dp)
+    ) {
         destinations.forEach { destination ->
             NavigationBarItem(
                 selected = currentDestination.route == destination.route,
@@ -38,5 +49,13 @@ fun BottomNavigationBar(
                 }
             )
         }
+    }
+}
+
+@Preview
+@Composable
+fun AppTopBarPreview() {
+    AppTheme() {
+        TopAppSearchBar(route = Home.route, onResultClick = {})
     }
 }
