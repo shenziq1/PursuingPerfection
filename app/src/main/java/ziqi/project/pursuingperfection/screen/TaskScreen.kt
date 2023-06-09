@@ -1,34 +1,70 @@
 package ziqi.project.pursuingperfection.screen
 
+import androidx.compose.foundation.border
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldColors
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.takeOrElse
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
@@ -51,21 +87,27 @@ fun TaskScreen(onBackClick: () -> Unit, viewModel: TaskDetailViewModel = hiltVie
                 category = uiState.value.category,
                 onBackClick = onBackClick
             )
-        },
-        floatingActionButton = {
-            FloatingActionButton(onClick = { /*TODO*/ }, shape = MaterialTheme.shapes.medium) {
-                Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit")
-            }
         }
     ) { padding ->
         LazyColumn(modifier = Modifier.padding(padding)) {
             item {
                 Spacer(modifier = Modifier.height(4.dp))
             }
-            items(items = uiState.value.contents) {
+            itemsIndexed(items = uiState.value.contents, key = { index, _ -> index }) { _, item ->
                 TaskCard(
-                    content = it,
-                    onCheckChange = { coroutineScope.launch { viewModel.updateCheckedStatus(it) } })
+                    content = item,
+                    onCheckChange = { coroutineScope.launch { viewModel.updateCheckedStatus(it) } }
+                )
+            }
+            item {
+                AddMoreTaskCard {
+                    coroutineScope.launch {
+                        viewModel.addTaskItem(it)
+                    }
+                }
+            }
+            item {
+                Spacer(modifier = Modifier.height(LocalConfiguration.current.screenHeightDp.dp / 5))
             }
         }
     }
@@ -83,7 +125,7 @@ fun TaskTopBar(
     LargeTopAppBar(
         title = {
             Text(
-                text = title,
+                text = "aaaaaaaaaaaaaa",
                 style = MaterialTheme.typography.headlineMedium,
                 maxLines = 2,
                 modifier = Modifier.padding(end = 16.dp)
@@ -116,8 +158,9 @@ fun TaskCard(content: Item, onCheckChange: (Item) -> Unit) {
     ) {
         when (content.checked) {
             true -> Row(
-                modifier = Modifier.heightIn(80.dp)
-                    .padding(start = 4.dp, end = 12.dp),
+                modifier = Modifier
+                    .heightIn(80.dp)
+                    .padding(start = 4.dp, top = 12.dp, bottom = 12.dp, end = 12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Checkbox(checked = true, onCheckedChange = { onCheckChange(content) })
@@ -126,8 +169,9 @@ fun TaskCard(content: Item, onCheckChange: (Item) -> Unit) {
             }
 
             false -> Row(
-                modifier = Modifier.heightIn(80.dp)
-                    .padding(start = 4.dp, end = 12.dp),
+                modifier = Modifier
+                    .heightIn(80.dp)
+                    .padding(start = 4.dp, top = 12.dp, bottom = 12.dp, end = 12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Checkbox(checked = false, onCheckedChange = { onCheckChange(content) })
@@ -136,5 +180,116 @@ fun TaskCard(content: Item, onCheckChange: (Item) -> Unit) {
             }
         }
     }
+}
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AddMoreTaskCard(onClick: (Item) -> Unit) {
+    var inEdit by remember {
+        mutableStateOf(false)
+    }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(80.dp)
+            .padding(start = 16.dp, top = 4.dp, bottom = 4.dp, end = 16.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .heightIn(80.dp)
+                .padding(start = 4.dp, top = 12.dp, bottom = 12.dp, end = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            when (inEdit) {
+                true -> {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Checkbox(checked = false, onCheckedChange = { inEdit = false })
+                        TaskTextField(
+                            onEditChange = { inEdit = false },
+                            onClick = onClick,
+                            modifier = Modifier.padding(8.dp)
+                        )
+                    }
+                }
+
+                false -> {
+                    IconButton(
+                        onClick = { inEdit = true },
+                        modifier = Modifier
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Add Task",
+                            modifier = Modifier
+                                .size(20.dp)
+                                .border(
+                                    width = 1.7.dp,
+                                    color = LocalContentColor.current,
+                                    shape = MaterialTheme.shapes.extraSmall
+                                )
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TaskTextField(
+    onEditChange: () -> Unit,
+    onClick: (Item) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var value by remember {
+        mutableStateOf(TextFieldValue())
+    }
+
+    val interactionSource = remember {
+        MutableInteractionSource()
+    }
+    BasicTextField(
+        modifier = modifier.fillMaxWidth(),
+        value = value,
+        textStyle = TextStyle(
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            fontSize = 16.sp,
+            lineHeight = 24.sp,
+            letterSpacing = 0.15.sp
+        ),
+        onValueChange = { value = it },
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+        keyboardActions = KeyboardActions(onDone = {
+            onEditChange()
+            if (value.text != "")
+                onClick(Item(content = value.text, checked = false))
+        }),
+        visualTransformation = VisualTransformation.None,
+        interactionSource = interactionSource,
+        cursorBrush = SolidColor(MaterialTheme.colorScheme.onPrimaryContainer),
+        decorationBox = @Composable { innerTextField ->
+            // places leading icon, text field with label and placeholder, trailing icon
+            TextFieldDefaults.DecorationBox(
+                value = value.text,
+                visualTransformation = VisualTransformation.None,
+                innerTextField = innerTextField,
+                placeholder = null,
+                label = null,
+                leadingIcon = null,
+                trailingIcon = null,
+                prefix = null,
+                suffix = null,
+                supportingText = null,
+                shape = MaterialTheme.shapes.medium,
+                singleLine = false,
+                enabled = true,
+                isError = false,
+                interactionSource = interactionSource,
+                colors = TextFieldDefaults.colors(),
+                contentPadding = PaddingValues(bottom = 8.dp)
+            )
+        }
+    )
 }

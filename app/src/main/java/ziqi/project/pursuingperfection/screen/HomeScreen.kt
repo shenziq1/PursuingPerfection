@@ -1,8 +1,8 @@
 package ziqi.project.pursuingperfection.screen
 
-import android.annotation.SuppressLint
-import androidx.compose.animation.ExperimentalAnimationApi
+import android.util.Log
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,9 +28,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ziqi.project.pursuingperfection.common.CategoryCard
 import ziqi.project.pursuingperfection.common.TaskOverviewCard
@@ -38,11 +40,10 @@ import ziqi.project.pursuingperfection.data.LocalCategoryDataProvider
 import ziqi.project.pursuingperfection.viewModel.HomeListViewModel
 
 
-@SuppressLint("UnusedCrossfadeTargetStateParameter")
-@OptIn(ExperimentalAnimationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreen(
-    onClick: (Int)-> Unit,
+    onClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeListViewModel = hiltViewModel(),
 ) {
@@ -72,36 +73,37 @@ fun HomeScreen(
                             categoryName = it
                             viewModel.updateTaskList(categoryName)
                             coroutineScope.launch {
-                                taskOverViewListState.scrollToItem(0, 0)
+                                delay(500)
+                                taskOverViewListState.animateScrollToItem(0)
                             }
                         }
                     )
                 }
             }
-            Box(modifier = Modifier.animateContentSize()) {
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    state = taskOverViewListState
-                ) {
-                    items(
-                        items = tasks.value,
-                        key = { it.id }
-                    ) { taskUiState ->
-                        TaskOverviewCard(
-                            currentChecked = false,
-                            taskUiState = taskUiState,
-                            onCheck = {
-                                coroutineScope.launch {
-                                    viewModel.checkTask(it)
-                                }
-                            },
-                            onClick = onClick
-                        )
-                    }
-                    item { Spacer(modifier = Modifier.height(8.dp)) }
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                state = taskOverViewListState,
+            ) {
+                items(
+                    items = tasks.value,
+                    key = { it.id }
+                ) { taskUiState ->
+                    TaskOverviewCard(
+                        currentChecked = false,
+                        taskUiState = taskUiState,
+                        onCheck = {
+                            coroutineScope.launch {
+                                viewModel.checkTask(it)
+                            }
+                        },
+                        onClick = onClick,
+                        modifier = Modifier.animateItemPlacement()
+                    )
+                }
+                item {
+                    Spacer(modifier = Modifier.height(LocalConfiguration.current.screenHeightDp.dp / 5))
                 }
             }
-
         }
         Row(
             modifier = Modifier
@@ -126,5 +128,4 @@ fun HomeScreen(
 
         }
     }
-
 }

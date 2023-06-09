@@ -48,5 +48,12 @@ class TaskDetailViewModel @Inject constructor(
         }
     }
 
+    suspend fun addTaskItem(task: Item){
+        _uiState.value = _uiState.value.copy(contents = _uiState.value.contents + task)
+        viewModelScope.launch {
+            repository.updateTask(_uiState.value.toTaskEntity())
+        }
+    }
+
 
 }

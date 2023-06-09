@@ -1,6 +1,7 @@
 package ziqi.project.pursuingperfection.screen
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,15 +20,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ziqi.project.pursuingperfection.common.CategoryCard
 import ziqi.project.pursuingperfection.common.TaskOverviewCard
 import ziqi.project.pursuingperfection.data.LocalCategoryDataProvider
 import ziqi.project.pursuingperfection.viewModel.DoneListViewModel
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DoneScreen(
     onClick: (Int) -> Unit,
@@ -56,33 +60,35 @@ fun DoneScreen(
                             categoryName = it
                             viewModel.updateTaskList(categoryName)
                             coroutineScope.launch {
-                                taskOverViewListState.scrollToItem(0, 0)
+                                delay(500)
+                                taskOverViewListState.scrollToItem(0)
                             }
                         }
                     )
                 }
             }
-            Box(modifier = Modifier.animateContentSize()) {
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    state = taskOverViewListState
-                ) {
-                    items(
-                        items = tasks.value,
-                        key = { it.id }
-                    ) { taskUiState ->
-                        TaskOverviewCard(
-                            currentChecked = true,
-                            taskUiState = taskUiState,
-                            onCheck = {
-                                coroutineScope.launch {
-                                    viewModel.uncheckTask(it)
-                                }
-                            },
-                            onClick = onClick
-                        )
-                    }
-                    item { Spacer(modifier = Modifier.height(8.dp)) }
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                state = taskOverViewListState,
+            ) {
+                items(
+                    items = tasks.value,
+                    key = { it.id }
+                ) { taskUiState ->
+                    TaskOverviewCard(
+                        currentChecked = true,
+                        taskUiState = taskUiState,
+                        onCheck = {
+                            coroutineScope.launch {
+                                viewModel.uncheckTask(it)
+                            }
+                        },
+                        onClick = onClick,
+                        modifier = Modifier.animateItemPlacement()
+                    )
+                }
+                item {
+                    Spacer(modifier = Modifier.height(LocalConfiguration.current.screenHeightDp.dp / 5))
                 }
             }
 

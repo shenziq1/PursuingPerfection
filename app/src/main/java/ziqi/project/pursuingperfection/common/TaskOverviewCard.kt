@@ -32,8 +32,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ziqi.project.pursuingperfection.R
@@ -53,7 +57,7 @@ fun TaskOverviewCard(
     val uncheckedIcon = Icons.Default.Check
     var checked by remember { mutableStateOf(currentChecked) }
     var expanded by remember { mutableStateOf(false) }
-    val constraintHeight = 64.dp
+    val constraintHeight = 100.dp
     val expandedModifier = if (expanded) Modifier else Modifier.height(constraintHeight)
 
     Card(
@@ -102,7 +106,7 @@ fun TaskOverviewCard(
                 }
             }
             Text(
-                modifier = Modifier.padding(top = 8.dp, bottom = 12.dp),
+                modifier = Modifier.padding(top = 4.dp, bottom = 8.dp),
                 text = taskUiState.title,
                 style = MaterialTheme.typography.titleLarge
             )
@@ -111,14 +115,37 @@ fun TaskOverviewCard(
                 taskUiState.contents.forEach {
                     if (it.checked) Text(
                         modifier = Modifier,
-                        text = it.content,
-                        textDecoration = TextDecoration.LineThrough,
+                        text = buildAnnotatedString {
+                            withStyle(
+                                style = SpanStyle(
+                                    baselineShift = BaselineShift(-0.1f)
+                                )
+                            ) {
+                                append(" \u2022 ")
+                            }
+                            withStyle(
+                                style = SpanStyle(
+                                    textDecoration = TextDecoration.LineThrough
+                                )
+                            ) {
+                                append(it.content)
+                            }
+                        },
                         style = MaterialTheme.typography.bodyLarge
                     )
                     else Text(
                         modifier = Modifier,
-                        text = it.content,
-                        style = MaterialTheme.typography.bodyLarge,
+                        text = buildAnnotatedString {
+                            withStyle(
+                                style = SpanStyle(
+                                    baselineShift = BaselineShift(-0.1f)
+                                )
+                            ) {
+                                append(" \u2022 ")
+                            }
+                            append(it.content)
+                        },
+                        style = MaterialTheme.typography.bodyLarge
                     )
                 }
                 Row(
