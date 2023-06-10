@@ -1,15 +1,12 @@
 package ziqi.project.pursuingperfection.screen
 
+import android.util.Log
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -17,34 +14,30 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FabPosition
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,12 +45,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
@@ -70,7 +61,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
 import ziqi.project.pursuingperfection.common.SmallAvatar
 import ziqi.project.pursuingperfection.uiState.Item
-import ziqi.project.pursuingperfection.uiState.TaskUiState
 import ziqi.project.pursuingperfection.viewModel.TaskDetailViewModel
 
 
@@ -78,6 +68,7 @@ import ziqi.project.pursuingperfection.viewModel.TaskDetailViewModel
 fun TaskScreen(onBackClick: () -> Unit, viewModel: TaskDetailViewModel = hiltViewModel()) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
+    val lazyListState = rememberLazyListState()
     Scaffold(
         topBar = {
             TaskTopBar(
@@ -89,22 +80,27 @@ fun TaskScreen(onBackClick: () -> Unit, viewModel: TaskDetailViewModel = hiltVie
             )
         }
     ) { padding ->
-        LazyColumn(modifier = Modifier.padding(padding)) {
+        LazyColumn(modifier = Modifier.padding(padding), state = lazyListState) {
             item {
                 Spacer(modifier = Modifier.height(4.dp))
             }
             itemsIndexed(items = uiState.value.contents, key = { index, _ -> index }) { _, item ->
                 TaskCard(
                     content = item,
-                    onCheckChange = { coroutineScope.launch { viewModel.updateCheckedStatus(it) } }
+                    onCheckChange = { coroutineScope.launch { viewModel.updateCheckedStatus(it) } },
+                    onEditFinish = { coroutineScope.launch { viewModel.replaceTask(item, it) } },
+                    scroll = {coroutineScope.launch{ lazyListState.scrollBy(it.toFloat()) }}
                 )
             }
             item {
-                AddMoreTaskCard {
+                AddMoreTaskCard(onEditFinish = {
                     coroutineScope.launch {
                         viewModel.addTaskItem(it)
                     }
-                }
+
+                }, scroll = {coroutineScope.launch{
+                    lazyListState.scrollBy(it.toFloat())
+                }})
             }
             item {
                 Spacer(modifier = Modifier.height(LocalConfiguration.current.screenHeightDp.dp / 5))
@@ -144,47 +140,80 @@ fun TaskTopBar(
             SmallAvatar(profilePhoto)
             Text(text = "Apr.8 - Aug.6", style = MaterialTheme.typography.labelLarge)
             Spacer(modifier = Modifier.width(16.dp))
-        }
+        },
+        colors = TopAppBarDefaults.largeTopAppBarColors(
+            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
+                12.dp
+            )
+        )
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TaskCard(content: Item, onCheckChange: (Item) -> Unit) {
+fun TaskCard(content: Item, onCheckChange: (Item) -> Unit, onEditFinish: (Item) -> Unit, scroll: (Int) -> Unit) {
+    var inEdit by remember {
+        mutableStateOf(false)
+    }
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .heightIn(80.dp)
-            .padding(start = 16.dp, top = 4.dp, bottom = 4.dp, end = 16.dp)
+            .padding(start = 16.dp, top = 4.dp, bottom = 4.dp, end = 16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
+        ),
+        onClick = { inEdit = true }
     ) {
-        when (content.checked) {
+        when (inEdit) {
+            false -> when (content.checked) {
+                true -> Row(
+                    modifier = Modifier
+                        .heightIn(80.dp)
+                        .padding(start = 4.dp, top = 12.dp, bottom = 12.dp, end = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(checked = true, onCheckedChange = { onCheckChange(content) })
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(text = content.content, textDecoration = TextDecoration.LineThrough)
+                }
+
+                false -> Row(
+                    modifier = Modifier
+                        .heightIn(80.dp)
+                        .padding(start = 4.dp, top = 12.dp, bottom = 12.dp, end = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(checked = false, onCheckedChange = { onCheckChange(content) })
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(text = content.content)
+                }
+            }
+
             true -> Row(
                 modifier = Modifier
                     .heightIn(80.dp)
                     .padding(start = 4.dp, top = 12.dp, bottom = 12.dp, end = 12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Checkbox(checked = true, onCheckedChange = { onCheckChange(content) })
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(text = content.content, textDecoration = TextDecoration.LineThrough)
-            }
-
-            false -> Row(
-                modifier = Modifier
-                    .heightIn(80.dp)
-                    .padding(start = 4.dp, top = 12.dp, bottom = 12.dp, end = 12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Checkbox(checked = false, onCheckedChange = { onCheckChange(content) })
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(text = content.content)
+                Checkbox(checked = false, onCheckedChange = {
+                    inEdit = false
+                })
+                TaskTextField(
+                    onEditChange = { inEdit = false },
+                    onEditFinish = onEditFinish,
+                    scroll = scroll,
+                    modifier = Modifier.padding(8.dp)
+                )
             }
         }
+
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddMoreTaskCard(onClick: (Item) -> Unit) {
+fun AddMoreTaskCard(onEditFinish: (Item) -> Unit, scroll: (Int) -> Unit) {
     var inEdit by remember {
         mutableStateOf(false)
     }
@@ -193,7 +222,10 @@ fun AddMoreTaskCard(onClick: (Item) -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .heightIn(80.dp)
-            .padding(start = 16.dp, top = 4.dp, bottom = 4.dp, end = 16.dp)
+            .padding(start = 16.dp, top = 4.dp, bottom = 4.dp, end = 16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
+        )
     ) {
         Row(
             modifier = Modifier
@@ -204,10 +236,13 @@ fun AddMoreTaskCard(onClick: (Item) -> Unit) {
             when (inEdit) {
                 true -> {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Checkbox(checked = false, onCheckedChange = { inEdit = false })
+                        Checkbox(checked = false, onCheckedChange = {
+                            inEdit = false
+                        })
                         TaskTextField(
                             onEditChange = { inEdit = false },
-                            onClick = onClick,
+                            onEditFinish = onEditFinish,
+                            scroll = scroll,
                             modifier = Modifier.padding(8.dp)
                         )
                     }
@@ -240,7 +275,8 @@ fun AddMoreTaskCard(onClick: (Item) -> Unit) {
 @Composable
 fun TaskTextField(
     onEditChange: () -> Unit,
-    onClick: (Item) -> Unit,
+    onEditFinish: (Item) -> Unit,
+    scroll: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var value by remember {
@@ -250,11 +286,14 @@ fun TaskTextField(
     val interactionSource = remember {
         MutableInteractionSource()
     }
+    val focusRequester = remember { FocusRequester() }
     BasicTextField(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .focusRequester(focusRequester),
         value = value,
         textStyle = TextStyle(
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = MaterialTheme.colorScheme.onSurface,
             fontSize = 16.sp,
             lineHeight = 24.sp,
             letterSpacing = 0.15.sp
@@ -264,7 +303,7 @@ fun TaskTextField(
         keyboardActions = KeyboardActions(onDone = {
             onEditChange()
             if (value.text != "")
-                onClick(Item(content = value.text, checked = false))
+                onEditFinish(Item(content = value.text, checked = false))
         }),
         visualTransformation = VisualTransformation.None,
         interactionSource = interactionSource,
@@ -282,14 +321,24 @@ fun TaskTextField(
                 prefix = null,
                 suffix = null,
                 supportingText = null,
-                shape = MaterialTheme.shapes.medium,
+                shape = MaterialTheme.shapes.extraSmall,
                 singleLine = false,
                 enabled = true,
                 isError = false,
                 interactionSource = interactionSource,
-                colors = TextFieldDefaults.colors(),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
+                ),
                 contentPadding = PaddingValues(bottom = 8.dp)
             )
         }
     )
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+//    LaunchedEffect(value.text){
+//        scroll(24)
+//        Log.d("TextSize", "${value.text.lines().size}")
+//    }
 }

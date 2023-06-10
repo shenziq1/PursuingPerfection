@@ -1,5 +1,6 @@
 package ziqi.project.pursuingperfection.screen
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -48,6 +49,9 @@ fun HomeScreen(
     var categoryName by remember {
         mutableStateOf("All")
     }
+    var visible by remember {
+        mutableStateOf(true)
+    }
     val taskOverViewListState = rememberLazyListState()
     val tasks = viewModel.plannedTasks.collectAsStateWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
@@ -71,35 +75,40 @@ fun HomeScreen(
                             categoryName = it
                             viewModel.updateTaskList(categoryName)
                             coroutineScope.launch {
-                                delay(500)
-                                taskOverViewListState.animateScrollToItem(0)
+                                visible = false
+                                delay(300)
+                                taskOverViewListState.scrollToItem(0)
+                                //taskOverViewListState.animateScrollToItem(0)
+                                visible = true
                             }
                         }
                     )
                 }
             }
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                state = taskOverViewListState,
-            ) {
-                items(
-                    items = tasks.value,
-                    key = { it.id }
-                ) { taskUiState ->
-                    TaskOverviewCard(
-                        currentChecked = false,
-                        uiState = taskUiState,
-                        onCheck = {
-                            coroutineScope.launch {
-                                viewModel.checkTask(it)
-                            }
-                        },
-                        onClick = onClick,
-                        modifier = Modifier.animateItemPlacement()
-                    )
-                }
-                item {
-                    Spacer(modifier = Modifier.height(LocalConfiguration.current.screenHeightDp.dp / 5))
+            AnimatedVisibility(visible = visible) {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    state = taskOverViewListState,
+                ) {
+                    items(
+                        items = tasks.value,
+                        key = { it.id }
+                    ) { taskUiState ->
+                        TaskOverviewCard(
+                            currentChecked = false,
+                            uiState = taskUiState,
+                            onCheck = {
+                                coroutineScope.launch {
+                                    viewModel.checkTask(it)
+                                }
+                            },
+                            onClick = onClick,
+                            modifier = Modifier.animateItemPlacement()
+                        )
+                    }
+                    item {
+                        Spacer(modifier = Modifier.height(LocalConfiguration.current.screenHeightDp.dp / 5))
+                    }
                 }
             }
         }

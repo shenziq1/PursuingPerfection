@@ -48,6 +48,16 @@ class TaskDetailViewModel @Inject constructor(
         }
     }
 
+    suspend fun replaceTask(old: Item, new: Item){
+        _uiState.value =
+            _uiState.value.copy(contents = _uiState.value.contents.map {
+                if (old == it) new else it
+            })
+        viewModelScope.launch {
+            repository.updateTask(_uiState.value.toTaskEntity())
+        }
+    }
+
     suspend fun addTaskItem(task: Item){
         _uiState.value = _uiState.value.copy(contents = _uiState.value.contents + task)
         viewModelScope.launch {
