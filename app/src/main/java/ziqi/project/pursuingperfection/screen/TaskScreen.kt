@@ -110,17 +110,14 @@ fun TaskScreen(onBackClick: () -> Unit, viewModel: TaskDetailViewModel = hiltVie
             }
             item {
                 AddMoreTaskCard(
+                    inEdit = inEditContent == "THIS_IS_RESERVED_FOR_NEW_ITEM",
+                    onCardClick = {inEditContent = "THIS_IS_RESERVED_FOR_NEW_ITEM"},
                     onEditFinish = {
-                        coroutineScope.launch {
-                            viewModel.addTaskItem(it)
-                        }
+                        coroutineScope.launch { viewModel.addTaskItem(it) }
+                        inEditContent = ""
 
                     },
-                    onCardRemove = {
-                        coroutineScope.launch {
-                            viewModel.removeTaskItem(it)
-                        }
-                    },
+                    onCardRemove = {inEditContent = ""},
                     scroll = {
                         coroutineScope.launch {
                             lazyListState.animateScrollBy(it)
@@ -242,14 +239,12 @@ fun TaskCard(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddMoreTaskCard(
-    onEditFinish: (Item) -> Unit,
+    inEdit: Boolean,
+    onCardClick: () -> Unit,
     onCardRemove: (Item) -> Unit,
+    onEditFinish: (Item) -> Unit,
     scroll: (Float) -> Unit,
 ) {
-    var inEdit by remember {
-        mutableStateOf(false)
-    }
-
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -258,7 +253,7 @@ fun AddMoreTaskCard(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
         ),
-        onClick = { inEdit = true }
+        onClick = onCardClick
     ) {
         Row(
             modifier = Modifier
@@ -269,9 +264,7 @@ fun AddMoreTaskCard(
             when (inEdit) {
                 true -> {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Checkbox(checked = false, onCheckedChange = {
-                            inEdit = false
-                        })
+                        Checkbox(checked = false, onCheckedChange = {})
                         TaskTextField(
                             item = Item(),
                             onEditFinish = onEditFinish,
@@ -283,10 +276,7 @@ fun AddMoreTaskCard(
                 }
 
                 false -> {
-                    IconButton(
-                        onClick = { inEdit = true },
-                        modifier = Modifier
-                    ) {
+                    IconButton(onClick = onCardClick) {
                         Icon(
                             imageVector = Icons.Default.Add,
                             contentDescription = "Add Task",
@@ -322,7 +312,6 @@ fun TaskTextField(
             )
         )
     }
-    val oldValue = item.content
 
     val interactionSource = remember {
         MutableInteractionSource()
@@ -352,14 +341,9 @@ fun TaskTextField(
         keyboardActions = KeyboardActions(onDone = {
             if (value.text != "") {
                 onEditFinish(Item(content = value.text, checked = false))
-                //keyboardController?.hide()
-                //focusManager.clearFocus()
-            } else {
-                if (oldValue != "") onCardRemove(item)
-                else
-                    keyboardController?.hide()
-                    focusManager.clearFocus()
-            }
+//                keyboardController?.hide()
+//                focusManager.clearFocus()
+            } else { onCardRemove(item) }
         }),
         visualTransformation = VisualTransformation.None,
         interactionSource = interactionSource,
