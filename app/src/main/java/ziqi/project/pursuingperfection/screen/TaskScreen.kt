@@ -1,5 +1,6 @@
 package ziqi.project.pursuingperfection.screen
 
+import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -48,6 +50,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
@@ -73,7 +76,7 @@ fun TaskScreen(onBackClick: () -> Unit, viewModel: TaskDetailViewModel = hiltVie
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
     val lazyListState = rememberLazyListState()
-    var inEditContent by remember { mutableStateOf("") }
+    var inEditId by remember { mutableStateOf(-1) }
     Scaffold(
         topBar = {
             TaskTopBar(
@@ -82,7 +85,7 @@ fun TaskScreen(onBackClick: () -> Unit, viewModel: TaskDetailViewModel = hiltVie
                 profilePhoto = uiState.value.profilePhoto,
                 category = uiState.value.category,
                 onBackClick = onBackClick,
-                onContentClick = { inEditContent = it }
+                onContentClick = { inEditId = it }
             )
         }
     ) { padding ->
@@ -91,10 +94,10 @@ fun TaskScreen(onBackClick: () -> Unit, viewModel: TaskDetailViewModel = hiltVie
                 Spacer(modifier = Modifier.height(4.dp))
             }
             itemsIndexed(items = uiState.value.contents, key = { index, _ -> index }) { _, item ->
-                TaskCard(
+                ItemCard(
                     item = item,
-                    inEdit = item.content == inEditContent,
-                    onCardClick = { inEditContent = it },
+                    inEdit = item.id == inEditId,
+                    onCardClick = { inEditId = it },
                     onCardRemove = {
                         coroutineScope.launch {
                             viewModel.removeTaskItem(it)
@@ -103,21 +106,22 @@ fun TaskScreen(onBackClick: () -> Unit, viewModel: TaskDetailViewModel = hiltVie
                     onCheckChange = { coroutineScope.launch { viewModel.updateCheckedStatus(it) } },
                     onEditFinish = {
                         coroutineScope.launch { viewModel.replaceTask(item, it) }
-                        inEditContent = ""
+                        inEditId = -1
                     },
                     scroll = { coroutineScope.launch { lazyListState.animateScrollBy(it) } }
                 )
             }
             item {
-                AddMoreTaskCard(
-                    inEdit = inEditContent == "THIS_IS_RESERVED_FOR_NEW_ITEM",
-                    onCardClick = {inEditContent = "THIS_IS_RESERVED_FOR_NEW_ITEM"},
+                val newItemId = uiState.value.contents.last().id + 1
+                AddMoreItemCard(
+                    inEdit = inEditId == newItemId,
+                    newItemId = newItemId,
+                    onCardClick = { inEditId = newItemId },
                     onEditFinish = {
                         coroutineScope.launch { viewModel.addTaskItem(it) }
-                        inEditContent = ""
-
+                        inEditId = -1
                     },
-                    onCardRemove = {inEditContent = ""},
+                    onCardRemove = { inEditId = -1 },
                     scroll = {
                         coroutineScope.launch {
                             lazyListState.animateScrollBy(it)
@@ -139,7 +143,7 @@ fun TaskTopBar(
     profilePhoto: Int,
     category: String,
     onBackClick: () -> Unit,
-    onContentClick: (String) -> Unit
+    onContentClick: (Int) -> Unit
 ) {
     LargeTopAppBar(
         title = {
@@ -172,10 +176,10 @@ fun TaskTopBar(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TaskCard(
+fun ItemCard(
     item: Item,
     inEdit: Boolean,
-    onCardClick: (String) -> Unit,
+    onCardClick: (Int) -> Unit,
     onCardRemove: (Item) -> Unit,
     onCheckChange: (Item) -> Unit,
     onEditFinish: (Item) -> Unit,
@@ -189,7 +193,7 @@ fun TaskCard(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
         ),
-        onClick = { onCardClick(item.content) }
+        onClick = { onCardClick(item.id) }
     ) {
         when (inEdit) {
             false -> when (item.checked) {
@@ -210,7 +214,10 @@ fun TaskCard(
                         .padding(start = 4.dp, top = 12.dp, bottom = 12.dp, end = 12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Checkbox(checked = false, onCheckedChange = { onCheckChange(item) })
+                    Checkbox(checked = false, onCheckedChange = {
+                        onCheckChange(item)
+                        Log.d("testTaskId", item.id.toString())
+                    })
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(text = item.content)
                 }
@@ -238,8 +245,9 @@ fun TaskCard(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddMoreTaskCard(
+fun AddMoreItemCard(
     inEdit: Boolean,
+    newItemId: Int,
     onCardClick: () -> Unit,
     onCardRemove: (Item) -> Unit,
     onEditFinish: (Item) -> Unit,
@@ -266,7 +274,7 @@ fun AddMoreTaskCard(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Checkbox(checked = false, onCheckedChange = {})
                         TaskTextField(
-                            item = Item(),
+                            item = Item(id = newItemId),
                             onEditFinish = onEditFinish,
                             onCardRemove = onCardRemove,
                             scroll = scroll,
@@ -317,15 +325,28 @@ fun TaskTextField(
         MutableInteractionSource()
     }
 
-    var lineCount by remember { mutableStateOf(0) }
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
+    val lineHeightPx = with(LocalDensity.current) {
+        24.sp.toPx()
+    }
+    var currentHeight by remember {
+        mutableStateOf(0)
+    }
 
     BasicTextField(
         modifier = modifier
             .fillMaxWidth()
-            .focusRequester(focusRequester),
+            .focusRequester(focusRequester)
+            .onSizeChanged {
+                if (it.height > currentHeight) {
+                    scroll(lineHeightPx)
+                } else {
+                    scroll(-lineHeightPx)
+                }
+                currentHeight = it.height
+            },
         value = value,
         textStyle = TextStyle(
             color = MaterialTheme.colorScheme.onSurface,
@@ -336,14 +357,15 @@ fun TaskTextField(
         onValueChange = {
             value = it
         },
-        onTextLayout = { lineCount = it.lineCount },
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
         keyboardActions = KeyboardActions(onDone = {
             if (value.text != "") {
-                onEditFinish(Item(content = value.text, checked = false))
+                onEditFinish(item.copy(content = value.text))
 //                keyboardController?.hide()
 //                focusManager.clearFocus()
-            } else { onCardRemove(item) }
+            } else {
+                onCardRemove(item)
+            }
         }),
         visualTransformation = VisualTransformation.None,
         interactionSource = interactionSource,
@@ -373,13 +395,8 @@ fun TaskTextField(
             )
         }
     )
-    val lineHeightDp = with(LocalDensity.current) {
-        24.sp.toPx()
-    }
+
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
-    }
-    LaunchedEffect(lineCount) {
-        scroll(lineHeightDp)
     }
 }

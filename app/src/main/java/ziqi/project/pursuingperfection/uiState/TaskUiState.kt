@@ -9,9 +9,9 @@ data class TaskUiState(
     val id: Int = 0,
     val title: String = "Package Shipped",
     val contents: List<Item> = listOf(
-        Item("Your Call of Duty disk has shipped, prepare to pick up.", true),
-        Item("Estimated arrival time: 12:00 EST.", true),
-        Item("While you may not at home, please let someone open the door.", false)
+        Item(0,"Your Call of Duty disk has shipped, prepare to pick up.", true),
+        Item(1, "Estimated arrival time: 12:00 EST.", true),
+        Item(2,"While you may not at home, please let someone open the door.", false)
     ),
     @DrawableRes val profilePhoto: Int = R.drawable.ic_launcher_foreground,
     val category: String = "Google",
@@ -23,6 +23,7 @@ data class TaskUiState(
 )
 
 data class Item(
+    val id: Int = 0,
     val content: String = "",
     val checked: Boolean = false
 )

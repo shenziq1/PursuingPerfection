@@ -39,6 +39,7 @@ class TaskDetailViewModel @Inject constructor(
         _uiState.value =
             _uiState.value.copy(contents = _uiState.value.contents.map {
                 if (task == it) Item(
+                    it.id,
                     it.content,
                     !it.checked
                 ) else it
