@@ -24,7 +24,7 @@ data class TaskUiState(
 
 data class Item(
     val content: String = "",
-    val checked: Boolean = true
+    val checked: Boolean = false
 )
 
 fun TaskUiState.toTaskEntity(): TaskEntity{

@@ -43,12 +43,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
@@ -89,25 +93,39 @@ fun TaskScreen(onBackClick: () -> Unit, viewModel: TaskDetailViewModel = hiltVie
             itemsIndexed(items = uiState.value.contents, key = { index, _ -> index }) { _, item ->
                 TaskCard(
                     item = item,
+                    inEdit = item.content == inEditContent,
+                    onCardClick = { inEditContent = it },
+                    onCardRemove = {
+                        coroutineScope.launch {
+                            viewModel.removeTaskItem(it)
+                        }
+                    },
                     onCheckChange = { coroutineScope.launch { viewModel.updateCheckedStatus(it) } },
                     onEditFinish = {
                         coroutineScope.launch { viewModel.replaceTask(item, it) }
-                        inEditContent = it.content
+                        inEditContent = ""
                     },
                     scroll = { coroutineScope.launch { lazyListState.animateScrollBy(it) } }
                 )
             }
             item {
-                AddMoreTaskCard(onEditFinish = {
-                    coroutineScope.launch {
-                        viewModel.addTaskItem(it)
-                    }
+                AddMoreTaskCard(
+                    onEditFinish = {
+                        coroutineScope.launch {
+                            viewModel.addTaskItem(it)
+                        }
 
-                }, scroll = {
-                    coroutineScope.launch {
-                        lazyListState.animateScrollBy(it)
-                    }
-                })
+                    },
+                    onCardRemove = {
+                        coroutineScope.launch {
+                            viewModel.removeTaskItem(it)
+                        }
+                    },
+                    scroll = {
+                        coroutineScope.launch {
+                            lazyListState.animateScrollBy(it)
+                        }
+                    })
             }
             item {
                 Spacer(modifier = Modifier.height(LocalConfiguration.current.screenHeightDp.dp / 5))
@@ -159,13 +177,13 @@ fun TaskTopBar(
 @Composable
 fun TaskCard(
     item: Item,
+    inEdit: Boolean,
+    onCardClick: (String) -> Unit,
+    onCardRemove: (Item) -> Unit,
     onCheckChange: (Item) -> Unit,
     onEditFinish: (Item) -> Unit,
     scroll: (Float) -> Unit
 ) {
-    var inEdit by remember {
-        mutableStateOf(false)
-    }
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -174,7 +192,7 @@ fun TaskCard(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
         ),
-        onClick = { inEdit = true }
+        onClick = { onCardClick(item.content) }
     ) {
         when (inEdit) {
             false -> when (item.checked) {
@@ -207,13 +225,11 @@ fun TaskCard(
                     .padding(start = 4.dp, top = 12.dp, bottom = 12.dp, end = 12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Checkbox(checked = false, onCheckedChange = {
-                    inEdit = false
-                })
+                Checkbox(checked = false, onCheckedChange = {})
                 TaskTextField(
-                    textFieldValue = TextFieldValue(item.content),
-                    onEditChange = { inEdit = false },
+                    item = item,
                     onEditFinish = onEditFinish,
+                    onCardRemove = onCardRemove,
                     scroll = scroll,
                     modifier = Modifier.padding(8.dp)
                 )
@@ -225,7 +241,11 @@ fun TaskCard(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddMoreTaskCard(onEditFinish: (Item) -> Unit, scroll: (Float) -> Unit) {
+fun AddMoreTaskCard(
+    onEditFinish: (Item) -> Unit,
+    onCardRemove: (Item) -> Unit,
+    scroll: (Float) -> Unit,
+) {
     var inEdit by remember {
         mutableStateOf(false)
     }
@@ -253,9 +273,9 @@ fun AddMoreTaskCard(onEditFinish: (Item) -> Unit, scroll: (Float) -> Unit) {
                             inEdit = false
                         })
                         TaskTextField(
-                            textFieldValue = TextFieldValue(),
-                            onEditChange = { inEdit = false },
+                            item = Item(),
                             onEditFinish = onEditFinish,
+                            onCardRemove = onCardRemove,
                             scroll = scroll,
                             modifier = Modifier.padding(8.dp)
                         )
@@ -285,18 +305,24 @@ fun AddMoreTaskCard(onEditFinish: (Item) -> Unit, scroll: (Float) -> Unit) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun TaskTextField(
-    textFieldValue: TextFieldValue,
-    onEditChange: () -> Unit,
+    item: Item,
     onEditFinish: (Item) -> Unit,
+    onCardRemove: (Item) -> Unit,
     scroll: (Float) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var value by remember {
-        mutableStateOf(textFieldValue)
+        mutableStateOf(
+            TextFieldValue(
+                text = item.content,
+                selection = TextRange(item.content.length)
+            )
+        )
     }
+    val oldValue = item.content
 
     val interactionSource = remember {
         MutableInteractionSource()
@@ -304,6 +330,9 @@ fun TaskTextField(
 
     var lineCount by remember { mutableStateOf(0) }
     val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     BasicTextField(
         modifier = modifier
             .fillMaxWidth()
@@ -321,15 +350,21 @@ fun TaskTextField(
         onTextLayout = { lineCount = it.lineCount },
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
         keyboardActions = KeyboardActions(onDone = {
-            onEditChange()
-            if (value.text != "")
+            if (value.text != "") {
                 onEditFinish(Item(content = value.text, checked = false))
+                //keyboardController?.hide()
+                //focusManager.clearFocus()
+            } else {
+                if (oldValue != "") onCardRemove(item)
+                else
+                    keyboardController?.hide()
+                    focusManager.clearFocus()
+            }
         }),
         visualTransformation = VisualTransformation.None,
         interactionSource = interactionSource,
         cursorBrush = SolidColor(MaterialTheme.colorScheme.onPrimaryContainer),
         decorationBox = @Composable { innerTextField ->
-            // places leading icon, text field with label and placeholder, trailing icon
             TextFieldDefaults.DecorationBox(
                 value = value.text,
                 visualTransformation = VisualTransformation.None,
