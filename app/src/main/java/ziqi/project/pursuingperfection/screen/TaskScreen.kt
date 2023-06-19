@@ -1,8 +1,7 @@
 package ziqi.project.pursuingperfection.screen
 
-import android.util.Log
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.scrollBy
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -49,6 +48,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
@@ -69,6 +69,7 @@ fun TaskScreen(onBackClick: () -> Unit, viewModel: TaskDetailViewModel = hiltVie
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
     val lazyListState = rememberLazyListState()
+    var inEditContent by remember { mutableStateOf("") }
     Scaffold(
         topBar = {
             TaskTopBar(
@@ -76,7 +77,8 @@ fun TaskScreen(onBackClick: () -> Unit, viewModel: TaskDetailViewModel = hiltVie
                 timeCreated = uiState.value.timeCreated.toString(),
                 profilePhoto = uiState.value.profilePhoto,
                 category = uiState.value.category,
-                onBackClick = onBackClick
+                onBackClick = onBackClick,
+                onContentClick = { inEditContent = it }
             )
         }
     ) { padding ->
@@ -86,10 +88,13 @@ fun TaskScreen(onBackClick: () -> Unit, viewModel: TaskDetailViewModel = hiltVie
             }
             itemsIndexed(items = uiState.value.contents, key = { index, _ -> index }) { _, item ->
                 TaskCard(
-                    content = item,
+                    item = item,
                     onCheckChange = { coroutineScope.launch { viewModel.updateCheckedStatus(it) } },
-                    onEditFinish = { coroutineScope.launch { viewModel.replaceTask(item, it) } },
-                    scroll = {coroutineScope.launch{ lazyListState.scrollBy(it.toFloat()) }}
+                    onEditFinish = {
+                        coroutineScope.launch { viewModel.replaceTask(item, it) }
+                        inEditContent = it.content
+                    },
+                    scroll = { coroutineScope.launch { lazyListState.animateScrollBy(it) } }
                 )
             }
             item {
@@ -98,9 +103,11 @@ fun TaskScreen(onBackClick: () -> Unit, viewModel: TaskDetailViewModel = hiltVie
                         viewModel.addTaskItem(it)
                     }
 
-                }, scroll = {coroutineScope.launch{
-                    lazyListState.scrollBy(it.toFloat())
-                }})
+                }, scroll = {
+                    coroutineScope.launch {
+                        lazyListState.animateScrollBy(it)
+                    }
+                })
             }
             item {
                 Spacer(modifier = Modifier.height(LocalConfiguration.current.screenHeightDp.dp / 5))
@@ -116,7 +123,8 @@ fun TaskTopBar(
     timeCreated: String,
     profilePhoto: Int,
     category: String,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onContentClick: (String) -> Unit
 ) {
     LargeTopAppBar(
         title = {
@@ -142,16 +150,19 @@ fun TaskTopBar(
             Spacer(modifier = Modifier.width(16.dp))
         },
         colors = TopAppBarDefaults.largeTopAppBarColors(
-            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
-                12.dp
-            )
+            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(12.dp)
         )
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TaskCard(content: Item, onCheckChange: (Item) -> Unit, onEditFinish: (Item) -> Unit, scroll: (Int) -> Unit) {
+fun TaskCard(
+    item: Item,
+    onCheckChange: (Item) -> Unit,
+    onEditFinish: (Item) -> Unit,
+    scroll: (Float) -> Unit
+) {
     var inEdit by remember {
         mutableStateOf(false)
     }
@@ -166,16 +177,16 @@ fun TaskCard(content: Item, onCheckChange: (Item) -> Unit, onEditFinish: (Item) 
         onClick = { inEdit = true }
     ) {
         when (inEdit) {
-            false -> when (content.checked) {
+            false -> when (item.checked) {
                 true -> Row(
                     modifier = Modifier
                         .heightIn(80.dp)
                         .padding(start = 4.dp, top = 12.dp, bottom = 12.dp, end = 12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Checkbox(checked = true, onCheckedChange = { onCheckChange(content) })
+                    Checkbox(checked = true, onCheckedChange = { onCheckChange(item) })
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(text = content.content, textDecoration = TextDecoration.LineThrough)
+                    Text(text = item.content, textDecoration = TextDecoration.LineThrough)
                 }
 
                 false -> Row(
@@ -184,9 +195,9 @@ fun TaskCard(content: Item, onCheckChange: (Item) -> Unit, onEditFinish: (Item) 
                         .padding(start = 4.dp, top = 12.dp, bottom = 12.dp, end = 12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Checkbox(checked = false, onCheckedChange = { onCheckChange(content) })
+                    Checkbox(checked = false, onCheckedChange = { onCheckChange(item) })
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(text = content.content)
+                    Text(text = item.content)
                 }
             }
 
@@ -200,6 +211,7 @@ fun TaskCard(content: Item, onCheckChange: (Item) -> Unit, onEditFinish: (Item) 
                     inEdit = false
                 })
                 TaskTextField(
+                    textFieldValue = TextFieldValue(item.content),
                     onEditChange = { inEdit = false },
                     onEditFinish = onEditFinish,
                     scroll = scroll,
@@ -213,7 +225,7 @@ fun TaskCard(content: Item, onCheckChange: (Item) -> Unit, onEditFinish: (Item) 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddMoreTaskCard(onEditFinish: (Item) -> Unit, scroll: (Int) -> Unit) {
+fun AddMoreTaskCard(onEditFinish: (Item) -> Unit, scroll: (Float) -> Unit) {
     var inEdit by remember {
         mutableStateOf(false)
     }
@@ -225,7 +237,8 @@ fun AddMoreTaskCard(onEditFinish: (Item) -> Unit, scroll: (Int) -> Unit) {
             .padding(start = 16.dp, top = 4.dp, bottom = 4.dp, end = 16.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
-        )
+        ),
+        onClick = { inEdit = true }
     ) {
         Row(
             modifier = Modifier
@@ -240,6 +253,7 @@ fun AddMoreTaskCard(onEditFinish: (Item) -> Unit, scroll: (Int) -> Unit) {
                             inEdit = false
                         })
                         TaskTextField(
+                            textFieldValue = TextFieldValue(),
                             onEditChange = { inEdit = false },
                             onEditFinish = onEditFinish,
                             scroll = scroll,
@@ -274,18 +288,21 @@ fun AddMoreTaskCard(onEditFinish: (Item) -> Unit, scroll: (Int) -> Unit) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskTextField(
+    textFieldValue: TextFieldValue,
     onEditChange: () -> Unit,
     onEditFinish: (Item) -> Unit,
-    scroll: (Int) -> Unit,
+    scroll: (Float) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var value by remember {
-        mutableStateOf(TextFieldValue())
+        mutableStateOf(textFieldValue)
     }
 
     val interactionSource = remember {
         MutableInteractionSource()
     }
+
+    var lineCount by remember { mutableStateOf(0) }
     val focusRequester = remember { FocusRequester() }
     BasicTextField(
         modifier = modifier
@@ -298,7 +315,10 @@ fun TaskTextField(
             lineHeight = 24.sp,
             letterSpacing = 0.15.sp
         ),
-        onValueChange = { value = it },
+        onValueChange = {
+            value = it
+        },
+        onTextLayout = { lineCount = it.lineCount },
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
         keyboardActions = KeyboardActions(onDone = {
             onEditChange()
@@ -334,11 +354,13 @@ fun TaskTextField(
             )
         }
     )
+    val lineHeightDp = with(LocalDensity.current) {
+        24.sp.toPx()
+    }
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
     }
-//    LaunchedEffect(value.text){
-//        scroll(24)
-//        Log.d("TextSize", "${value.text.lines().size}")
-//    }
+    LaunchedEffect(lineCount) {
+        scroll(lineHeightDp)
+    }
 }
