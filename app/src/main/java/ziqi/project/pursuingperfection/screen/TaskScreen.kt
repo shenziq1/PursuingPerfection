@@ -3,6 +3,7 @@ package ziqi.project.pursuingperfection.screen
 import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -27,17 +28,20 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.surfaceColorAtElevation
@@ -81,11 +85,19 @@ import java.time.format.DateTimeFormatter
 
 
 @Composable
-fun TaskScreen(onBackClick: () -> Unit, viewModel: TaskDetailViewModel = hiltViewModel()) {
+fun TaskScreen(
+    onBackClick: () -> Unit,
+    onTitleClick: (Int) -> Unit,
+    onTimeClick: (Int) -> Unit,
+    onPriorityClick: (Int) -> Unit,
+    onCategoryClick: (Int) -> Unit,
+    viewModel: TaskDetailViewModel = hiltViewModel()
+) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
     val lazyListState = rememberLazyListState()
     var inEditId by remember { mutableStateOf(-1) }
+    val id = uiState.value.id
     Scaffold(
         topBar = {
             TaskTopBar(
@@ -96,7 +108,22 @@ fun TaskScreen(onBackClick: () -> Unit, viewModel: TaskDetailViewModel = hiltVie
                 category = uiState.value.category,
                 priority = uiState.value.priority,
                 onBackClick = onBackClick,
-                onContentClick = { inEditId = it }
+                onTitleClick = {
+                    onTitleClick(id)
+                    inEditId = -2
+                },
+                onTimeClick = {
+                    onTimeClick(id)
+                    inEditId = -3
+                },
+                onPriorityClick = {
+                    onPriorityClick(id)
+                    inEditId = -4
+                },
+                onCategoryClick = {
+                    onCategoryClick(id)
+                    inEditId = -5
+                }
             )
         },
         containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
@@ -161,7 +188,10 @@ fun TaskTopBar(
     category: String,
     priority: Int,
     onBackClick: () -> Unit,
-    onContentClick: (Int) -> Unit
+    onTitleClick: () -> Unit,
+    onTimeClick: () -> Unit,
+    onCategoryClick: () -> Unit,
+    onPriorityClick: () -> Unit
 ) {
     val priorityIcon = when (priority) {
         0 -> R.drawable.bolt
@@ -171,17 +201,28 @@ fun TaskTopBar(
     LargeTopAppBar(
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.headlineMedium,
-                    maxLines = 2,
-                    modifier = Modifier.fillMaxWidth(0.85f)
-                )
-                Icon(
-                    painter = painterResource(id = priorityIcon),
-                    contentDescription = null,
-                    modifier = Modifier.size(40.dp)
-                )
+                Box(modifier = Modifier.fillMaxWidth(0.85f)) {
+                    TextButton(
+                        onClick = onTitleClick,
+                        colors = ButtonDefaults.textButtonColors(
+                            contentColor = MaterialTheme.colorScheme.primary
+                        ),
+                    ) {
+                        Text(
+                            text = title,
+                            style = MaterialTheme.typography.headlineMedium,
+                            maxLines = 2
+                        )
+                    }
+                }
+                IconButton(onClick = onPriorityClick) {
+                    Icon(
+                        painter = painterResource(id = priorityIcon),
+                        contentDescription = null,
+                        modifier = Modifier.size(40.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
         },
         navigationIcon = {
@@ -193,9 +234,21 @@ fun TaskTopBar(
             }
         },
         actions = {
-            Text(text = category, style = MaterialTheme.typography.labelLarge)
-            SmallAvatar(profilePhoto)
-            Text(text = "$timeStart - $timeEnd" , style = MaterialTheme.typography.labelLarge)
+//            TextButton(
+//                onClick = { /*TODO*/ },
+//                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onSurface)
+//            ) {
+//                Text(text = category, style = MaterialTheme.typography.labelLarge)
+//            }
+            SmallAvatar(profilePhoto) {
+                onCategoryClick
+            }
+            TextButton(
+                onClick = onTimeClick,
+                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onSurface)
+            ) {
+                Text(text = "$timeStart - $timeEnd", style = MaterialTheme.typography.labelLarge)
+            }
             IconButton(onClick = { /*TODO*/ }) {
                 Icon(imageVector = Icons.Default.MoreVert, contentDescription = null)
             }
@@ -347,7 +400,11 @@ fun AddMoreItemCard(
             when (inEdit) {
                 true -> {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Checkbox(checked = false, onCheckedChange = {}, modifier = Modifier.offset(x = (-2).dp))
+                        Checkbox(
+                            checked = false,
+                            onCheckedChange = {},
+                            modifier = Modifier.offset(x = (-2).dp)
+                        )
                         TaskTextField(
                             item = Item(id = newItemId),
                             onEditFinish = onEditFinish,

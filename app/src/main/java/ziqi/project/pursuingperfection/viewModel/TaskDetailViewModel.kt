@@ -22,17 +22,26 @@ class TaskDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val repository: TaskRepository
 ) : ViewModel() {
-    private val id = savedStateHandle.get<Int>("id") ?: 0
+    val id = savedStateHandle.get<Int>("id") ?: 0
     private var _uiState = MutableStateFlow(TaskUiState())
     val uiState = _uiState.asStateFlow()
+    val type = savedStateHandle.get<String>("type") ?: "edit"
 
 
     init {
-        viewModelScope.launch {
-            repository.getTaskById(id).collect {
-                _uiState.value = it.toTaskUiState()
+        when (type){
+            "edit" -> {
+                viewModelScope.launch {
+                    repository.getTaskById(id).collect {
+                        _uiState.value = it.toTaskUiState()
+                    }
+                }
+            }
+            "new" -> {
+                _uiState.value = TaskUiState()
             }
         }
+
     }
 
     suspend fun updateCheckedStatus(task: Item){
