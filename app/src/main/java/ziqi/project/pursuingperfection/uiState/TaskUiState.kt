@@ -16,11 +16,12 @@ data class TaskUiState(
     @DrawableRes val profilePhoto: Int = R.drawable.ic_launcher_foreground,
     val category: String = "Google",
     val timeCreated: Int = 20,
-    val checked: Boolean = false,
     val priority: String = "High",
     val lifeSpan: Int = 7,
     val lifeSpent: Int = 3
-)
+){
+    val checked = contents.map { it.checked }.all { it }
+}
 
 data class Item(
     val id: Int = 0,

@@ -33,7 +33,6 @@ fun TaskEntity.toTaskUiState(): TaskUiState {
         profilePhoto = this.profilePhoto,
         category = this.category,
         timeCreated = this.timeCreated,
-        checked = this.checked,
         priority = this.priority,
         lifeSpan = this.lifeSpan,
         lifeSpent = this.lifeSpent
