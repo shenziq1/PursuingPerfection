@@ -10,9 +10,11 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -62,12 +64,13 @@ fun MainScreen(modifier: Modifier = Modifier) {
                     Icon(imageVector = Icons.Default.Add, contentDescription = "Add")
                 }
         },
-        floatingActionButtonPosition = FabPosition.End
+        floatingActionButtonPosition = FabPosition.End,
+        containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
     ) { padding ->
         NavHost(
             navController = navController,
             startDestination = Home.route,
-            modifier = Modifier.padding(padding).background(MaterialTheme.colorScheme.background)
+            modifier = Modifier.padding(padding)
         ) {
             composable(route = Home.route) {
                 Log.d("nav", it.destination.route.toString())

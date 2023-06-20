@@ -6,6 +6,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -58,16 +59,19 @@ fun TaskOverviewCard(
     var expanded by remember { mutableStateOf(false) }
     val constraintHeight = 100.dp
     val expandedModifier = if (expanded) Modifier else Modifier.height(constraintHeight)
-    val cardContainerColor = when (uiState.priority) {
-        "High" -> MaterialTheme.colorScheme.surfaceColorAtElevation(6.dp)
-        "Medium" -> MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
-        else -> MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
-    }
+//    val cardContainerColor = when (uiState.priority) {
+//        "High" -> MaterialTheme.colorScheme.surfaceColorAtElevation(6.dp)
+//        "Medium" -> MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
+//        else -> MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
+//    }
+    val cardContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(6.dp)
     val priority = when (uiState.priority) {
-        "High" -> 3
-        "Medium" -> 2
-        else -> 1
+        "High" -> R.drawable.bolt
+        "Medium" -> R.drawable.cloudy
+        else -> R.drawable.sunny
     }
+    val contents = if (expanded) uiState.contents else uiState.contents.subList(0, minOf(3, uiState.contents.size))
+    val showExpand = uiState.contents.size > 3
 
     Card(
         modifier = modifier
@@ -102,26 +106,12 @@ fun TaskOverviewCard(
                         )
                     }
                 }
-
-//                IconButton(modifier = Modifier, onClick = {
-//                    checked = !checked
-//                    onCheck(uiState)
-//                }) {
-//                    if (checked) Icon(
-//                        modifier = Modifier.size(32.dp),
-//                        imageVector = checkedIcon,
-//                        contentDescription = "Checked"
-//                    )
-//                    else Icon(imageVector = uncheckedIcon, contentDescription = "Unchecked")
-//                }
-                repeat(priority){
-                    Icon(
-                        painter = painterResource(id = R.drawable.bolt),
-                        contentDescription = null,
-                        modifier = Modifier.size(32.dp),
-                        tint = MaterialTheme.colorScheme.tertiary
-                    )
-                }
+                Icon(
+                    painter = painterResource(id = priority),
+                    contentDescription = null,
+                    modifier = Modifier.size(32.dp),
+                    //tint = MaterialTheme.colorScheme.tertiary
+                )
 
             }
             Text(
@@ -131,8 +121,6 @@ fun TaskOverviewCard(
             )
 
             Column(modifier = Modifier) {
-                val contents = if (expanded) uiState.contents
-                else uiState.contents.subList(0, minOf(3, uiState.contents.size))
                 contents.forEach {
                     if (it.checked) Text(
                         modifier = Modifier,
@@ -203,21 +191,23 @@ fun TaskOverviewCard(
 //                }
 
             }
-
-            IconButton(
-                modifier = Modifier.align(Alignment.CenterHorizontally),
-                onClick = { expanded = !expanded }) {
-                if (expanded) Icon(
-                    modifier = Modifier.rotate(180f),
-                    imageVector = Icons.Default.ArrowDropDown,
-                    contentDescription = "Expand"
-                )
-                else Icon(
-                    imageVector = Icons.Default.ArrowDropDown,
-                    contentDescription = "Undo expand"
-                )
+            if (showExpand){
+                IconButton(
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    onClick = { expanded = !expanded }) {
+                    if (expanded) Icon(
+                        modifier = Modifier.rotate(180f),
+                        imageVector = Icons.Default.ArrowDropDown,
+                        contentDescription = "Expand"
+                    )
+                    else Icon(
+                        imageVector = Icons.Default.ArrowDropDown,
+                        contentDescription = "Undo expand"
+                    )
+                }
+            } else {
+                Spacer(modifier = Modifier.height(24.dp))
             }
-
         }
     }
 }
