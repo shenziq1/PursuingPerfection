@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -144,7 +145,10 @@ fun MainScreen(modifier: Modifier = Modifier) {
             composable(route = Priority.route, arguments = Priority.arguments) {
                 val currentId = it.arguments?.getInt("id") ?: -1
                 PriorityScreen(onNextClick = {
-                    if (currentId == -1) navController.navigate(Home.route)
+                    if (currentId == -1) navController.navigate(Home.route){
+                        popUpTo(navController.graph.findStartDestination().id)
+                        launchSingleTop = true
+                    }
                     else navController.popBackStack()
                 })
             }
