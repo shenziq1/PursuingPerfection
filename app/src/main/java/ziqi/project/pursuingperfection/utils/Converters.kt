@@ -6,6 +6,8 @@ import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import ziqi.project.pursuingperfection.uiState.Item
 import java.lang.reflect.ParameterizedType
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 object Converters {
     private lateinit var moshi: Moshi
@@ -27,4 +29,8 @@ object Converters {
     fun jsonStrToListMyModel(jsonStr: String): List<Item>? {
         return jsonAdapter.fromJson(jsonStr)
     }
+}
+
+fun LocalDateTime.shortConvert(): String{
+    return this.format(DateTimeFormatter.ofPattern("MMM dd"))
 }

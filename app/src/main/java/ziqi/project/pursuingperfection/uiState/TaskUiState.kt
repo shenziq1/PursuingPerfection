@@ -4,6 +4,7 @@ import androidx.annotation.DrawableRes
 import ziqi.project.pursuingperfection.R
 import ziqi.project.pursuingperfection.database.TaskEntity
 import ziqi.project.pursuingperfection.utils.Converters
+import java.time.LocalDateTime
 
 data class TaskUiState(
     val id: Int = 0,
@@ -15,10 +16,9 @@ data class TaskUiState(
     ),
     @DrawableRes val profilePhoto: Int = R.drawable.ic_launcher_foreground,
     val category: String = "Google",
-    val timeCreated: Int = 20,
-    val priority: String = "High",
-    val lifeSpan: Int = 7,
-    val lifeSpent: Int = 3
+    val priority: Int = 0,
+    val timeStart: LocalDateTime = LocalDateTime.now(),
+    val timeEnd: LocalDateTime = LocalDateTime.now().plusHours(30)
 ){
     val checked = contents.map { it.checked }.all { it }
 }
@@ -36,10 +36,9 @@ fun TaskUiState.toTaskEntity(): TaskEntity{
         Converters.listMyModelToJsonStr(this.contents),
         this.profilePhoto,
         this.category,
-        this.timeCreated,
         this.checked,
         this.priority,
-        this.lifeSpan,
-        this.lifeSpent
+        this.timeStart.toString(),
+        this.timeEnd.toString()
     )
 }

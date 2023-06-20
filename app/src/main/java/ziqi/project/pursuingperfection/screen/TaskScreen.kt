@@ -5,14 +5,11 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -20,7 +17,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -30,16 +26,10 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -47,9 +37,7 @@ import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.surfaceColorAtElevation
@@ -86,7 +74,10 @@ import kotlinx.coroutines.launch
 import ziqi.project.pursuingperfection.R
 import ziqi.project.pursuingperfection.common.SmallAvatar
 import ziqi.project.pursuingperfection.uiState.Item
+import ziqi.project.pursuingperfection.utils.shortConvert
 import ziqi.project.pursuingperfection.viewModel.TaskDetailViewModel
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 
 @Composable
@@ -99,7 +90,8 @@ fun TaskScreen(onBackClick: () -> Unit, viewModel: TaskDetailViewModel = hiltVie
         topBar = {
             TaskTopBar(
                 title = uiState.value.title,
-                timeCreated = uiState.value.timeCreated.toString(),
+                timeStart = uiState.value.timeStart.shortConvert(),
+                timeEnd = uiState.value.timeEnd.shortConvert(),
                 profilePhoto = uiState.value.profilePhoto,
                 category = uiState.value.category,
                 priority = uiState.value.priority,
@@ -163,16 +155,17 @@ fun TaskScreen(onBackClick: () -> Unit, viewModel: TaskDetailViewModel = hiltVie
 @Composable
 fun TaskTopBar(
     title: String,
-    timeCreated: String,
+    timeStart: String,
+    timeEnd: String,
     profilePhoto: Int,
     category: String,
-    priority: String,
+    priority: Int,
     onBackClick: () -> Unit,
     onContentClick: (Int) -> Unit
 ) {
     val priorityIcon = when (priority) {
-        "High" -> R.drawable.bolt
-        "Medium" -> R.drawable.cloudy
+        0 -> R.drawable.bolt
+        1 -> R.drawable.cloudy
         else -> R.drawable.sunny
     }
     LargeTopAppBar(
@@ -202,7 +195,7 @@ fun TaskTopBar(
         actions = {
             Text(text = category, style = MaterialTheme.typography.labelLarge)
             SmallAvatar(profilePhoto)
-            Text(text = "Apr.8 - Aug.6", style = MaterialTheme.typography.labelLarge)
+            Text(text = "$timeStart - $timeEnd" , style = MaterialTheme.typography.labelLarge)
             IconButton(onClick = { /*TODO*/ }) {
                 Icon(imageVector = Icons.Default.MoreVert, contentDescription = null)
             }

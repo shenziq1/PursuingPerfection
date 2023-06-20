@@ -42,6 +42,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ziqi.project.pursuingperfection.R
 import ziqi.project.pursuingperfection.uiState.TaskUiState
+import ziqi.project.pursuingperfection.utils.shortConvert
+import java.time.format.DateTimeFormatter
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -53,8 +55,6 @@ fun TaskOverviewCard(
     onClick: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val checkedIcon = Icons.Default.CheckCircle
-    val uncheckedIcon = Icons.Default.Check
     var checked by remember { mutableStateOf(currentChecked) }
     var expanded by remember { mutableStateOf(false) }
     val constraintHeight = 100.dp
@@ -66,11 +66,14 @@ fun TaskOverviewCard(
 //    }
     val cardContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(6.dp)
     val priority = when (uiState.priority) {
-        "High" -> R.drawable.bolt
-        "Medium" -> R.drawable.cloudy
+        0 -> R.drawable.bolt
+        1 -> R.drawable.cloudy
         else -> R.drawable.sunny
     }
-    val contents = if (expanded) uiState.contents else uiState.contents.subList(0, minOf(3, uiState.contents.size))
+    val contents = if (expanded) uiState.contents else uiState.contents.subList(
+        0,
+        minOf(3, uiState.contents.size)
+    )
     val showExpand = uiState.contents.size > 3
 
     Card(
@@ -101,7 +104,7 @@ fun TaskOverviewCard(
                         )
                         Text(
                             modifier = Modifier,
-                            text = uiState.timeCreated.toString(),
+                            text = "${uiState.timeStart.shortConvert()} - ${uiState.timeEnd.shortConvert()}",
                             style = MaterialTheme.typography.labelMedium
                         )
                     }
@@ -157,41 +160,8 @@ fun TaskOverviewCard(
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }
-//                Row(
-//                    modifier = Modifier.fillMaxWidth(),
-//                    horizontalArrangement = Arrangement.SpaceBetween,
-//                    verticalAlignment = Alignment.CenterVertically
-//                ) {
-//                    Text(
-//                        modifier = Modifier.padding(top = 12.dp),
-//                        text = "Priority: ${uiState.priority}",
-//                        style = MaterialTheme.typography.bodyLarge,
-//                        fontWeight = FontWeight.SemiBold
-//                    )
-//
-//                    Row(
-//                        modifier = Modifier.padding(top = 12.dp),
-//                        verticalAlignment = Alignment.CenterVertically
-//                    ) {
-//                        Text(
-//                            text = "•".repeat(uiState.lifeSpent),
-//                            style = MaterialTheme.typography.bodyLarge,
-//                            fontWeight = FontWeight.SemiBold,
-//                            fontSize = 26.sp,
-//                            color = MaterialTheme.colorScheme.outlineVariant
-//                        )
-//                        Text(
-//                            text = "•".repeat(uiState.lifeSpan - uiState.lifeSpent),
-//                            style = MaterialTheme.typography.bodyLarge,
-//                            fontWeight = FontWeight.SemiBold,
-//                            fontSize = 26.sp,
-//                            color = MaterialTheme.colorScheme.onSurfaceVariant
-//                        )
-//                    }
-//                }
-
             }
-            if (showExpand){
+            if (showExpand) {
                 IconButton(
                     modifier = Modifier.align(Alignment.CenterHorizontally),
                     onClick = { expanded = !expanded }) {

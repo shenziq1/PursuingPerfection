@@ -7,6 +7,7 @@ import ziqi.project.pursuingperfection.uiState.Item
 import ziqi.project.pursuingperfection.uiState.SearchResultUiState
 import ziqi.project.pursuingperfection.uiState.TaskUiState
 import ziqi.project.pursuingperfection.utils.Converters
+import java.time.LocalDateTime
 
 
 @Entity(tableName = "taskEntity")
@@ -17,11 +18,10 @@ data class TaskEntity(
     val contents: String,
     @DrawableRes val profilePhoto: Int,
     val category: String,
-    val timeCreated: Int,
     val checked: Boolean,
-    val priority: String,
-    val lifeSpan: Int,
-    val lifeSpent: Int
+    val priority: Int,
+    val timeStart: String,
+    val timeEnd: String
 )
 
 
@@ -32,10 +32,9 @@ fun TaskEntity.toTaskUiState(): TaskUiState {
         contents = Converters.jsonStrToListMyModel(this.contents) ?: listOf(Item()),
         profilePhoto = this.profilePhoto,
         category = this.category,
-        timeCreated = this.timeCreated,
         priority = this.priority,
-        lifeSpan = this.lifeSpan,
-        lifeSpent = this.lifeSpent
+        timeStart = LocalDateTime.parse(timeStart),
+        timeEnd = LocalDateTime.parse(timeEnd)
     )
 }
 
