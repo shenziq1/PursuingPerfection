@@ -2,6 +2,7 @@ package ziqi.project.pursuingperfection.screen
 
 import android.util.Log
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -13,6 +14,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -22,6 +26,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import ziqi.project.pursuingperfection.common.BottomNavigationBar
 import ziqi.project.pursuingperfection.common.TopAppSearchBar
+import ziqi.project.pursuingperfection.common.TransitionScreenAppBar
 import ziqi.project.pursuingperfection.data.Destinations
 import ziqi.project.pursuingperfection.data.Done
 import ziqi.project.pursuingperfection.data.Home
@@ -31,6 +36,7 @@ import ziqi.project.pursuingperfection.data.Time
 import ziqi.project.pursuingperfection.data.Title
 import ziqi.project.pursuingperfection.data.Settings
 import ziqi.project.pursuingperfection.data.navigateSingleTopTo
+import ziqi.project.pursuingperfection.data.navigateSingleTopToWithoutState
 import ziqi.project.pursuingperfection.screen.transitionScreen.CategoryScreen
 import ziqi.project.pursuingperfection.screen.transitionScreen.PriorityScreen
 import ziqi.project.pursuingperfection.screen.transitionScreen.TimeScreen
@@ -42,17 +48,77 @@ fun MainScreen(modifier: Modifier = Modifier) {
     val currentBackStack by navController.currentBackStackEntryAsState()
     val currentNavDestination = currentBackStack?.destination
     val currentDestination = Destinations.find { it.route == currentNavDestination?.route } ?: Home
+
+    var progressValue by remember {
+        mutableStateOf(0f)
+    }
+
+    val animatedProgressValue by animateFloatAsState(
+        targetValue = progressValue
+    )
     Scaffold(
         modifier = modifier,
         topBar = {
             when (currentNavDestination?.route) {
-                Home.route -> TopAppSearchBar(
-                    route = currentNavDestination.route!!,
-                    onResultClick = { navController.navigateSingleTopTo(Home.passId(it)) })
+                Home.route -> {
+                    progressValue = 0f
+                    TopAppSearchBar(
+                        route = currentNavDestination.route!!,
+                        onResultClick = { navController.navigateSingleTopTo(Home.passId(it)) }
+                    )
+                }
 
-                Done.route -> TopAppSearchBar(
-                    route = currentNavDestination.route!!,
-                    onResultClick = { navController.navigateSingleTopTo(Done.passId(it)) })
+                Done.route -> {
+                    progressValue = 0f
+                    TopAppSearchBar(
+                        route = currentNavDestination.route!!,
+                        onResultClick = { navController.navigateSingleTopTo(Done.passId(it)) }
+                    )
+                }
+
+                Category.route -> {
+                    if (currentBackStack?.arguments?.getString("type") == "new") {
+                        progressValue = 0.25f
+                        TransitionScreenAppBar(1, animatedProgressValue,
+                            { navController.navigateSingleTopToWithoutState(Home.route) },
+                            { navController.navigateSingleTopToWithoutState(Home.route) }
+                        )
+                    }
+                }
+
+                Title.route -> {
+                    if (currentBackStack?.arguments?.getString("type") == "new") {
+                        progressValue = 0.5f
+                        TransitionScreenAppBar(2,
+                            animatedProgressValue,
+                            { navController.navigateSingleTopToWithoutState(Home.route) },
+                            { navController.navigateSingleTopToWithoutState(Home.route) }
+                        )
+                    }
+                }
+
+                Time.route -> {
+                    if (currentBackStack?.arguments?.getString("type") == "new") {
+                        progressValue = 0.75f
+                        TransitionScreenAppBar(3,
+                            animatedProgressValue,
+                            { navController.navigateSingleTopToWithoutState(Home.route) },
+                            { navController.navigateSingleTopToWithoutState(Home.route) }
+                        )
+                    }
+                }
+
+                Priority.route -> {
+                    if (currentBackStack?.arguments?.getString("type") == "new") {
+                        progressValue = 1f
+                        TransitionScreenAppBar(4,
+                            animatedProgressValue,
+                            { navController.navigateSingleTopToWithoutState(Home.route) },
+                            { navController.navigateSingleTopToWithoutState(Home.route) }
+                        )
+                    }
+                }
+
                 else -> {}
             }
         },
@@ -78,7 +144,9 @@ fun MainScreen(modifier: Modifier = Modifier) {
         NavHost(
             navController = navController,
             startDestination = Home.route,
-            modifier = Modifier.padding(padding).animateContentSize()
+            modifier = Modifier
+                .padding(padding)
+                .animateContentSize()
         ) {
             composable(route = Home.route) {
                 Log.d("nav", it.destination.route.toString())
@@ -93,10 +161,10 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 Log.d("nav", currentBackStack?.destination?.route.toString())
                 TaskScreen(
                     onBackClick = { navController.popBackStack() },
-                    onCategoryClick = { navController.navigate(Category.passId(it, "edit"))},
-                    onPriorityClick = { navController.navigate(Priority.passId(it, "edit"))},
-                    onTimeClick = { navController.navigate(Time.passId(it, "edit"))},
-                    onTitleClick = { navController.navigate(Category.passId(it, "edit"))}
+                    onCategoryClick = { navController.navigate(Category.passId(it, "edit")) },
+                    onPriorityClick = { navController.navigate(Priority.passId(it, "edit")) },
+                    onTimeClick = { navController.navigate(Time.passId(it, "edit")) },
+                    onTitleClick = { navController.navigate(Category.passId(it, "edit")) }
                 )
             }
             composable(route = Done.route) {
@@ -111,10 +179,10 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 Log.d("nav", currentBackStack?.destination?.route.toString())
                 TaskScreen(
                     onBackClick = { navController.popBackStack() },
-                    onCategoryClick = { navController.navigate(Category.passId(it, "edit"))},
-                    onPriorityClick = { navController.navigate(Priority.passId(it, "edit"))},
-                    onTimeClick = { navController.navigate(Time.passId(it, "edit"))},
-                    onTitleClick = { navController.navigate(Category.passId(it, "edit"))}
+                    onCategoryClick = { navController.navigate(Category.passId(it, "edit")) },
+                    onPriorityClick = { navController.navigate(Priority.passId(it, "edit")) },
+                    onTimeClick = { navController.navigate(Time.passId(it, "edit")) },
+                    onTitleClick = { navController.navigate(Category.passId(it, "edit")) }
                 )
             }
             composable(route = Settings.route) {
@@ -144,10 +212,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
             composable(route = Priority.route, arguments = Priority.arguments) {
                 val currentId = it.arguments?.getInt("id") ?: -1
                 PriorityScreen(onNextClick = {
-                    if (currentId == -1) navController.navigate(Home.route){
-                        popUpTo(navController.graph.findStartDestination().id)
-                        launchSingleTop = true
-                    }
+                    if (currentId == -1) navController.navigateSingleTopToWithoutState(Home.route)
                     else navController.popBackStack()
                 })
             }
