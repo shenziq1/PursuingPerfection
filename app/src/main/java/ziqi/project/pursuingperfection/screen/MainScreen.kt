@@ -190,10 +190,13 @@ fun MainScreen(modifier: Modifier = Modifier) {
             }
             composable(route = Category.route, arguments = Category.arguments) {
                 val currentId = it.arguments?.getInt("id") ?: -1
-                CategoryScreen(onNextClick = {
-                    if (currentId == -1) navController.navigate(Title.passId(currentId, "new"))
-                    else navController.popBackStack()
-                })
+                CategoryScreen(
+                    onBackClick = { navController.popBackStack() },
+                    onNextClick = {
+                        if (currentId == -1) navController.navigate(Title.passId(currentId, "new"))
+                        else navController.popBackStack()
+                    }
+                )
             }
             composable(route = Title.route, arguments = Title.arguments) {
                 val currentId = it.arguments?.getInt("id") ?: -1
