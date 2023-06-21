@@ -7,6 +7,10 @@ import javax.inject.Inject
 
 class TaskRepository @Inject constructor(private val taskDao: TaskDao) {
 
+    fun getAllCategories(): Flow<List<TaskEntity>>{
+        return taskDao.getAllCategories()
+    }
+
     fun getPlannedTasks(category: String): Flow<List<TaskEntity>> {
         return if (category == "All") taskDao.getAllPlannedTasks()
         else taskDao.getPlannedTasks(category)
@@ -48,5 +52,7 @@ class TaskRepository @Inject constructor(private val taskDao: TaskDao) {
     suspend fun updateTask(taskEntity: TaskEntity) {
         taskDao.updateTask(taskEntity)
     }
+
+
 
 }

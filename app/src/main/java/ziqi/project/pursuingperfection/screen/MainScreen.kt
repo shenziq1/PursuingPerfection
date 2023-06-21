@@ -53,7 +53,6 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 Done.route -> TopAppSearchBar(
                     route = currentNavDestination.route!!,
                     onResultClick = { navController.navigateSingleTopTo(Done.passId(it)) })
-
                 else -> {}
             }
         },

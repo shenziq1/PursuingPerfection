@@ -29,6 +29,7 @@ import kotlinx.coroutines.launch
 import ziqi.project.pursuingperfection.common.CategoryCard
 import ziqi.project.pursuingperfection.common.TaskOverviewCard
 import ziqi.project.pursuingperfection.data.LocalCategoryDataProvider
+import ziqi.project.pursuingperfection.uiState.CategoryUiState
 import ziqi.project.pursuingperfection.viewModel.DoneListViewModel
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -41,15 +42,15 @@ fun DoneScreen(
     var categoryName by remember {
         mutableStateOf("All")
     }
-    var previousCategoryName by remember {
-        mutableStateOf("All")
-    }
+
     var visible by remember {
         mutableStateOf(true)
     }
     val taskOverViewListState = rememberLazyListState()
     val tasks = viewModel.checkedTasks.collectAsStateWithLifecycle()
+    val categories = viewModel.categories.collectAsStateWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
+    val allCategory = CategoryUiState()
 
 
     Box(modifier = modifier) {
@@ -58,12 +59,28 @@ fun DoneScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 contentPadding = PaddingValues(start = 16.dp, bottom = 8.dp)
             ) {
-                items(items = LocalCategoryDataProvider.allCategories) { categoryUiState ->
+                item {
+                    CategoryCard(
+                        categoryUiState = allCategory,
+                        selected = categoryName == "All",
+                        onClick = {
+                            categoryName = it
+                            viewModel.updateTaskList(categoryName)
+                            coroutineScope.launch {
+                                visible = false
+                                delay(300)
+                                taskOverViewListState.scrollToItem(0)
+                                //taskOverViewListState.animateScrollToItem(0)
+                                visible = true
+                            }
+                        }
+                    )
+                }
+                items(items = categories.value) { categoryUiState ->
                     CategoryCard(
                         categoryUiState = categoryUiState,
                         selected = categoryUiState.name == categoryName,
                         onClick = {
-                            previousCategoryName = categoryName
                             categoryName = it
                             viewModel.updateTaskList(categoryName)
                             coroutineScope.launch {
@@ -103,8 +120,6 @@ fun DoneScreen(
                     }
                 }
             }
-
-
         }
     }
 

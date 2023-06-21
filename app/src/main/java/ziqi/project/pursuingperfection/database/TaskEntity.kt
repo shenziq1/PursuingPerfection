@@ -3,6 +3,7 @@ package ziqi.project.pursuingperfection.database
 import androidx.annotation.DrawableRes
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import ziqi.project.pursuingperfection.uiState.CategoryUiState
 import ziqi.project.pursuingperfection.uiState.Item
 import ziqi.project.pursuingperfection.uiState.SearchResultUiState
 import ziqi.project.pursuingperfection.uiState.TaskUiState
@@ -35,6 +36,14 @@ fun TaskEntity.toTaskUiState(): TaskUiState {
         priority = this.priority,
         timeStart = LocalDateTime.parse(timeStart),
         timeEnd = LocalDateTime.parse(timeEnd)
+    )
+}
+
+fun TaskEntity.toCategoryUiState(): CategoryUiState{
+    return CategoryUiState(
+        id = this.id,
+        name = this.category,
+        picture = this.profilePhoto
     )
 }
 

@@ -7,10 +7,13 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import ziqi.project.pursuingperfection.data.LocalTaskDataProvider
 import ziqi.project.pursuingperfection.data.TaskRepository
+import ziqi.project.pursuingperfection.database.toCategoryUiState
 import ziqi.project.pursuingperfection.database.toTaskUiState
+import ziqi.project.pursuingperfection.uiState.CategoryUiState
 import ziqi.project.pursuingperfection.uiState.TaskUiState
 import ziqi.project.pursuingperfection.uiState.toTaskEntity
 import javax.inject.Inject
@@ -21,10 +24,18 @@ class HomeListViewModel @Inject constructor(private val taskRepository: TaskRepo
     private var _plannedTasks: MutableStateFlow<List<TaskUiState>> = MutableStateFlow(emptyList())
     val plannedTasks: StateFlow<List<TaskUiState>> = _plannedTasks.asStateFlow()
 
+    private var _categories: MutableStateFlow<List<CategoryUiState>> = MutableStateFlow(emptyList())
+    val categories: StateFlow<List<CategoryUiState>> = _categories.asStateFlow()
+
     init {
         viewModelScope.launch {
             taskRepository.getPlannedTasks("All").collect { taskEntities ->
                 _plannedTasks.value = taskEntities.map { it.toTaskUiState() }
+            }
+        }
+        viewModelScope.launch {
+            taskRepository.getAllCategories().collect { taskEntities ->
+                _categories.value = taskEntities.map { it.toCategoryUiState() }
             }
         }
     }
@@ -48,8 +59,8 @@ class HomeListViewModel @Inject constructor(private val taskRepository: TaskRepo
         }
     }
 
-    suspend fun deleteAllTasks(){
-        viewModelScope.launch{
+    suspend fun deleteAllTasks() {
+        viewModelScope.launch {
             taskRepository.deleteAllTasks()
         }
     }

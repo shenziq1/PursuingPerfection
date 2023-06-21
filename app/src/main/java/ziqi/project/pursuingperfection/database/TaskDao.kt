@@ -3,6 +3,7 @@ package ziqi.project.pursuingperfection.database
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.MapInfo
 import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
@@ -27,6 +28,10 @@ interface TaskDao {
 
     @Query("SELECT * FROM taskEntity WHERE id = :id")
     fun getTaskById(id: Int): Flow<TaskEntity>
+
+    //@MapInfo(keyColumn = "profilePhoto")
+    @Query("SELECT * FROM taskEntity GROUP BY category")
+    fun getAllCategories(): Flow<List<TaskEntity>>
 
     @Query("SELECT * FROM taskEntity WHERE title LIKE '%' || :title || '%' AND checked = :checked")
     fun searchTaskByTitle(title: String, checked: Boolean): Flow<List<TaskEntity>>

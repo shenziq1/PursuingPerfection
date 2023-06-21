@@ -36,6 +36,7 @@ import kotlinx.coroutines.launch
 import ziqi.project.pursuingperfection.common.CategoryCard
 import ziqi.project.pursuingperfection.common.TaskOverviewCard
 import ziqi.project.pursuingperfection.data.LocalCategoryDataProvider
+import ziqi.project.pursuingperfection.uiState.CategoryUiState
 import ziqi.project.pursuingperfection.viewModel.HomeListViewModel
 
 
@@ -54,7 +55,9 @@ fun HomeScreen(
     }
     val taskOverViewListState = rememberLazyListState()
     val tasks = viewModel.plannedTasks.collectAsStateWithLifecycle()
+    val categories = viewModel.categories.collectAsStateWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
+    val allCategory = CategoryUiState()
 
 
 
@@ -64,8 +67,25 @@ fun HomeScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 contentPadding = PaddingValues(start = 16.dp, bottom = 8.dp)
             ) {
+                item {
+                    CategoryCard(
+                        categoryUiState = allCategory,
+                        selected = categoryName == "All",
+                        onClick = {
+                            categoryName = it
+                            viewModel.updateTaskList(categoryName)
+                            coroutineScope.launch {
+                                visible = false
+                                delay(300)
+                                taskOverViewListState.scrollToItem(0)
+                                //taskOverViewListState.animateScrollToItem(0)
+                                visible = true
+                            }
+                        }
+                    )
+                }
                 items(
-                    items = LocalCategoryDataProvider.allCategories,
+                    items = categories.value,
                     key = { it.id }
                 ) { categoryUiState ->
                     CategoryCard(
