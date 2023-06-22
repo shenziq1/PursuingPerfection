@@ -26,9 +26,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import ziqi.project.pursuingperfection.common.CategoryCard
-import ziqi.project.pursuingperfection.common.TaskOverviewCard
-import ziqi.project.pursuingperfection.data.LocalCategoryDataProvider
+import ziqi.project.pursuingperfection.common.card.CategoryCard
+import ziqi.project.pursuingperfection.common.card.TaskOverviewCard
 import ziqi.project.pursuingperfection.uiState.CategoryUiState
 import ziqi.project.pursuingperfection.viewModel.DoneListViewModel
 

@@ -1,4 +1,4 @@
-package ziqi.project.pursuingperfection.common
+package ziqi.project.pursuingperfection.common.topBar
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border

@@ -10,12 +10,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import ziqi.project.pursuingperfection.common.topBar.TopAppSearchBar
 import ziqi.project.pursuingperfection.data.Destination
 import ziqi.project.pursuingperfection.data.Destinations
 import ziqi.project.pursuingperfection.data.Home
 import ziqi.project.pursuingperfection.ui.theme.AppTheme
-import ziqi.project.pursuingperfection.ui.theme.md_theme_light_surface
-import ziqi.project.pursuingperfection.ui.theme.md_theme_light_surfaceVariant
 
 @Composable
 fun BottomNavigationBar(

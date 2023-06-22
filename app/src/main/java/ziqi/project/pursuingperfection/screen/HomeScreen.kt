@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -33,9 +34,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import ziqi.project.pursuingperfection.common.CategoryCard
-import ziqi.project.pursuingperfection.common.TaskOverviewCard
-import ziqi.project.pursuingperfection.data.LocalCategoryDataProvider
+import ziqi.project.pursuingperfection.common.card.CategoryCard
+import ziqi.project.pursuingperfection.common.card.TaskOverviewCard
 import ziqi.project.pursuingperfection.uiState.CategoryUiState
 import ziqi.project.pursuingperfection.viewModel.HomeListViewModel
 
@@ -103,6 +103,9 @@ fun HomeScreen(
                             }
                         }
                     )
+                }
+                item {
+                    Spacer(modifier = Modifier.width(8.dp))
                 }
             }
             AnimatedVisibility(visible = visible) {

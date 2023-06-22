@@ -19,14 +19,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import ziqi.project.pursuingperfection.common.BottomNavigationBar
-import ziqi.project.pursuingperfection.common.TopAppSearchBar
-import ziqi.project.pursuingperfection.common.TransitionScreenAppBar
+import ziqi.project.pursuingperfection.common.topBar.TopAppSearchBar
+import ziqi.project.pursuingperfection.common.topBar.TransitionScreenTopBar
 import ziqi.project.pursuingperfection.data.Destinations
 import ziqi.project.pursuingperfection.data.Done
 import ziqi.project.pursuingperfection.data.Home
@@ -79,7 +78,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 Category.route -> {
                     if (currentBackStack?.arguments?.getString("type") == "new") {
                         progressValue = 0.25f
-                        TransitionScreenAppBar(1, animatedProgressValue,
+                        TransitionScreenTopBar(1, animatedProgressValue,
                             { navController.navigateSingleTopToWithoutState(Home.route) },
                             { navController.navigateSingleTopToWithoutState(Home.route) }
                         )
@@ -89,7 +88,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 Title.route -> {
                     if (currentBackStack?.arguments?.getString("type") == "new") {
                         progressValue = 0.5f
-                        TransitionScreenAppBar(2,
+                        TransitionScreenTopBar(2,
                             animatedProgressValue,
                             { navController.navigateSingleTopToWithoutState(Home.route) },
                             { navController.navigateSingleTopToWithoutState(Home.route) }
@@ -100,7 +99,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 Time.route -> {
                     if (currentBackStack?.arguments?.getString("type") == "new") {
                         progressValue = 0.75f
-                        TransitionScreenAppBar(3,
+                        TransitionScreenTopBar(3,
                             animatedProgressValue,
                             { navController.navigateSingleTopToWithoutState(Home.route) },
                             { navController.navigateSingleTopToWithoutState(Home.route) }
@@ -111,7 +110,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 Priority.route -> {
                     if (currentBackStack?.arguments?.getString("type") == "new") {
                         progressValue = 1f
-                        TransitionScreenAppBar(4,
+                        TransitionScreenTopBar(4,
                             animatedProgressValue,
                             { navController.navigateSingleTopToWithoutState(Home.route) },
                             { navController.navigateSingleTopToWithoutState(Home.route) }
@@ -159,7 +158,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 Log.d("nav", navBackStackEntry.destination.route.toString())
                 Log.d("nav", navBackStackEntry.arguments?.getInt("id").toString())
                 Log.d("nav", currentBackStack?.destination?.route.toString())
-                TaskScreen(
+                TaskDetailScreen(
                     onBackClick = { navController.popBackStack() },
                     onCategoryClick = { navController.navigate(Category.passId(it, "edit")) },
                     onPriorityClick = { navController.navigate(Priority.passId(it, "edit")) },
@@ -177,7 +176,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 Log.d("nav", navBackStackEntry.destination.route.toString())
                 Log.d("nav", navBackStackEntry.arguments?.getInt("id").toString())
                 Log.d("nav", currentBackStack?.destination?.route.toString())
-                TaskScreen(
+                TaskDetailScreen(
                     onBackClick = { navController.popBackStack() },
                     onCategoryClick = { navController.navigate(Category.passId(it, "edit")) },
                     onPriorityClick = { navController.navigate(Priority.passId(it, "edit")) },
@@ -200,24 +199,35 @@ fun MainScreen(modifier: Modifier = Modifier) {
             }
             composable(route = Title.route, arguments = Title.arguments) {
                 val currentId = it.arguments?.getInt("id") ?: -1
-                TitleScreen(onNextClick = {
-                    if (currentId == -1) navController.navigate(Time.passId(currentId, "new"))
-                    else navController.popBackStack()
-                })
+                TitleScreen(
+                    onBackClick = { navController.popBackStack() },
+                    onNextClick = {
+                        if (currentId == -1) navController.navigate(Time.passId(currentId, "new"))
+                        else navController.popBackStack()
+                    }
+                )
             }
             composable(route = Time.route, arguments = Time.arguments) {
                 val currentId = it.arguments?.getInt("id") ?: -1
-                TimeScreen(onNextClick = {
-                    if (currentId == -1) navController.navigate(Priority.passId(currentId, "new"))
-                    else navController.popBackStack()
-                })
+                TimeScreen(
+                    onBackClick = { navController.popBackStack() },
+                    onNextClick = {
+                        if (currentId == -1) navController.navigate(
+                            Priority.passId(currentId, "new")
+                        )
+                        else navController.popBackStack()
+                    }
+                )
             }
             composable(route = Priority.route, arguments = Priority.arguments) {
                 val currentId = it.arguments?.getInt("id") ?: -1
-                PriorityScreen(onNextClick = {
-                    if (currentId == -1) navController.navigateSingleTopToWithoutState(Home.route)
-                    else navController.popBackStack()
-                })
+                PriorityScreen(
+                    onBackClick = { navController.popBackStack() },
+                    onNextClick = {
+                        if (currentId == -1) navController.navigateSingleTopToWithoutState(Home.route)
+                        else navController.popBackStack()
+                    }
+                )
             }
         }
     }

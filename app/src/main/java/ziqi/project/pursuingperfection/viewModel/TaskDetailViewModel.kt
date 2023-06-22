@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 import ziqi.project.pursuingperfection.data.TaskRepository
 import ziqi.project.pursuingperfection.database.TaskEntity
 import ziqi.project.pursuingperfection.database.toTaskUiState
+import ziqi.project.pursuingperfection.uiState.CategoryUiState
 import ziqi.project.pursuingperfection.uiState.Item
 import ziqi.project.pursuingperfection.uiState.TaskUiState
 import ziqi.project.pursuingperfection.uiState.toTaskEntity
@@ -29,7 +30,7 @@ class TaskDetailViewModel @Inject constructor(
 
 
     init {
-        when (type){
+        when (type) {
             "edit" -> {
                 viewModelScope.launch {
                     repository.getTaskById(id).collect {
@@ -37,6 +38,7 @@ class TaskDetailViewModel @Inject constructor(
                     }
                 }
             }
+
             "new" -> {
                 _uiState.value = TaskUiState()
             }
@@ -44,10 +46,27 @@ class TaskDetailViewModel @Inject constructor(
 
     }
 
-    suspend fun updateCheckedStatus(task: Item){
+    fun updateNewTaskCategory(categoryUiState: CategoryUiState) {
+        _uiState.value = _uiState.value.copy(
+            category = categoryUiState.name,
+            profilePhoto = categoryUiState.picture
+        )
+    }
+
+    fun updateNewTaskTitle(title: String){
+        _uiState.value = _uiState.value.copy(title = title)
+    }
+
+    suspend fun addNewTaskToRepository() {
+        viewModelScope.launch {
+            repository.insertTask(_uiState.value.toTaskEntity())
+        }
+    }
+
+    suspend fun updateCheckedStatus(item: Item) {
         _uiState.value =
             _uiState.value.copy(contents = _uiState.value.contents.map {
-                if (task == it) Item(
+                if (item == it) Item(
                     it.id,
                     it.content,
                     !it.checked
@@ -58,7 +77,7 @@ class TaskDetailViewModel @Inject constructor(
         }
     }
 
-    suspend fun replaceTask(old: Item, new: Item){
+    suspend fun replaceTask(old: Item, new: Item) {
         _uiState.value =
             _uiState.value.copy(contents = _uiState.value.contents.map {
                 if (old == it) new else it
@@ -68,15 +87,15 @@ class TaskDetailViewModel @Inject constructor(
         }
     }
 
-    suspend fun addTaskItem(task: Item){
-        _uiState.value = _uiState.value.copy(contents = _uiState.value.contents + task)
+    suspend fun addTaskItem(item: Item) {
+        _uiState.value = _uiState.value.copy(contents = _uiState.value.contents + item)
         viewModelScope.launch {
             repository.updateTask(_uiState.value.toTaskEntity())
         }
     }
 
-    suspend fun removeTaskItem(task: Item){
-        _uiState.value = _uiState.value.copy(contents = _uiState.value.contents - task)
+    suspend fun removeTaskItem(item: Item) {
+        _uiState.value = _uiState.value.copy(contents = _uiState.value.contents - item)
         viewModelScope.launch {
             repository.updateTask(_uiState.value.toTaskEntity())
         }

@@ -1,4 +1,4 @@
-package ziqi.project.pursuingperfection.common
+package ziqi.project.pursuingperfection.common.topBar
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Column
@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TransitionScreenAppBar(
+fun TransitionScreenTopBar(
     pageNumber: Int,
     animatedProgressValue: Float,
     onCancelClick: () -> Unit,
