@@ -1,5 +1,6 @@
 package ziqi.project.pursuingperfection.screen.transitionScreen
 
+import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -30,16 +31,17 @@ import kotlinx.coroutines.launch
 import ziqi.project.pursuingperfection.common.TaskTextField
 import ziqi.project.pursuingperfection.uiState.Item
 import ziqi.project.pursuingperfection.viewModel.TaskDetailViewModel
+import ziqi.project.pursuingperfection.viewModel.editViewModel.EditTitleViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TitleScreen(
     onBackClick: () -> Unit,
     onNextClick: () -> Unit,
-    viewModel: TaskDetailViewModel = hiltViewModel()
+    viewModel: EditTitleViewModel = hiltViewModel()
 ) {
     val coroutineScope = rememberCoroutineScope()
-    var inEdit by remember{
+    var inEdit by remember {
         mutableStateOf(true)
     }
     var title by remember {
@@ -67,7 +69,7 @@ fun TitleScreen(
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(6.dp)
                 ),
-                onClick = {inEdit = !inEdit}
+                onClick = { inEdit = !inEdit }
             ) {
                 Row(
                     modifier = Modifier
@@ -75,15 +77,12 @@ fun TitleScreen(
                         .padding(12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    when (inEdit){
+                    when (inEdit) {
                         true -> {
                             TaskTextField(
                                 item = Item(content = title),
                                 onEditFinish = {
                                     viewModel.updateNewTaskTitle(it.content)
-                                    coroutineScope.launch {
-                                        viewModel.addNewTaskToRepository()
-                                    }
                                     title = it.content
                                     inEdit = false
                                 },
@@ -96,6 +95,7 @@ fun TitleScreen(
                                 defaultValue = "untitled"
                             )
                         }
+
                         false -> {
                             Text(text = title, style = MaterialTheme.typography.headlineMedium)
                         }
@@ -115,7 +115,13 @@ fun TitleScreen(
                 Text(text = "Back")
             }
             Spacer(modifier = Modifier.width(24.dp))
-            Button(onClick = onNextClick, shape = MaterialTheme.shapes.small) {
+            Button(onClick = {
+                onNextClick()
+                coroutineScope.launch {
+                    viewModel.updateTaskToRepository()
+                }
+                Log.d("test title", viewModel.uiState.value.title)
+            }, shape = MaterialTheme.shapes.small) {
                 Text(text = "Next")
             }
         }

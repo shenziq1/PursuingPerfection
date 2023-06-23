@@ -37,6 +37,10 @@ class TaskRepository @Inject constructor(private val taskDao: TaskDao) {
         return taskDao.getTaskById(id)
     }
 
+    fun getMostRecentTask(): Flow<TaskEntity>{
+        return taskDao.getMostRecentTask()
+    }
+
     suspend fun insertTask(taskEntity: TaskEntity) {
         taskDao.insertTask(taskEntity)
     }

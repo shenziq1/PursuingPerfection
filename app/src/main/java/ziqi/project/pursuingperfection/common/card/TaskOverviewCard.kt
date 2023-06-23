@@ -90,7 +90,7 @@ fun TaskOverviewCard(
                     modifier = Modifier.weight(1f),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    SmallAvatar()
+                    SmallAvatar(){}
                     Column {
                         Text(
                             modifier = Modifier,

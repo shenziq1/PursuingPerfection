@@ -49,7 +49,7 @@ fun DoneScreen(
     val tasks = viewModel.checkedTasks.collectAsStateWithLifecycle()
     val categories = viewModel.categories.collectAsStateWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
-    val allCategory = CategoryUiState()
+    val allCategory = CategoryUiState(name = "All")
 
 
     Box(modifier = modifier) {

@@ -163,7 +163,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                     onCategoryClick = { navController.navigate(Category.passId(it, "edit")) },
                     onPriorityClick = { navController.navigate(Priority.passId(it, "edit")) },
                     onTimeClick = { navController.navigate(Time.passId(it, "edit")) },
-                    onTitleClick = { navController.navigate(Category.passId(it, "edit")) }
+                    onTitleClick = { navController.navigate(Title.passId(it, "edit")) }
                 )
             }
             composable(route = Done.route) {
@@ -172,10 +172,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
             composable(
                 route = Done.detail,
                 arguments = Done.arguments
-            ) { navBackStackEntry ->
-                Log.d("nav", navBackStackEntry.destination.route.toString())
-                Log.d("nav", navBackStackEntry.arguments?.getInt("id").toString())
-                Log.d("nav", currentBackStack?.destination?.route.toString())
+            ) {
                 TaskDetailScreen(
                     onBackClick = { navController.popBackStack() },
                     onCategoryClick = { navController.navigate(Category.passId(it, "edit")) },

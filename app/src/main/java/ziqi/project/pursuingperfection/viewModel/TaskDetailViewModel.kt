@@ -1,5 +1,6 @@
 package ziqi.project.pursuingperfection.viewModel
 
+import android.util.Log
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -57,11 +58,17 @@ class TaskDetailViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(title = title)
     }
 
+    fun updateNewTaskPriority(priority: Int){
+        _uiState.value = _uiState.value.copy(priority = priority)
+    }
+
     suspend fun addNewTaskToRepository() {
         viewModelScope.launch {
             repository.insertTask(_uiState.value.toTaskEntity())
         }
     }
+
+
 
     suspend fun updateCheckedStatus(item: Item) {
         _uiState.value =

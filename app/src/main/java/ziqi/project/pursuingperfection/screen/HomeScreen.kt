@@ -57,7 +57,7 @@ fun HomeScreen(
     val tasks = viewModel.plannedTasks.collectAsStateWithLifecycle()
     val categories = viewModel.categories.collectAsStateWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
-    val allCategory = CategoryUiState()
+    val allCategory = CategoryUiState(name = "All")
 
 
 

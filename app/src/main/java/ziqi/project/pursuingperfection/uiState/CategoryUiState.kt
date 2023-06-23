@@ -5,6 +5,6 @@ import ziqi.project.pursuingperfection.R
 
 data class CategoryUiState(
     val id: Int = 0,
-    val name: String = "All",
+    val name: String = "Default",
     @DrawableRes val picture: Int = R.drawable.ic_launcher_foreground
 )

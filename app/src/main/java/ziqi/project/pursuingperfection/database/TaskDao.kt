@@ -29,6 +29,9 @@ interface TaskDao {
     @Query("SELECT * FROM taskEntity WHERE id = :id")
     fun getTaskById(id: Int): Flow<TaskEntity>
 
+    @Query("SELECT * FROM taskEntity ORDER BY id DESC LIMIT 1")
+    fun getMostRecentTask(): Flow<TaskEntity>
+
     //@MapInfo(keyColumn = "profilePhoto")
     @Query("SELECT * FROM taskEntity GROUP BY category")
     fun getAllCategories(): Flow<List<TaskEntity>>

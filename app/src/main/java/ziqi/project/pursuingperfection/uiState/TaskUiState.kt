@@ -8,14 +8,14 @@ import java.time.LocalDateTime
 
 data class TaskUiState(
     val id: Int = 0,
-    val title: String = "Package Shipped",
+    val title: String = "untitled",
     val contents: List<Item> = listOf(
         Item(0,"Your Call of Duty disk has shipped, prepare to pick up.", true),
         Item(1, "Estimated arrival time: 12:00 EST.", true),
         Item(2,"While you may not at home, please let someone open the door.", false)
     ),
     @DrawableRes val profilePhoto: Int = R.drawable.ic_launcher_foreground,
-    val category: String = "Google",
+    val category: String = "Default",
     val priority: Int = 0,
     val timeStart: LocalDateTime = LocalDateTime.now(),
     val timeEnd: LocalDateTime = LocalDateTime.now().plusHours(30)

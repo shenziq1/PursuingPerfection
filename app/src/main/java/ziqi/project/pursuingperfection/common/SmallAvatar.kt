@@ -14,12 +14,13 @@ import ziqi.project.pursuingperfection.R
 @Composable
 fun SmallAvatar(
     painterRes: Int = R.drawable.ic_launcher_foreground,
-    onClick: ()->Unit = {},
+    onClick: () -> Unit
 ) {
     Image(
         modifier = Modifier
             .size(48.dp)
-            .clip(CircleShape).clickable {  },
+            .clip(CircleShape)
+            .clickable { onClick() },
         painter = painterResource(id = painterRes),
         contentDescription = "Profile Image"
     )

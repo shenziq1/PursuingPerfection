@@ -81,9 +81,7 @@ fun TaskDetailTopBar(
             }
         },
         actions = {
-            SmallAvatar(profilePhoto) {
-                onCategoryClick()
-            }
+            SmallAvatar(painterRes = profilePhoto, onClick = onCategoryClick)
             TextButton(
                 onClick = onTimeClick,
                 colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onSurface)
