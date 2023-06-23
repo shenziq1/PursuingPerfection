@@ -27,7 +27,7 @@ class TaskDetailViewModel @Inject constructor(
     val id = savedStateHandle.get<Int>("id") ?: 0
     private var _uiState = MutableStateFlow(TaskUiState())
     val uiState = _uiState.asStateFlow()
-    val type = savedStateHandle.get<String>("type") ?: "edit"
+    private val type = savedStateHandle.get<String>("type") ?: "edit"
 
 
     init {
@@ -46,29 +46,6 @@ class TaskDetailViewModel @Inject constructor(
         }
 
     }
-
-    fun updateNewTaskCategory(categoryUiState: CategoryUiState) {
-        _uiState.value = _uiState.value.copy(
-            category = categoryUiState.name,
-            profilePhoto = categoryUiState.picture
-        )
-    }
-
-    fun updateNewTaskTitle(title: String){
-        _uiState.value = _uiState.value.copy(title = title)
-    }
-
-    fun updateNewTaskPriority(priority: Int){
-        _uiState.value = _uiState.value.copy(priority = priority)
-    }
-
-    suspend fun addNewTaskToRepository() {
-        viewModelScope.launch {
-            repository.insertTask(_uiState.value.toTaskEntity())
-        }
-    }
-
-
 
     suspend fun updateCheckedStatus(item: Item) {
         _uiState.value =

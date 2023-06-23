@@ -1,5 +1,6 @@
 package ziqi.project.pursuingperfection.screen
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
@@ -21,10 +22,12 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,7 +50,7 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     viewModel: HomeListViewModel = hiltViewModel(),
 ) {
-    var categoryName by remember {
+    var categoryName by rememberSaveable {
         mutableStateOf("All")
     }
     var visible by remember {
@@ -59,7 +62,10 @@ fun HomeScreen(
     val coroutineScope = rememberCoroutineScope()
     val allCategory = CategoryUiState(name = "All")
 
-
+    LaunchedEffect(Unit){
+        viewModel.initialize()
+        viewModel.updateTaskList(categoryName)
+    }
 
     Box(modifier = modifier) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -72,8 +78,10 @@ fun HomeScreen(
                         categoryUiState = allCategory,
                         selected = categoryName == "All",
                         onClick = {
+                            Log.d("categoryName", categoryName)
                             categoryName = it
                             viewModel.updateTaskList(categoryName)
+                            //viewModel.saveCurrentCategory(categoryName)
                             coroutineScope.launch {
                                 visible = false
                                 delay(300)
@@ -92,8 +100,10 @@ fun HomeScreen(
                         categoryUiState = categoryUiState,
                         selected = categoryUiState.name == categoryName,
                         onClick = {
+                            Log.d("categoryName", categoryName)
                             categoryName = it
                             viewModel.updateTaskList(categoryName)
+                            //viewModel.saveCurrentCategory(categoryName)
                             coroutineScope.launch {
                                 visible = false
                                 delay(300)

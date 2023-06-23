@@ -1,6 +1,8 @@
 package ziqi.project.pursuingperfection.viewModel
 
 import android.util.Log
+import androidx.annotation.MainThread
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,15 +21,27 @@ import ziqi.project.pursuingperfection.uiState.toTaskEntity
 import javax.inject.Inject
 
 @HiltViewModel
-class HomeListViewModel @Inject constructor(private val taskRepository: TaskRepository) :
-    ViewModel() {
+class HomeListViewModel @Inject constructor(
+    private val savedStateHandle: SavedStateHandle,
+    private val taskRepository: TaskRepository
+) : ViewModel() {
+
     private var _plannedTasks: MutableStateFlow<List<TaskUiState>> = MutableStateFlow(emptyList())
     val plannedTasks: StateFlow<List<TaskUiState>> = _plannedTasks.asStateFlow()
 
     private var _categories: MutableStateFlow<List<CategoryUiState>> = MutableStateFlow(emptyList())
     val categories: StateFlow<List<CategoryUiState>> = _categories.asStateFlow()
 
-    init {
+    val currentCategory = savedStateHandle.get<String>("currentCategory")?:"All"
+
+    private var initializeCalled = false
+
+    // This function is idempotent provided it is only called from the UI thread.
+    @MainThread
+    fun initialize() {
+        if(initializeCalled) return
+        initializeCalled = true
+
         viewModelScope.launch {
             taskRepository.getPlannedTasks("All").collect { taskEntities ->
                 _plannedTasks.value = taskEntities.map { it.toTaskUiState() }
@@ -38,6 +52,10 @@ class HomeListViewModel @Inject constructor(private val taskRepository: TaskRepo
                 _categories.value = taskEntities.map { it.toCategoryUiState() }
             }
         }
+    }
+
+    fun saveCurrentCategory(category: String) {
+        savedStateHandle["currentCategory"] = category
     }
 
     fun updateTaskList(category: String) {

@@ -1,5 +1,6 @@
 package ziqi.project.pursuingperfection.viewModel
 
+import androidx.annotation.MainThread
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -25,7 +26,12 @@ class DoneListViewModel @Inject constructor(private val taskRepository: TaskRepo
     private var _categories: MutableStateFlow<List<CategoryUiState>> = MutableStateFlow(emptyList())
     val categories: StateFlow<List<CategoryUiState>> = _categories.asStateFlow()
 
-    init {
+    private var initializeCalled = false
+
+    @MainThread
+    fun initialize() {
+        if(initializeCalled) return
+        initializeCalled = true
         viewModelScope.launch {
             taskRepository.getCheckedTasks("All").collect { taskEntities ->
                 _checkedTasks.value = taskEntities.map { it.toTaskUiState() }

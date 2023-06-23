@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,6 +52,10 @@ fun DoneScreen(
     val coroutineScope = rememberCoroutineScope()
     val allCategory = CategoryUiState(name = "All")
 
+    LaunchedEffect(Unit){
+        viewModel.initialize()
+        viewModel.updateTaskList(categoryName)
+    }
 
     Box(modifier = modifier) {
         Column(modifier = Modifier.fillMaxSize()) {
