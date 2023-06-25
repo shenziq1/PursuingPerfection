@@ -29,13 +29,14 @@ import ziqi.project.pursuingperfection.viewModel.editViewModel.EditCategoryViewM
 @Composable
 fun CategoryScreen(
     onBackClick: () -> Unit,
-    onNextClick: () -> Unit,
+    onNextClick: (Int) -> Unit,
     categoryViewModel: CategoryViewModel = hiltViewModel(),
     editCategoryViewModel: EditCategoryViewModel = hiltViewModel(),
 ) {
     val categories = categoryViewModel.categories.collectAsStateWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
     val selectedCategoryName = editCategoryViewModel.uiState.collectAsStateWithLifecycle().value.category
+    val id = editCategoryViewModel.uiState.collectAsStateWithLifecycle().value.id
     val defaultCategoryUiState = CategoryUiState()
     Column(modifier = Modifier.padding(16.dp)) {
         Row(
@@ -105,7 +106,7 @@ fun CategoryScreen(
             }
             Spacer(modifier = Modifier.width(24.dp))
             Button(onClick = {
-                onNextClick()
+                onNextClick(id)
                 coroutineScope.launch {
                     editCategoryViewModel.updateTaskToRepository()
                 }

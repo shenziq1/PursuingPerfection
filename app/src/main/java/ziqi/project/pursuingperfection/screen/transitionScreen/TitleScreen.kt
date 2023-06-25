@@ -37,7 +37,7 @@ import ziqi.project.pursuingperfection.viewModel.editViewModel.EditTitleViewMode
 @Composable
 fun TitleScreen(
     onBackClick: () -> Unit,
-    onNextClick: () -> Unit,
+    onNextClick: (Int) -> Unit,
     viewModel: EditTitleViewModel = hiltViewModel()
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -116,7 +116,7 @@ fun TitleScreen(
             }
             Spacer(modifier = Modifier.width(24.dp))
             Button(onClick = {
-                onNextClick()
+                onNextClick(viewModel.id)
                 coroutineScope.launch {
                     viewModel.updateTaskToRepository()
                 }

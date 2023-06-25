@@ -184,44 +184,46 @@ fun MainScreen(modifier: Modifier = Modifier) {
             composable(route = Settings.route) {
                 SettingsScreen()
             }
-            composable(route = Category.route, arguments = Category.arguments) {
-                val currentId = it.arguments?.getInt("id") ?: -1
+            composable(route = Category.route, arguments = Category.arguments) { navBackStackEntry ->
+                val currentType = navBackStackEntry.arguments?.getString("type") ?: "new"
                 CategoryScreen(
                     onBackClick = { navController.popBackStack() },
                     onNextClick = {
-                        if (currentId == -1) navController.navigate(Title.passId(currentId, "new"))
+                        Log.d("transition", it.toString())
+                        if (currentType == "new") navController.navigate(Title.passId(it, "new"))
                         else navController.popBackStack()
                     }
                 )
             }
-            composable(route = Title.route, arguments = Title.arguments) {
-                val currentId = it.arguments?.getInt("id") ?: -1
+            composable(route = Title.route, arguments = Title.arguments) { navBackStackEntry ->
+                val currentType = navBackStackEntry.arguments?.getString("type") ?: "new"
                 TitleScreen(
                     onBackClick = { navController.popBackStack() },
                     onNextClick = {
-                        if (currentId == -1) navController.navigate(Time.passId(currentId, "new"))
+                        Log.d("transition", it.toString())
+                        if (currentType == "new") navController.navigate(Time.passId(it, "new"))
                         else navController.popBackStack()
                     }
                 )
             }
-            composable(route = Time.route, arguments = Time.arguments) {
-                val currentId = it.arguments?.getInt("id") ?: -1
+            composable(route = Time.route, arguments = Time.arguments) { navBackStackEntry ->
+                val currentType = navBackStackEntry.arguments?.getString("type") ?: "new"
                 TimeScreen(
                     onBackClick = { navController.popBackStack() },
                     onNextClick = {
-                        if (currentId == -1) navController.navigate(
-                            Priority.passId(currentId, "new")
-                        )
+                        Log.d("transition", it.toString())
+                        if (currentType == "new") navController.navigate(Priority.passId(it, "new"))
                         else navController.popBackStack()
                     }
                 )
             }
-            composable(route = Priority.route, arguments = Priority.arguments) {
-                val currentId = it.arguments?.getInt("id") ?: -1
+            composable(route = Priority.route, arguments = Priority.arguments) {navBackStackEntry ->
+                val currentType = navBackStackEntry.arguments?.getString("type") ?: "new"
                 PriorityScreen(
                     onBackClick = { navController.popBackStack() },
                     onNextClick = {
-                        if (currentId == -1) navController.navigateSingleTopToWithoutState(Home.route)
+                        Log.d("transition", it.toString())
+                        if (currentType == "new") navController.navigateSingleTopToWithoutState(Home.passId(it))
                         else navController.popBackStack()
                     }
                 )

@@ -6,17 +6,16 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import ziqi.project.pursuingperfection.data.TaskRepository
 import ziqi.project.pursuingperfection.database.toTaskUiState
-import ziqi.project.pursuingperfection.uiState.CategoryUiState
 import ziqi.project.pursuingperfection.uiState.TaskUiState
 import ziqi.project.pursuingperfection.uiState.toTaskEntity
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
-class EditCategoryViewModel @Inject constructor(
+class EditTimeViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val repository: TaskRepository
 ) : ViewModel() {
@@ -36,26 +35,17 @@ class EditCategoryViewModel @Inject constructor(
             }
 
             "new" -> {
-                val newTaskUiState = TaskUiState()
-                viewModelScope.launch {
-                    repository.insertTask(newTaskUiState.toTaskEntity())
-                }
-
                 viewModelScope.launch {
                     repository.getMostRecentTask().collect {
                         _uiState.value = it.toTaskUiState()
                     }
                 }
-
             }
         }
     }
 
-    fun updateNewTaskCategory(categoryUiState: CategoryUiState) {
-        _uiState.value = _uiState.value.copy(
-            category = categoryUiState.name,
-            profilePhoto = categoryUiState.picture
-        )
+    fun updateNewTaskTime(timeStart: LocalDateTime, timeEnd: LocalDateTime) {
+        _uiState.value = _uiState.value.copy(timeStart = timeStart, timeEnd = timeEnd)
     }
 
     suspend fun updateTaskToRepository() {

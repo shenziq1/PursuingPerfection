@@ -35,7 +35,7 @@ import ziqi.project.pursuingperfection.viewModel.editViewModel.EditPriorityViewM
 @Composable
 fun PriorityScreen(
     onBackClick: () -> Unit,
-    onNextClick: () -> Unit,
+    onNextClick: (Int) -> Unit,
     viewModel: EditPriorityViewModel = hiltViewModel()
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -101,7 +101,7 @@ fun PriorityScreen(
             }
             Spacer(modifier = Modifier.width(24.dp))
             Button(onClick = {
-                onNextClick()
+                onNextClick(viewModel.id)
                 coroutineScope.launch {
                     viewModel.updateTaskToRepository()
                 }

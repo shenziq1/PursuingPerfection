@@ -38,7 +38,7 @@ fun TaskUiState.toTaskEntity(): TaskEntity {
         Converters.listMyModelToJsonStr(this.contents),
         this.profilePhoto,
         this.category,
-        this.checked,
+        if (this.contents.isEmpty()) false else this.checked,
         this.priority,
         this.timeStart.toString(),
         this.timeEnd.toString()
