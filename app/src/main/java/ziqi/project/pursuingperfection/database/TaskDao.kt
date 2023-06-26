@@ -46,13 +46,16 @@ interface TaskDao {
     fun searchTask(searchInput: String, checked: Boolean): Flow<List<TaskEntity>>
 
     @Insert
-    suspend fun insertTask(taskEntity: TaskEntity)
+    suspend fun insertTask(taskEntity: TaskEntity): Long
 
     @Delete
     suspend fun deleteTask(taskEntity: TaskEntity)
 
-    @Query("delete from taskEntity")
+    @Query("DELETE FROM taskEntity")
     suspend fun deleteAllTasks()
+
+    @Query("DELETE FROM taskEntity WHERE id IN (SELECT id FROM taskEntity ORDER BY id DESC LIMIT 1)")
+    suspend fun deleteMostRecentTask()
 
     @Update
     suspend fun updateTask(taskEntity: TaskEntity)

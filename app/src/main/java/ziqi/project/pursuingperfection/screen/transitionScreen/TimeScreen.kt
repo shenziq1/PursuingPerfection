@@ -43,11 +43,13 @@ fun TimeScreen(
     val dateRangePickerState = rememberDateRangePickerState()
     val timeStart = dateRangePickerState.selectedStartDateMillis?.let {
         LocalDateTime.ofEpochSecond(
-            it, 0, ZoneOffset.UTC)
+            it, 0, ZoneOffset.UTC
+        )
     }
     val timeEnd = dateRangePickerState.selectedEndDateMillis?.let {
         LocalDateTime.ofEpochSecond(
-            it, 0, ZoneOffset.UTC)
+            it, 0, ZoneOffset.UTC
+        )
     }
 
 
@@ -74,9 +76,12 @@ fun TimeScreen(
             Button(onClick = { clickedDatePicker = true }) {
                 Text(text = "Date Picker")
             }
-            if (clickedDatePicker)
-            DatePickerDialog(onDismissRequest = { clickedDatePicker = false }, confirmButton = { /*TODO*/ }) {
-                DateRangePicker(state = dateRangePickerState, title = {})
+            if (clickedDatePicker) {
+                DatePickerDialog(
+                    onDismissRequest = { clickedDatePicker = false },
+                    confirmButton = { /*TODO*/ }) {
+                    DateRangePicker(state = dateRangePickerState, title = {})
+                }
             }
         }
 
@@ -92,7 +97,10 @@ fun TimeScreen(
             Spacer(modifier = Modifier.width(24.dp))
             Button(onClick = {
                 onNextClick(viewModel.id)
-                viewModel.updateNewTaskTime(timeStart?: LocalDateTime.now(), timeEnd?: LocalDateTime.now().plusHours(24))
+                viewModel.updateNewTaskTime(
+                    timeStart ?: LocalDateTime.now(),
+                    timeEnd ?: LocalDateTime.now().plusHours(24)
+                )
                 coroutineScope.launch {
                     viewModel.updateTaskToRepository()
                 }

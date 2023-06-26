@@ -41,12 +41,16 @@ class TaskRepository @Inject constructor(private val taskDao: TaskDao) {
         return taskDao.getMostRecentTask()
     }
 
-    suspend fun insertTask(taskEntity: TaskEntity) {
-        taskDao.insertTask(taskEntity)
+    suspend fun insertTask(taskEntity: TaskEntity): Long {
+        return taskDao.insertTask(taskEntity)
     }
 
     suspend fun deleteTask(taskEntity: TaskEntity) {
         taskDao.deleteTask(taskEntity)
+    }
+
+    suspend fun deleteMostRecentTask(){
+        taskDao.deleteMostRecentTask()
     }
 
     suspend fun deleteAllTasks() {

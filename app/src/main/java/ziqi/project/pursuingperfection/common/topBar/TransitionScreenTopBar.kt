@@ -18,11 +18,15 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import kotlinx.coroutines.launch
+import ziqi.project.pursuingperfection.viewModel.TransitionAppBarViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,8 +34,10 @@ fun TransitionScreenTopBar(
     pageNumber: Int,
     animatedProgressValue: Float,
     onCancelClick: () -> Unit,
-    onSkipClick: () -> Unit
+    onSkipClick: () -> Unit,
+    viewModel: TransitionAppBarViewModel = hiltViewModel()
 ) {
+    val coroutineScope = rememberCoroutineScope()
     Surface(
         modifier = Modifier.heightIn(56.dp),
         color = MaterialTheme.colorScheme.surfaceColorAtElevation(12.dp)
@@ -55,7 +61,12 @@ fun TransitionScreenTopBar(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = onCancelClick) {
+                    IconButton(onClick = {
+                        coroutineScope.launch {
+                            viewModel.cancelTask()
+                        }
+                        onCancelClick()
+                    }) {
                         Icon(imageVector = Icons.Default.Close, contentDescription = null)
                     }
                 },

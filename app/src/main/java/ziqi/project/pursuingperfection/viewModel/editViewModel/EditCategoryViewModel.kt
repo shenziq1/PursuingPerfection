@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
@@ -38,15 +39,9 @@ class EditCategoryViewModel @Inject constructor(
             "new" -> {
                 val newTaskUiState = TaskUiState()
                 viewModelScope.launch {
-                    repository.insertTask(newTaskUiState.toTaskEntity())
+                    val id = repository.insertTask(newTaskUiState.toTaskEntity())
+                    _uiState.value = _uiState.value.copy(id = id.toInt())
                 }
-
-                viewModelScope.launch {
-                    repository.getMostRecentTask().collect {
-                        _uiState.value = it.toTaskUiState()
-                    }
-                }
-
             }
         }
     }

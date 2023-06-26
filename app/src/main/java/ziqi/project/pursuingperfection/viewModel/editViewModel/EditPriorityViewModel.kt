@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import ziqi.project.pursuingperfection.data.TaskRepository
 import ziqi.project.pursuingperfection.database.toTaskUiState
@@ -25,21 +26,9 @@ class EditPriorityViewModel @Inject constructor(
     private val type = savedStateHandle.get<String>("type") ?: "edit"
 
     init {
-        when (type) {
-            "edit" -> {
-                viewModelScope.launch {
-                    repository.getTaskById(id).collect {
-                        _uiState.value = it.toTaskUiState()
-                    }
-                }
-            }
-
-            "new" -> {
-                viewModelScope.launch {
-                    repository.getMostRecentTask().collect {
-                        _uiState.value = it.toTaskUiState()
-                    }
-                }
+        viewModelScope.launch {
+            repository.getTaskById(id).filterNotNull().collect {
+                _uiState.value = it.toTaskUiState()
             }
         }
     }
