@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import ziqi.project.pursuingperfection.data.Home
 import ziqi.project.pursuingperfection.data.TaskRepository
@@ -23,18 +24,18 @@ class SearchResultViewModel @Inject constructor(private val taskRepository: Task
         MutableStateFlow(emptyList())
     val donePageSearchResult = _doneScreenSearchResult.asStateFlow()
 
-    fun updateSearchResult(route: String, searchInput: String) {
+    fun  updateSearchResult(route: String, searchInput: String) {
         viewModelScope.launch {
             if (route == Home.route) {
                 launch {
-                    taskRepository.searchTask(searchInput, false).collect { taskEntities ->
+                    taskRepository.searchTask(searchInput, false).filterNotNull().collect { taskEntities ->
                         _homeScreenSearchResult.value =
                             taskEntities.map { it.toSearchResultUiState(searchInput) }
                     }
                 }
             } else {
                 launch {
-                    taskRepository.searchTask(searchInput, true).collect { taskEntities ->
+                    taskRepository.searchTask(searchInput, true).filterNotNull().collect { taskEntities ->
                         _doneScreenSearchResult.value =
                             taskEntities.map { it.toSearchResultUiState(searchInput) }
                     }
@@ -42,6 +43,11 @@ class SearchResultViewModel @Inject constructor(private val taskRepository: Task
             }
         }
         Log.d("searchResultValue", "${_homeScreenSearchResult.value}")
+    }
+
+    fun clearSearch(){
+        _homeScreenSearchResult.value = listOf()
+        _doneScreenSearchResult.value = listOf()
     }
 }
 

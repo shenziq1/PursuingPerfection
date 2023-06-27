@@ -1,6 +1,7 @@
 package ziqi.project.pursuingperfection.common.topBar
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
@@ -8,6 +9,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -18,6 +21,10 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -38,12 +45,16 @@ fun TaskDetailTopBar(
     onTitleClick: () -> Unit,
     onTimeClick: () -> Unit,
     onCategoryClick: () -> Unit,
-    onPriorityClick: () -> Unit
+    onPriorityClick: () -> Unit,
+    onDelete: () -> Unit
 ) {
     val priorityIcon = when (priority) {
         0 -> R.drawable.bolt
         1 -> R.drawable.cloudy
         else -> R.drawable.sunny
+    }
+    var expand by remember {
+        mutableStateOf(false)
     }
     LargeTopAppBar(
         title = {
@@ -88,9 +99,15 @@ fun TaskDetailTopBar(
             ) {
                 Text(text = "$timeStart - $timeEnd", style = MaterialTheme.typography.labelLarge)
             }
-            IconButton(onClick = { /*TODO*/ }) {
-                Icon(imageVector = Icons.Default.MoreVert, contentDescription = null)
+            Column() {
+                IconButton(onClick = { expand = !expand }) {
+                    Icon(imageVector = Icons.Default.MoreVert, contentDescription = null)
+                }
+                DropdownMenu(expanded = expand, onDismissRequest = { expand = false }) {
+                    DropdownMenuItem(text = { Text(text = "Delete") }, onClick = onDelete)
+                }
             }
+
             //Spacer(modifier = Modifier.width(16.dp))
         },
         colors = TopAppBarDefaults.largeTopAppBarColors(

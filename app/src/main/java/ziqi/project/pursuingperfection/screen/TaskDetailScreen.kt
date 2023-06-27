@@ -69,6 +69,12 @@ fun TaskDetailScreen(
                 onCategoryClick = {
                     onCategoryClick(id)
                     inEditId = -5
+                },
+                onDelete = {
+                    coroutineScope.launch{
+                        viewModel.removeTask()
+                    }
+                    onBackClick()
                 }
             )
         },

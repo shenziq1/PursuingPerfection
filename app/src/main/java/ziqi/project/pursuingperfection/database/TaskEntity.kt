@@ -30,7 +30,7 @@ fun TaskEntity.toTaskUiState(): TaskUiState {
     return TaskUiState(
         id = this.id,
         title = this.title,
-        contents = Converters.jsonStrToListMyModel(this.contents) ?: listOf(Item()),
+        contents = Converters.jsonStrToListMyModel(this.contents) ?: listOf(),
         profilePhoto = this.profilePhoto,
         category = this.category,
         priority = this.priority,
@@ -39,7 +39,7 @@ fun TaskEntity.toTaskUiState(): TaskUiState {
     )
 }
 
-fun TaskEntity.toCategoryUiState(): CategoryUiState{
+fun TaskEntity.toCategoryUiState(): CategoryUiState {
     return CategoryUiState(
         id = this.id,
         name = this.category,
@@ -48,11 +48,19 @@ fun TaskEntity.toCategoryUiState(): CategoryUiState{
 }
 
 fun TaskEntity.toSearchResultUiState(search: String): SearchResultUiState {
-    val contents = Converters.jsonStrToListMyModel(this.contents) ?: listOf(Item())
+    val contents = Converters.jsonStrToListMyModel(this.contents) ?: listOf()
     val filteredContents =
         contents.filter { item: Item -> item.content.lowercase().contains(search.lowercase()) }
     val content =
-        if (filteredContents.isEmpty()) contents[0].content else filteredContents[0].content
+        if (filteredContents.isEmpty()) {
+            if (contents.isEmpty()){
+                ""
+            } else {
+                contents[0].content
+            }
+        } else {
+            filteredContents[0].content
+        }
     return SearchResultUiState(
         id = this.id,
         title = this.title,

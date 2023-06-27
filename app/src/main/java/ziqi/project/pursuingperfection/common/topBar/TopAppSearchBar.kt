@@ -71,11 +71,13 @@ fun TopAppSearchBar(
                 .weight(1f)
                 .padding(bottom = 8.dp),
             active = active,
-            onActiveChange = { active = it },
+            onActiveChange = {
+                active = it
+            },
             query = query,
             onQueryChange = {
                 query = it
-                viewModel.updateSearchResult(route, query)
+                if (it != "") viewModel.updateSearchResult(route, query) else viewModel.clearSearch()
             },
             onSearch = {
                 query = ""
@@ -93,7 +95,11 @@ fun TopAppSearchBar(
             placeholder = {
                 Text(text = "Search")
             },
-            colors = SearchBarDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(12.dp))
+            colors = SearchBarDefaults.colors(
+                containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
+                    12.dp
+                )
+            )
         ) {
             searchResult.value.forEach {
                 TopAppSearchResultCard(query = query, onClick = onResultClick, uiState = it)

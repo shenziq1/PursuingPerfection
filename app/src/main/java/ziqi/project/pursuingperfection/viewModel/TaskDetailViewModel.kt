@@ -9,6 +9,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import ziqi.project.pursuingperfection.data.TaskRepository
 import ziqi.project.pursuingperfection.database.TaskEntity
@@ -34,7 +35,7 @@ class TaskDetailViewModel @Inject constructor(
         when (type) {
             "edit" -> {
                 viewModelScope.launch {
-                    repository.getTaskById(id).collect {
+                    repository.getTaskById(id).filterNotNull().collect {
                         _uiState.value = it.toTaskUiState()
                     }
                 }
@@ -82,6 +83,12 @@ class TaskDetailViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(contents = _uiState.value.contents - item)
         viewModelScope.launch {
             repository.updateTask(_uiState.value.toTaskEntity())
+        }
+    }
+
+    suspend fun removeTask(){
+        viewModelScope.launch {
+            repository.deleteTaskById(id)
         }
     }
 
