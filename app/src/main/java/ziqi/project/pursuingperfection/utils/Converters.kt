@@ -34,3 +34,7 @@ object Converters {
 fun LocalDateTime.shortConvert(): String{
     return this.format(DateTimeFormatter.ofPattern("MMM dd"))
 }
+
+fun LocalDateTime.longConvert(): String{
+    return this.format(DateTimeFormatter.ofPattern("YYYY MMM dd"))
+}

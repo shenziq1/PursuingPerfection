@@ -1,5 +1,6 @@
 package ziqi.project.pursuingperfection.screen.transitionScreen
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,7 +10,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DatePickerFormatter
 import androidx.compose.material3.DateRangePicker
+import androidx.compose.material3.DateRangePickerDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -25,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.launch
+import ziqi.project.pursuingperfection.utils.longConvert
 import ziqi.project.pursuingperfection.viewModel.editViewModel.EditTimeViewModel
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -41,14 +45,18 @@ fun TimeScreen(
     }
     val coroutineScope = rememberCoroutineScope()
     val dateRangePickerState = rememberDateRangePickerState()
+    val fullDateFormatter: DatePickerFormatter =
+        remember { DatePickerFormatter(selectedDateSkeleton = "YYYY MMM dd") }
+    val shortDateFormatter: DatePickerFormatter =
+        remember { DatePickerFormatter(selectedDateSkeleton = "MMM dd") }
     val timeStart = dateRangePickerState.selectedStartDateMillis?.let {
         LocalDateTime.ofEpochSecond(
-            it, 0, ZoneOffset.UTC
+            it/1000, 0, ZoneOffset.UTC
         )
     }
     val timeEnd = dateRangePickerState.selectedEndDateMillis?.let {
         LocalDateTime.ofEpochSecond(
-            it, 0, ZoneOffset.UTC
+            it/1000, 0, ZoneOffset.UTC
         )
     }
 
@@ -76,11 +84,26 @@ fun TimeScreen(
             Button(onClick = { clickedDatePicker = true }) {
                 Text(text = "Date Picker")
             }
+            DateRangePickerDefaults.DateRangePickerHeadline(
+                dateRangePickerState,
+                fullDateFormatter,
+                modifier = Modifier
+            )
             if (clickedDatePicker) {
                 DatePickerDialog(
-                    onDismissRequest = { clickedDatePicker = false },
+                    onDismissRequest = {
+                        clickedDatePicker = false
+                        Log.d("timeScreen", timeStart?.longConvert().toString())
+                        Log.d("timeScreen", timeEnd?.longConvert().toString())
+                    },
                     confirmButton = { /*TODO*/ }) {
-                    DateRangePicker(state = dateRangePickerState, title = {})
+                    DateRangePicker(state = dateRangePickerState, title = {}, headline = {
+                        DateRangePickerDefaults.DateRangePickerHeadline(
+                            dateRangePickerState,
+                            shortDateFormatter,
+                            modifier = Modifier.padding(start = 32.dp)
+                        )
+                    })
                 }
             }
         }
