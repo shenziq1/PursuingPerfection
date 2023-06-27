@@ -102,6 +102,7 @@ fun TaskTextField(
 //                focusManager.clearFocus()
             } else {
                 if (defaultValueOn) onEditFinish(item.copy(content = defaultValue))
+                //else onEditFinish(item.copy(content = value.text))
                 onCardRemove(item)
             }
         }),

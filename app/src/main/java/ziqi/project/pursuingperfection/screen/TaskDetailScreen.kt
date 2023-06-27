@@ -90,6 +90,7 @@ fun TaskDetailScreen(
                             coroutineScope.launch {
                                 viewModel.removeTaskItem(it)
                             }
+                            inEditId = -1
                         },
                         onCheckChange = { coroutineScope.launch { viewModel.updateCheckedStatus(it) } },
                         onEditFinish = {
