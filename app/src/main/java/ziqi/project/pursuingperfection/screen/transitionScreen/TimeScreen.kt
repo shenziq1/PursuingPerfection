@@ -52,19 +52,18 @@ fun TimeScreen(
         remember { DatePickerFormatter(selectedDateSkeleton = "MMM dd") }
     val timeStart = dateRangePickerState.selectedStartDateMillis?.let {
         LocalDateTime.ofEpochSecond(
-            it/1000, 0, ZoneOffset.UTC
+            it / 1000, 0, ZoneOffset.UTC
         )
     }
     val timeEnd = dateRangePickerState.selectedEndDateMillis?.let {
         LocalDateTime.ofEpochSecond(
-            it/1000, 0, ZoneOffset.UTC
+            it / 1000, 0, ZoneOffset.UTC
         )
     }
 
-    LaunchedEffect(Unit){
+    LaunchedEffect(Unit) {
         viewModel.initialize()
     }
-
 
     Column(modifier = Modifier.padding(16.dp)) {
         Row(
@@ -80,37 +79,19 @@ fun TimeScreen(
         }
 
         Column(
-            verticalArrangement = Arrangement.Top,
+            verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
         ) {
-            Button(onClick = { clickedDatePicker = true }) {
-                Text(text = "Date Picker")
-            }
-            DateRangePickerDefaults.DateRangePickerHeadline(
-                dateRangePickerState,
-                fullDateFormatter,
-                modifier = Modifier
-            )
-            if (clickedDatePicker) {
-                DatePickerDialog(
-                    onDismissRequest = {
-                        clickedDatePicker = false
-                        Log.d("timeScreen", timeStart?.longConvert().toString())
-                        Log.d("timeScreen", timeEnd?.longConvert().toString())
-                    },
-                    confirmButton = { /*TODO*/ }) {
-                    DateRangePicker(state = dateRangePickerState, title = {}, headline = {
-                        DateRangePickerDefaults.DateRangePickerHeadline(
-                            dateRangePickerState,
-                            shortDateFormatter,
-                            modifier = Modifier.padding(start = 32.dp)
-                        )
-                    })
-                }
-            }
+            DateRangePicker(state = dateRangePickerState, title = {}, headline = {
+                DateRangePickerDefaults.DateRangePickerHeadline(
+                    dateRangePickerState,
+                    fullDateFormatter,
+                    modifier = Modifier.padding(start = 32.dp)
+                )
+            })
         }
 
         Row(

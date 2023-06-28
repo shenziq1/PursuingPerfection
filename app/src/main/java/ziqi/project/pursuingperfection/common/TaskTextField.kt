@@ -98,12 +98,13 @@ fun TaskTextField(
         keyboardActions = KeyboardActions(onDone = {
             if (value.text != "") {
                 onEditFinish(item.copy(content = value.text))
-//                keyboardController?.hide()
-//                focusManager.clearFocus()
+                keyboardController?.hide()
+                //focusManager.clearFocus()
             } else {
                 if (defaultValueOn) onEditFinish(item.copy(content = defaultValue))
                 //else onEditFinish(item.copy(content = value.text))
                 onCardRemove(item)
+                keyboardController?.hide()
             }
         }),
         visualTransformation = VisualTransformation.None,
