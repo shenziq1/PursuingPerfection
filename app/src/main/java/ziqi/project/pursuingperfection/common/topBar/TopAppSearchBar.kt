@@ -39,6 +39,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import ziqi.project.pursuingperfection.common.card.TopAppSearchResultCard
 import ziqi.project.pursuingperfection.data.Home
 import ziqi.project.pursuingperfection.uiState.SearchResultUiState
 import ziqi.project.pursuingperfection.viewModel.SearchResultViewModel
@@ -73,6 +74,7 @@ fun TopAppSearchBar(
             active = active,
             onActiveChange = {
                 active = it
+                if (active) viewModel.clearSearch()
             },
             query = query,
             onQueryChange = {
@@ -105,78 +107,6 @@ fun TopAppSearchBar(
                 TopAppSearchResultCard(query = query, onClick = onResultClick, uiState = it)
             }
         }
-//        if (!active) {
-//            IconButton(modifier = Modifier.offset(y = 12.dp), onClick = { }) {
-//                Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit")
-//            }
-//        }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun TopAppSearchResultCard(query: String, onClick: (Int) -> Unit, uiState: SearchResultUiState) {
-    val matchedTitle = query.toRegex(RegexOption.IGNORE_CASE).find(uiState.title)?.value
-    val matchedContent = query.toRegex(RegexOption.IGNORE_CASE).find(uiState.content)?.value
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(80.dp),
-        onClick = { onClick(uiState.id) },
-        shape = RoundedCornerShape(0.dp)
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(16.dp)) {
-            Image(
-                painter = painterResource(id = uiState.profilePhoto),
-                contentDescription = null,
-                modifier = Modifier
-                    .clip(MaterialTheme.shapes.small)
-                    .border(
-                        1.dp,
-                        MaterialTheme.colorScheme.outlineVariant,
-                        MaterialTheme.shapes.small
-                    ),
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            Column() {
-                Text(
-                    text = if (matchedTitle == null) AnnotatedString(uiState.title)
-                    else buildAnnotatedString {
-                        append(uiState.title.substringBefore(matchedTitle))
-                        withStyle(
-                            style = SpanStyle(
-                                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                background = MaterialTheme.colorScheme.secondaryContainer
-                            )
-                        ) {
-                            append(matchedTitle)
-                        }
-                        append(uiState.title.substringAfter(matchedTitle, ""))
-                    },
-                    style = MaterialTheme.typography.labelMedium,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    text = if (matchedContent == null) AnnotatedString(uiState.content)
-                    else buildAnnotatedString {
-                        append(uiState.content.substringBefore(matchedContent))
-                        withStyle(
-                            style = SpanStyle(
-                                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                background = MaterialTheme.colorScheme.secondaryContainer
-                            )
-                        ) {
-                            append(matchedContent)
-                        }
-                        append(uiState.content.substringAfter(matchedContent, ""))
-                    },
-                    style = MaterialTheme.typography.labelSmall,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-
-            }
-        }
-    }
-}

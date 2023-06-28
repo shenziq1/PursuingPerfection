@@ -1,6 +1,7 @@
 package ziqi.project.pursuingperfection.viewModel
 
 import android.util.Log
+import androidx.annotation.MainThread
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -28,24 +29,18 @@ class TaskDetailViewModel @Inject constructor(
     val id = savedStateHandle.get<Int>("id") ?: 0
     private var _uiState = MutableStateFlow(TaskUiState())
     val uiState = _uiState.asStateFlow()
-    private val type = savedStateHandle.get<String>("type") ?: "edit"
 
+    private var initializeCalled = false
 
-    init {
-        when (type) {
-            "edit" -> {
-                viewModelScope.launch {
-                    repository.getTaskById(id).filterNotNull().collect {
-                        _uiState.value = it.toTaskUiState()
-                    }
-                }
-            }
-
-            "new" -> {
-                _uiState.value = TaskUiState()
+    @MainThread
+    fun initialize() {
+        if(initializeCalled) return
+        initializeCalled = true
+        viewModelScope.launch {
+            repository.getTaskById(id).filterNotNull().collect {
+                _uiState.value = it.toTaskUiState()
             }
         }
-
     }
 
     suspend fun updateCheckedStatus(item: Item) {
@@ -86,7 +81,7 @@ class TaskDetailViewModel @Inject constructor(
         }
     }
 
-    suspend fun removeTask(){
+    suspend fun removeTask() {
         viewModelScope.launch {
             repository.deleteTaskById(id)
         }

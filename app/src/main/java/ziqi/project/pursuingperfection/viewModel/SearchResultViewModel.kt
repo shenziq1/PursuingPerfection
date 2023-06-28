@@ -24,30 +24,30 @@ class SearchResultViewModel @Inject constructor(private val taskRepository: Task
         MutableStateFlow(emptyList())
     val donePageSearchResult = _doneScreenSearchResult.asStateFlow()
 
-    fun  updateSearchResult(route: String, searchInput: String) {
-        viewModelScope.launch {
-            if (route == Home.route) {
-                launch {
-                    taskRepository.searchTask(searchInput, false).filterNotNull().collect { taskEntities ->
+    fun updateSearchResult(route: String, searchInput: String) {
+        if (route == Home.route) {
+            viewModelScope.launch {
+                taskRepository.searchTask(searchInput, false).filterNotNull()
+                    .collect { taskEntities ->
                         _homeScreenSearchResult.value =
                             taskEntities.map { it.toSearchResultUiState(searchInput) }
                     }
-                }
-            } else {
-                launch {
-                    taskRepository.searchTask(searchInput, true).filterNotNull().collect { taskEntities ->
+            }
+        } else {
+            viewModelScope.launch {
+                taskRepository.searchTask(searchInput, true).filterNotNull()
+                    .collect { taskEntities ->
                         _doneScreenSearchResult.value =
                             taskEntities.map { it.toSearchResultUiState(searchInput) }
                     }
-                }
             }
         }
-        Log.d("searchResultValue", "${_homeScreenSearchResult.value}")
     }
-
-    fun clearSearch(){
+    fun clearSearch() {
         _homeScreenSearchResult.value = listOf()
         _doneScreenSearchResult.value = listOf()
     }
 }
+
+
 

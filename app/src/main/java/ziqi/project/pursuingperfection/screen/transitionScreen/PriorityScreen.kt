@@ -15,6 +15,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,6 +45,11 @@ fun PriorityScreen(
         1 -> "Medium"
         else -> "Low"
     }
+
+    LaunchedEffect(Unit){
+        viewModel.initialize()
+    }
+
     Column(modifier = Modifier.padding(16.dp)) {
         Row(
             Modifier

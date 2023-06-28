@@ -1,6 +1,7 @@
 package ziqi.project.pursuingperfection.viewModel.editViewModel
 
 import android.util.Log
+import androidx.annotation.MainThread
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -24,9 +25,13 @@ class EditTimeViewModel @Inject constructor(
     val id = savedStateHandle.get<Int>("id") ?: 0
     private var _uiState = MutableStateFlow(TaskUiState())
     val uiState = _uiState.asStateFlow()
-    private val type = savedStateHandle.get<String>("type") ?: "edit"
 
-    init {
+    private var initializeCalled = false
+
+    @MainThread
+    fun initialize() {
+        if(initializeCalled) return
+        initializeCalled = true
         viewModelScope.launch {
             repository.getTaskById(id).filterNotNull().collect {
                 _uiState.value = it.toTaskUiState()

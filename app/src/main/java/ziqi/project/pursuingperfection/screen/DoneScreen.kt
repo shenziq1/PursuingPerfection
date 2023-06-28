@@ -54,7 +54,7 @@ fun DoneScreen(
 
     LaunchedEffect(Unit){
         viewModel.initialize()
-        viewModel.updateTaskList(categoryName)
+        //viewModel.updateTaskList(categoryName)
     }
 
     Box(modifier = modifier) {
