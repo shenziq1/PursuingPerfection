@@ -20,7 +20,6 @@ class TransitionAppBarViewModel @Inject constructor(
 ) : ViewModel() {
 
     suspend fun cancelTask() {
-        Log.d("transitionAppBar", "A?")
         viewModelScope.launch {
             repository.deleteMostRecentTask()
         }

@@ -65,6 +65,10 @@ class TaskRepository @Inject constructor(private val taskDao: TaskDao) {
         taskDao.updateTask(taskEntity)
     }
 
+    suspend fun updateTaskCategory(oldCategory: String, newCategory: String, profilePhoto: Int){
+        taskDao.updateTaskCategory(oldCategory, newCategory, profilePhoto)
+    }
+
 
 
 }

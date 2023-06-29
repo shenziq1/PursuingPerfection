@@ -32,16 +32,19 @@ import ziqi.project.pursuingperfection.viewModel.editViewModel.EditCategoryViewM
 fun CategoryScreen(
     onBackClick: () -> Unit,
     onNextClick: (Int) -> Unit,
+    onEditClick: (String) -> Unit,
+    onNewClick: (String) -> Unit,
     categoryViewModel: CategoryViewModel = hiltViewModel(),
     editCategoryViewModel: EditCategoryViewModel = hiltViewModel(),
+
 ) {
     val categories = categoryViewModel.categories.collectAsStateWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
     val selectedCategoryName = editCategoryViewModel.uiState.collectAsStateWithLifecycle().value.category
-    val id = editCategoryViewModel.uiState.collectAsStateWithLifecycle().value.id
+    val selectedCategoryId = editCategoryViewModel.uiState.collectAsStateWithLifecycle().value.id
     val defaultCategoryUiState = CategoryUiState()
 
-    LaunchedEffect(Unit){
+    LaunchedEffect(Unit) {
         categoryViewModel.initialize()
         editCategoryViewModel.initialize()
     }
@@ -99,8 +102,18 @@ fun CategoryScreen(
                 .padding(top = 12.dp),
             horizontalArrangement = Arrangement.Center
         ) {
-            Button(onClick = { /*TODO*/ }, shape = MaterialTheme.shapes.small) {
+            Button(onClick = { onNewClick("Default") }, shape = MaterialTheme.shapes.small) {
                 Text(text = "Create New Category")
+            }
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 12.dp),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Button(onClick = { onEditClick(selectedCategoryName) }, shape = MaterialTheme.shapes.small) {
+                Text(text = "Edit Category")
             }
         }
 
@@ -115,7 +128,7 @@ fun CategoryScreen(
             }
             Spacer(modifier = Modifier.width(24.dp))
             Button(onClick = {
-                onNextClick(id)
+                onNextClick(selectedCategoryId)
                 coroutineScope.launch {
                     editCategoryViewModel.updateTaskToRepository()
                 }

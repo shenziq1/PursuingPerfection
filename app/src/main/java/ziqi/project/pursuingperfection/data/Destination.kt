@@ -76,6 +76,26 @@ object Category : TemporaryDestination {
     )
 }
 
+object EditCategory: TemporaryDestination{
+    override val route = "{type}/edit_category/{category}"
+    override fun passId(id: Int, type: String): String {
+        return "$type/edit_category/$id"
+    }
+
+    fun passCategory(category: String, type: String): String {
+        return "$type/edit_category/$category"
+    }
+
+    override val arguments = listOf(
+        navArgument("category") {
+            type = NavType.StringType
+        },
+        navArgument("type") {
+            type = NavType.StringType
+        }
+    )
+}
+
 object Priority : TemporaryDestination {
     override val route = "{type}/priority/{id}"
     override fun passId(id: Int, type: String): String {

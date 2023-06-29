@@ -30,6 +30,7 @@ import ziqi.project.pursuingperfection.data.Destinations
 import ziqi.project.pursuingperfection.data.Done
 import ziqi.project.pursuingperfection.data.Home
 import ziqi.project.pursuingperfection.data.Category
+import ziqi.project.pursuingperfection.data.EditCategory
 import ziqi.project.pursuingperfection.data.Priority
 import ziqi.project.pursuingperfection.data.Time
 import ziqi.project.pursuingperfection.data.Title
@@ -37,6 +38,7 @@ import ziqi.project.pursuingperfection.data.Settings
 import ziqi.project.pursuingperfection.data.navigateSingleTopTo
 import ziqi.project.pursuingperfection.data.navigateSingleTopToWithoutState
 import ziqi.project.pursuingperfection.screen.transitionScreen.CategoryScreen
+import ziqi.project.pursuingperfection.screen.transitionScreen.EditCategoryScreen
 import ziqi.project.pursuingperfection.screen.transitionScreen.PriorityScreen
 import ziqi.project.pursuingperfection.screen.transitionScreen.TimeScreen
 import ziqi.project.pursuingperfection.screen.transitionScreen.TitleScreen
@@ -78,12 +80,24 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 Category.route -> {
                     if (currentBackStack?.arguments?.getString("type") == "new") {
                         progressValue = 0.25f
-                        TransitionScreenTopBar(1, animatedProgressValue,
+                        TransitionScreenTopBar(1,
+                            animatedProgressValue,
                             { navController.navigateSingleTopToWithoutState(Home.route) },
                             { navController.navigateSingleTopToWithoutState(Home.route) }
                         )
                     }
                 }
+
+//                EditCategory.route -> {
+//                    if (currentBackStack?.arguments?.getString("type") == "new") {
+//                        progressValue = 0.25f
+//                        TransitionScreenTopBar(1,
+//                            animatedProgressValue,
+//                            { navController.navigateSingleTopToWithoutState(Home.route) },
+//                            { navController.navigateSingleTopToWithoutState(Home.route) }
+//                        )
+//                    }
+//                }
 
                 Title.route -> {
                     if (currentBackStack?.arguments?.getString("type") == "new") {
@@ -192,9 +206,24 @@ fun MainScreen(modifier: Modifier = Modifier) {
                         Log.d("transition", it.toString())
                         if (currentType == "new") navController.navigate(Title.passId(it, "new"))
                         else navController.popBackStack()
+                    },
+                    onEditClick = {navController.navigate(EditCategory.passCategory(it, currentType))},
+                    onNewClick = {navController.navigate(EditCategory.passCategory(it, currentType))}
+                )
+            }
+
+            composable(route = EditCategory.route, arguments = EditCategory.arguments) { navBackStackEntry ->
+                val currentType = navBackStackEntry.arguments?.getString("type") ?: "new"
+                EditCategoryScreen(
+                    onBackClick = { navController.popBackStack() },
+                    onNextClick = {
+                        Log.d("transition", it.toString())
+                        if (currentType == "new") navController.navigate(Title.passId(it, "new"))
+                        else navController.popBackStack()
                     }
                 )
             }
+
             composable(route = Title.route, arguments = Title.arguments) { navBackStackEntry ->
                 val currentType = navBackStackEntry.arguments?.getString("type") ?: "new"
                 TitleScreen(

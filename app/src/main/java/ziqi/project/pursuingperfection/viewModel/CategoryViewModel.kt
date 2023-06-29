@@ -35,4 +35,10 @@ class CategoryViewModel @Inject constructor(private val taskRepository: TaskRepo
             }
         }
     }
+
+    fun addCategory(){
+        viewModelScope.launch {
+            taskRepository
+        }
+    }
 }

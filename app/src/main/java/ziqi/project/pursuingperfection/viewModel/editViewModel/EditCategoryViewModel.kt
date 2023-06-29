@@ -23,8 +23,10 @@ class EditCategoryViewModel @Inject constructor(
     private val repository: TaskRepository
 ) : ViewModel() {
     val id = savedStateHandle.get<Int>("id") ?: 0
+    val category = savedStateHandle.get<String>("category") ?: "Default"
     private var _uiState = MutableStateFlow(TaskUiState())
     val uiState = _uiState.asStateFlow()
+
     private val type = savedStateHandle.get<String>("type") ?: "edit"
 
     private var initializeCalled = false
@@ -62,6 +64,12 @@ class EditCategoryViewModel @Inject constructor(
     suspend fun updateTaskToRepository() {
         viewModelScope.launch {
             repository.updateTask(_uiState.value.toTaskEntity())
+        }
+    }
+
+    suspend fun updateAllTasksCategory(newCategoryUiState: CategoryUiState){
+        viewModelScope.launch{
+            repository.updateTaskCategory(_uiState.value.category, newCategoryUiState.name, newCategoryUiState.picture)
         }
     }
 }
