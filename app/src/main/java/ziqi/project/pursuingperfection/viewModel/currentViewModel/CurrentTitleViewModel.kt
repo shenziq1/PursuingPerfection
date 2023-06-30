@@ -1,6 +1,5 @@
-package ziqi.project.pursuingperfection.viewModel.editViewModel
+package ziqi.project.pursuingperfection.viewModel.currentViewModel
 
-import android.util.Log
 import androidx.annotation.MainThread
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -17,14 +16,13 @@ import ziqi.project.pursuingperfection.uiState.toTaskEntity
 import javax.inject.Inject
 
 @HiltViewModel
-class EditPriorityViewModel @Inject constructor(
+class CurrentTitleViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val repository: TaskRepository
 ) : ViewModel() {
     val id = savedStateHandle.get<Int>("id") ?: 0
     private var _uiState = MutableStateFlow(TaskUiState())
     val uiState = _uiState.asStateFlow()
-
     private var initializeCalled = false
 
     @MainThread
@@ -38,9 +36,8 @@ class EditPriorityViewModel @Inject constructor(
         }
     }
 
-    fun updateNewTaskPriority(priority: Int) {
-        _uiState.value = _uiState.value.copy(priority = priority)
-        Log.d("priority", priority.toString())
+    fun updateNewTaskTitle(title: String) {
+        _uiState.value = _uiState.value.copy(title = title)
     }
 
     suspend fun updateTaskToRepository() {

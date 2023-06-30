@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -32,15 +31,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.launch
 import ziqi.project.pursuingperfection.common.TaskTextField
 import ziqi.project.pursuingperfection.uiState.Item
-import ziqi.project.pursuingperfection.viewModel.TaskDetailViewModel
-import ziqi.project.pursuingperfection.viewModel.editViewModel.EditTitleViewModel
+import ziqi.project.pursuingperfection.viewModel.currentViewModel.CurrentTitleViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TitleScreen(
     onBackClick: () -> Unit,
     onNextClick: (Int) -> Unit,
-    viewModel: EditTitleViewModel = hiltViewModel()
+    viewModel: CurrentTitleViewModel = hiltViewModel()
 ) {
     val coroutineScope = rememberCoroutineScope()
     var inEdit by remember {

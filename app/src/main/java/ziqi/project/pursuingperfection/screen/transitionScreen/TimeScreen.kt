@@ -1,6 +1,5 @@
 package ziqi.project.pursuingperfection.screen.transitionScreen
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
-import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DatePickerFormatter
 import androidx.compose.material3.DateRangePicker
 import androidx.compose.material3.DateRangePickerDefaults
@@ -29,8 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.launch
-import ziqi.project.pursuingperfection.utils.longConvert
-import ziqi.project.pursuingperfection.viewModel.editViewModel.EditTimeViewModel
+import ziqi.project.pursuingperfection.viewModel.currentViewModel.CurrentTimeViewModel
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
@@ -39,7 +36,7 @@ import java.time.ZoneOffset
 fun TimeScreen(
     onBackClick: () -> Unit,
     onNextClick: (Int) -> Unit,
-    viewModel: EditTimeViewModel = hiltViewModel()
+    viewModel: CurrentTimeViewModel = hiltViewModel()
 ) {
     var clickedDatePicker by remember {
         mutableStateOf(false)

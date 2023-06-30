@@ -161,9 +161,24 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 .padding(padding)
                 .animateContentSize()
         ) {
-            composable(route = Home.route) {
-                Log.d("nav", it.destination.route.toString())
-                HomeScreen({ id -> navController.navigateSingleTopTo(Home.passId(id)) })
+            composable(route = Home.route) { navBackStackEntry ->
+                Log.d("nav", navBackStackEntry.destination.route.toString())
+                HomeScreen(
+                    onTaskCardClick = { id -> navController.navigateSingleTopTo(Home.passId(id)) },
+                    onNewClick = {
+                        navController.navigate(
+                            EditCategory.passCategory(
+                                it, "new"
+                            )
+                        )
+                    },
+                    onEditClick = {
+                        navController.navigate(
+                            EditCategory.passCategory(
+                                it, "edit"
+                            )
+                        )
+                    })
             }
             composable(
                 route = Home.detail,
@@ -198,7 +213,10 @@ fun MainScreen(modifier: Modifier = Modifier) {
             composable(route = Settings.route) {
                 SettingsScreen()
             }
-            composable(route = Category.route, arguments = Category.arguments) { navBackStackEntry ->
+            composable(
+                route = Category.route,
+                arguments = Category.arguments
+            ) { navBackStackEntry ->
                 val currentType = navBackStackEntry.arguments?.getString("type") ?: "new"
                 CategoryScreen(
                     onBackClick = { navController.popBackStack() },
@@ -207,20 +225,33 @@ fun MainScreen(modifier: Modifier = Modifier) {
                         if (currentType == "new") navController.navigate(Title.passId(it, "new"))
                         else navController.popBackStack()
                     },
-                    onEditClick = {navController.navigate(EditCategory.passCategory(it, currentType))},
-                    onNewClick = {navController.navigate(EditCategory.passCategory(it, currentType))}
+                    onEditClick = {
+                        navController.navigate(
+                            EditCategory.passCategory(
+                                it,
+                                currentType
+                            )
+                        )
+                    },
+                    onNewClick = {
+                        navController.navigate(
+                            EditCategory.passCategory(
+                                it,
+                                currentType
+                            )
+                        )
+                    }
                 )
             }
 
-            composable(route = EditCategory.route, arguments = EditCategory.arguments) { navBackStackEntry ->
+            composable(
+                route = EditCategory.route,
+                arguments = EditCategory.arguments
+            ) { navBackStackEntry ->
                 val currentType = navBackStackEntry.arguments?.getString("type") ?: "new"
                 EditCategoryScreen(
                     onBackClick = { navController.popBackStack() },
-                    onNextClick = {
-                        Log.d("transition", it.toString())
-                        if (currentType == "new") navController.navigate(Title.passId(it, "new"))
-                        else navController.popBackStack()
-                    }
+                    onNextClick = { navController.popBackStack() }
                 )
             }
 
@@ -246,13 +277,20 @@ fun MainScreen(modifier: Modifier = Modifier) {
                     }
                 )
             }
-            composable(route = Priority.route, arguments = Priority.arguments) {navBackStackEntry ->
+            composable(
+                route = Priority.route,
+                arguments = Priority.arguments
+            ) { navBackStackEntry ->
                 val currentType = navBackStackEntry.arguments?.getString("type") ?: "new"
                 PriorityScreen(
                     onBackClick = { navController.popBackStack() },
                     onNextClick = {
                         Log.d("transition", it.toString())
-                        if (currentType == "new") navController.navigateSingleTopToWithoutState(Home.passId(it))
+                        if (currentType == "new") navController.navigateSingleTopToWithoutState(
+                            Home.passId(
+                                it
+                            )
+                        )
                         else navController.popBackStack()
                     }
                 )

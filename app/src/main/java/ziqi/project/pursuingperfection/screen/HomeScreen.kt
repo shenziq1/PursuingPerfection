@@ -17,8 +17,10 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
@@ -38,6 +40,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ziqi.project.pursuingperfection.common.card.CategoryCard
+import ziqi.project.pursuingperfection.common.card.CategoryCardVariant
 import ziqi.project.pursuingperfection.common.card.TaskOverviewCard
 import ziqi.project.pursuingperfection.uiState.CategoryUiState
 import ziqi.project.pursuingperfection.viewModel.HomeListViewModel
@@ -46,7 +49,9 @@ import ziqi.project.pursuingperfection.viewModel.HomeListViewModel
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreen(
-    onClick: (Int) -> Unit,
+    onTaskCardClick: (Int) -> Unit,
+    onNewClick: (String) -> Unit,
+    onEditClick: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeListViewModel = hiltViewModel(),
 ) {
@@ -115,6 +120,12 @@ fun HomeScreen(
                     )
                 }
                 item {
+                    CategoryCardVariant(onClick = {onNewClick("new")}, imageVector = Icons.Default.Add)
+                }
+                item {
+                    CategoryCardVariant(onClick = {onEditClick(categoryName)}, imageVector = Icons.Default.Edit)
+                }
+                item {
                     Spacer(modifier = Modifier.width(8.dp))
                 }
             }
@@ -135,7 +146,7 @@ fun HomeScreen(
                                     viewModel.checkTask(it)
                                 }
                             },
-                            onClick = onClick,
+                            onClick = onTaskCardClick,
                             modifier = Modifier.animateItemPlacement()
                         )
                     }

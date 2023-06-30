@@ -1,4 +1,4 @@
-package ziqi.project.pursuingperfection.viewModel.editViewModel
+package ziqi.project.pursuingperfection.viewModel.currentViewModel
 
 import android.util.Log
 import androidx.annotation.MainThread
@@ -12,19 +12,19 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import ziqi.project.pursuingperfection.data.TaskRepository
 import ziqi.project.pursuingperfection.database.toTaskUiState
-import ziqi.project.pursuingperfection.uiState.CategoryUiState
 import ziqi.project.pursuingperfection.uiState.TaskUiState
 import ziqi.project.pursuingperfection.uiState.toTaskEntity
 import javax.inject.Inject
 
 @HiltViewModel
-class EditTitleViewModel @Inject constructor(
+class CurrentPriorityViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val repository: TaskRepository
 ) : ViewModel() {
     val id = savedStateHandle.get<Int>("id") ?: 0
     private var _uiState = MutableStateFlow(TaskUiState())
     val uiState = _uiState.asStateFlow()
+
     private var initializeCalled = false
 
     @MainThread
@@ -38,8 +38,9 @@ class EditTitleViewModel @Inject constructor(
         }
     }
 
-    fun updateNewTaskTitle(title: String) {
-        _uiState.value = _uiState.value.copy(title = title)
+    fun updateNewTaskPriority(priority: Int) {
+        _uiState.value = _uiState.value.copy(priority = priority)
+        Log.d("priority", priority.toString())
     }
 
     suspend fun updateTaskToRepository() {

@@ -26,7 +26,7 @@ import kotlinx.coroutines.launch
 import ziqi.project.pursuingperfection.common.card.CategoryCard
 import ziqi.project.pursuingperfection.uiState.CategoryUiState
 import ziqi.project.pursuingperfection.viewModel.CategoryViewModel
-import ziqi.project.pursuingperfection.viewModel.editViewModel.EditCategoryViewModel
+import ziqi.project.pursuingperfection.viewModel.currentViewModel.CurrentCategoryViewModel
 
 @Composable
 fun CategoryScreen(
@@ -35,18 +35,18 @@ fun CategoryScreen(
     onEditClick: (String) -> Unit,
     onNewClick: (String) -> Unit,
     categoryViewModel: CategoryViewModel = hiltViewModel(),
-    editCategoryViewModel: EditCategoryViewModel = hiltViewModel(),
+    CurrentCategoryViewModel: CurrentCategoryViewModel = hiltViewModel(),
 
-) {
+    ) {
     val categories = categoryViewModel.categories.collectAsStateWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
-    val selectedCategoryName = editCategoryViewModel.uiState.collectAsStateWithLifecycle().value.category
-    val selectedCategoryId = editCategoryViewModel.uiState.collectAsStateWithLifecycle().value.id
+    val selectedCategoryName = CurrentCategoryViewModel.uiState.collectAsStateWithLifecycle().value.category
+    val selectedCategoryId = CurrentCategoryViewModel.uiState.collectAsStateWithLifecycle().value.id
     val defaultCategoryUiState = CategoryUiState()
 
     LaunchedEffect(Unit) {
         categoryViewModel.initialize()
-        editCategoryViewModel.initialize()
+        CurrentCategoryViewModel.initialize()
     }
 
     Column(modifier = Modifier.padding(16.dp)) {
@@ -67,27 +67,27 @@ fun CategoryScreen(
             verticalArrangement = Arrangement.spacedBy(24.dp),
             modifier = Modifier.weight(1f)
         ) {
-            if (categories.value.isEmpty()) {
-                item {
-                    CategoryCard(
-                        categoryUiState = defaultCategoryUiState,
-                        selected = selectedCategoryName == "Default",
-                        onClick = {
-                            editCategoryViewModel.updateNewTaskCategory(defaultCategoryUiState)
-                        },
-                        modifier = Modifier.aspectRatio(1f),
-                        shape = MaterialTheme.shapes.large,
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                }
-            }
+//            if (categories.value.isEmpty()) {
+//                item {
+//                    CategoryCard(
+//                        categoryUiState = defaultCategoryUiState,
+//                        selected = selectedCategoryName == "Default",
+//                        onClick = {
+//                            editCategoryViewModel.updateNewTaskCategory(defaultCategoryUiState)
+//                        },
+//                        modifier = Modifier.aspectRatio(1f),
+//                        shape = MaterialTheme.shapes.large,
+//                        style = MaterialTheme.typography.titleLarge
+//                    )
+//                }
+//            }
 
             items(items = categories.value, key = { it.id }) { categoryUiState ->
                 CategoryCard(
                     categoryUiState = categoryUiState,
                     selected = selectedCategoryName == categoryUiState.name,
                     onClick = {
-                        editCategoryViewModel.updateNewTaskCategory(categoryUiState)
+                        CurrentCategoryViewModel.updateNewTaskCategory(categoryUiState)
                     },
                     modifier = Modifier.aspectRatio(1f),
                     shape = MaterialTheme.shapes.large,
@@ -130,7 +130,7 @@ fun CategoryScreen(
             Button(onClick = {
                 onNextClick(selectedCategoryId)
                 coroutineScope.launch {
-                    editCategoryViewModel.updateTaskToRepository()
+                    CurrentCategoryViewModel.updateTaskToRepository()
                 }
             }, shape = MaterialTheme.shapes.small) {
                 Text(text = "Next")

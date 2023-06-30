@@ -1,6 +1,5 @@
-package ziqi.project.pursuingperfection.viewModel.editViewModel
+package ziqi.project.pursuingperfection.viewModel.currentViewModel
 
-import android.util.Log
 import androidx.annotation.MainThread
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -12,19 +11,22 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import ziqi.project.pursuingperfection.data.TaskRepository
 import ziqi.project.pursuingperfection.database.toTaskUiState
+import ziqi.project.pursuingperfection.uiState.CategoryUiState
 import ziqi.project.pursuingperfection.uiState.TaskUiState
 import ziqi.project.pursuingperfection.uiState.toTaskEntity
-import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
-class EditTimeViewModel @Inject constructor(
+class CurrentCategoryViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val repository: TaskRepository
 ) : ViewModel() {
     val id = savedStateHandle.get<Int>("id") ?: 0
+    val category = savedStateHandle.get<String>("category") ?: "Default"
     private var _uiState = MutableStateFlow(TaskUiState())
     val uiState = _uiState.asStateFlow()
+
+    private val type = savedStateHandle.get<String>("type") ?: "edit"
 
     private var initializeCalled = false
 
@@ -32,21 +34,35 @@ class EditTimeViewModel @Inject constructor(
     fun initialize() {
         if(initializeCalled) return
         initializeCalled = true
-        viewModelScope.launch {
-            repository.getTaskById(id).filterNotNull().collect {
-                _uiState.value = it.toTaskUiState()
+        when (type) {
+            "edit" -> {
+                viewModelScope.launch {
+                    repository.getTaskById(id).filterNotNull().collect {
+                        _uiState.value = it.toTaskUiState()
+                    }
+                }
+            }
+
+            "new" -> {
+                val newTaskUiState = TaskUiState()
+                viewModelScope.launch {
+                    val id = repository.insertTask(newTaskUiState.toTaskEntity())
+                    _uiState.value = _uiState.value.copy(id = id.toInt())
+                }
             }
         }
     }
 
-    fun updateNewTaskTime(timeStart: LocalDateTime, timeEnd: LocalDateTime) {
-        _uiState.value = _uiState.value.copy(timeStart = timeStart, timeEnd = timeEnd)
+    fun updateNewTaskCategory(categoryUiState: CategoryUiState) {
+        _uiState.value = _uiState.value.copy(
+            category = categoryUiState.name,
+            profilePhoto = categoryUiState.picture
+        )
     }
 
     suspend fun updateTaskToRepository() {
         viewModelScope.launch {
             repository.updateTask(_uiState.value.toTaskEntity())
         }
-        Log.d("transition", id.toString())
     }
 }
