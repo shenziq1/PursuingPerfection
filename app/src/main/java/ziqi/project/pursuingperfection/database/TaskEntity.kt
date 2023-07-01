@@ -42,8 +42,8 @@ fun TaskEntity.toTaskUiState(): TaskUiState {
 fun TaskEntity.toCategoryUiState(): CategoryUiState {
     return CategoryUiState(
         id = this.id,
-        name = this.category,
-        picture = this.profilePhoto
+        category = this.category,
+        profilePhoto = this.profilePhoto
     )
 }
 

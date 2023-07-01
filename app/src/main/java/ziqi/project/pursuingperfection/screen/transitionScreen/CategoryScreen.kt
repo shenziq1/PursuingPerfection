@@ -85,7 +85,7 @@ fun CategoryScreen(
             items(items = categories.value, key = { it.id }) { categoryUiState ->
                 CategoryCard(
                     categoryUiState = categoryUiState,
-                    selected = selectedCategoryName == categoryUiState.name,
+                    selected = selectedCategoryName == categoryUiState.category,
                     onClick = {
                         CurrentCategoryViewModel.updateNewTaskCategory(categoryUiState)
                     },

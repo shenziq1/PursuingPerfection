@@ -44,6 +44,7 @@ import ziqi.project.pursuingperfection.common.card.CategoryCardVariant
 import ziqi.project.pursuingperfection.common.card.TaskOverviewCard
 import ziqi.project.pursuingperfection.uiState.CategoryUiState
 import ziqi.project.pursuingperfection.viewModel.HomeListViewModel
+import ziqi.project.pursuingperfection.viewModel.newViewModel.NewCategoryViewModel
 
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -65,70 +66,21 @@ fun HomeScreen(
     val tasks = viewModel.plannedTasks.collectAsStateWithLifecycle()
     val categories = viewModel.categories.collectAsStateWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
-    val allCategory = CategoryUiState(name = "All")
+    val allCategory = CategoryUiState(category = "All")
 
-    LaunchedEffect(Unit){
+    LaunchedEffect(Unit) {
         viewModel.initialize()
         //viewModel.updateTaskList(categoryName)
     }
 
     Box(modifier = modifier) {
         Column(modifier = Modifier.fillMaxSize()) {
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(start = 16.dp, bottom = 8.dp)
-            ) {
-                item {
-                    CategoryCard(
-                        categoryUiState = allCategory,
-                        selected = categoryName == "All",
-                        onClick = {
-                            Log.d("categoryName", categoryName)
-                            categoryName = it
-                            viewModel.updateTaskList(categoryName)
-                            //viewModel.saveCurrentCategory(categoryName)
-                            coroutineScope.launch {
-                                visible = false
-                                delay(300)
-                                taskOverViewListState.scrollToItem(0)
-                                //taskOverViewListState.animateScrollToItem(0)
-                                visible = true
-                            }
-                        }
-                    )
-                }
-                items(
-                    items = categories.value,
-                    key = { it.id }
-                ) { categoryUiState ->
-                    CategoryCard(
-                        categoryUiState = categoryUiState,
-                        selected = categoryUiState.name == categoryName,
-                        onClick = {
-                            Log.d("categoryName", categoryName)
-                            categoryName = it
-                            viewModel.updateTaskList(categoryName)
-                            //viewModel.saveCurrentCategory(categoryName)
-                            coroutineScope.launch {
-                                visible = false
-                                delay(300)
-                                taskOverViewListState.scrollToItem(0)
-                                //taskOverViewListState.animateScrollToItem(0)
-                                visible = true
-                            }
-                        }
-                    )
-                }
-                item {
-                    CategoryCardVariant(onClick = {onNewClick("new")}, imageVector = Icons.Default.Add)
-                }
-                item {
-                    CategoryCardVariant(onClick = {onEditClick(categoryName)}, imageVector = Icons.Default.Edit)
-                }
-                item {
-                    Spacer(modifier = Modifier.width(8.dp))
-                }
-            }
+            CategoryBar(
+                onNewClick = onNewClick,
+                onEditClick = onEditClick,
+                onCategoryClick = { viewModel.updateTaskList(it) },
+                setVisible = { visible = it }
+            )
             AnimatedVisibility(visible = visible) {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -177,6 +129,82 @@ fun HomeScreen(
                 Icon(imageVector = Icons.Default.Clear, contentDescription = null)
             }
 
+        }
+    }
+}
+
+@Composable
+fun CategoryBar(
+    onNewClick: (String) -> Unit,
+    onEditClick: (String) -> Unit,
+    onCategoryClick: (String) -> Unit,
+    setVisible: (Boolean) -> Unit,
+    viewModel: NewCategoryViewModel = hiltViewModel(),
+) {
+    LaunchedEffect(Unit) {
+        viewModel.initialize()
+    }
+    var categoryName by rememberSaveable {
+        mutableStateOf("All")
+    }
+    //val taskOverViewListState = rememberLazyListState()
+    val categories = viewModel.listUiState.collectAsStateWithLifecycle()
+    val coroutineScope = rememberCoroutineScope()
+    val allCategory = CategoryUiState(category = "All")
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(start = 16.dp, bottom = 8.dp)
+    ) {
+        item {
+            CategoryCard(
+                categoryUiState = allCategory,
+                selected = categoryName == "All",
+                onClick = {
+                    Log.d("categoryName", categoryName)
+                    categoryName = it
+                    onCategoryClick(it)
+                    coroutineScope.launch {
+                        setVisible(false)
+                        delay(300)
+                        //taskOverViewListState.scrollToItem(0)
+                        //taskOverViewListState.animateScrollToItem(0)
+                        setVisible(true)
+                    }
+                }
+            )
+        }
+        items(
+            items = categories.value,
+            key = { it.id }
+        ) { categoryUiState ->
+            CategoryCard(
+                categoryUiState = categoryUiState,
+                selected = categoryUiState.category == categoryName,
+                onClick = {
+                    categoryName = it
+                    onCategoryClick(it)
+                    //viewModel.saveCurrentCategory(categoryName)
+                    coroutineScope.launch {
+                        setVisible(false)
+                        delay(300)
+                        //taskOverViewListState.scrollToItem(0)
+                        //taskOverViewListState.animateScrollToItem(0)
+                        setVisible(true)
+                    }
+                }
+            )
+        }
+        item {
+            CategoryCardVariant(onClick = { onNewClick("new") }, imageVector = Icons.Default.Add)
+        }
+        item {
+            CategoryCardVariant(
+                onClick = { onEditClick(categoryName) },
+                imageVector = Icons.Default.Edit
+            )
+        }
+        item {
+            Spacer(modifier = Modifier.width(8.dp))
         }
     }
 }

@@ -3,7 +3,6 @@ package ziqi.project.pursuingperfection.common.card
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -14,7 +13,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Shapes
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -38,7 +36,7 @@ fun CategoryCard(
 ) {
     Card(
         modifier = modifier.size(80.dp),
-        onClick = { onClick(categoryUiState.name) },
+        onClick = { onClick(categoryUiState.category) },
         shape = shape,
         colors = if (selected) CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
         else CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
@@ -49,7 +47,7 @@ fun CategoryCard(
         ) {
             Image(
                 modifier = Modifier.weight(0.7f),
-                painter = painterResource(id = categoryUiState.picture),
+                painter = painterResource(id = categoryUiState.profilePhoto),
                 contentDescription = null,
                 contentScale = ContentScale.Crop
             )
@@ -57,7 +55,7 @@ fun CategoryCard(
                 modifier = Modifier
                     .weight(0.3f)
                     .padding(horizontal = 8.dp),
-                text = categoryUiState.name,
+                text = categoryUiState.category,
                 style = style
             )
         }

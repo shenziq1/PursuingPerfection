@@ -38,7 +38,7 @@ import ziqi.project.pursuingperfection.data.Settings
 import ziqi.project.pursuingperfection.data.navigateSingleTopTo
 import ziqi.project.pursuingperfection.data.navigateSingleTopToWithoutState
 import ziqi.project.pursuingperfection.screen.transitionScreen.CategoryScreen
-import ziqi.project.pursuingperfection.screen.transitionScreen.EditCategoryScreen
+import ziqi.project.pursuingperfection.screen.transitionScreen.NewCategoryScreen
 import ziqi.project.pursuingperfection.screen.transitionScreen.PriorityScreen
 import ziqi.project.pursuingperfection.screen.transitionScreen.TimeScreen
 import ziqi.project.pursuingperfection.screen.transitionScreen.TitleScreen
@@ -178,6 +178,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                                 it, "edit"
                             )
                         )
+                        Log.d("category", it)
                     })
             }
             composable(
@@ -249,7 +250,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 arguments = EditCategory.arguments
             ) { navBackStackEntry ->
                 val currentType = navBackStackEntry.arguments?.getString("type") ?: "new"
-                EditCategoryScreen(
+                NewCategoryScreen(
                     onBackClick = { navController.popBackStack() },
                     onNextClick = { navController.popBackStack() }
                 )

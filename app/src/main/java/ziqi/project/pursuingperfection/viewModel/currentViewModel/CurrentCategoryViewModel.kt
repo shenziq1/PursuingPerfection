@@ -9,7 +9,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
+import ziqi.project.pursuingperfection.R
+import ziqi.project.pursuingperfection.data.CategoryRepository
 import ziqi.project.pursuingperfection.data.TaskRepository
+import ziqi.project.pursuingperfection.database.CategoryEntity
 import ziqi.project.pursuingperfection.database.toTaskUiState
 import ziqi.project.pursuingperfection.uiState.CategoryUiState
 import ziqi.project.pursuingperfection.uiState.TaskUiState
@@ -19,7 +22,8 @@ import javax.inject.Inject
 @HiltViewModel
 class CurrentCategoryViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val repository: TaskRepository
+    private val repository: TaskRepository,
+    private val categoryRepository: CategoryRepository
 ) : ViewModel() {
     val id = savedStateHandle.get<Int>("id") ?: 0
     val category = savedStateHandle.get<String>("category") ?: "Default"
@@ -49,14 +53,17 @@ class CurrentCategoryViewModel @Inject constructor(
                     val id = repository.insertTask(newTaskUiState.toTaskEntity())
                     _uiState.value = _uiState.value.copy(id = id.toInt())
                 }
+                viewModelScope.launch {
+                    categoryRepository.addCategory(CategoryEntity(1, R.drawable.ic_launcher_foreground,"Default"))
+                }
             }
         }
     }
 
     fun updateNewTaskCategory(categoryUiState: CategoryUiState) {
         _uiState.value = _uiState.value.copy(
-            category = categoryUiState.name,
-            profilePhoto = categoryUiState.picture
+            category = categoryUiState.category,
+            profilePhoto = categoryUiState.profilePhoto
         )
     }
 

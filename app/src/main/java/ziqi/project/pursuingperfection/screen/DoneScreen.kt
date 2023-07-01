@@ -51,7 +51,7 @@ fun DoneScreen(
     val tasks = viewModel.checkedTasks.collectAsStateWithLifecycle()
     val categories = viewModel.categories.collectAsStateWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
-    val allCategory = CategoryUiState(name = "All")
+    val allCategory = CategoryUiState(category = "All")
 
     LaunchedEffect(Unit){
         viewModel.initialize()
@@ -84,7 +84,7 @@ fun DoneScreen(
                 items(items = categories.value) { categoryUiState ->
                     CategoryCard(
                         categoryUiState = categoryUiState,
-                        selected = categoryUiState.name == categoryName,
+                        selected = categoryUiState.category == categoryName,
                         onClick = {
                             categoryName = it
                             viewModel.updateTaskList(categoryName)
