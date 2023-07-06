@@ -6,7 +6,6 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NamedNavArgument
-import androidx.navigation.NavArgument
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -76,14 +75,14 @@ object Category : TemporaryDestination {
     )
 }
 
-object EditCategory: TemporaryDestination{
-    override val route = "{type}/edit_category/{category}"
+object NewCategory: TemporaryDestination{
+    override val route = "{type}/new_category/{category}"
     override fun passId(id: Int, type: String): String {
-        return "$type/edit_category/$id"
+        return "$type/new_category/$id"
     }
 
     fun passCategory(category: String, type: String): String {
-        return "$type/edit_category/$category"
+        return "$type/new_category/$category"
     }
 
     override val arguments = listOf(

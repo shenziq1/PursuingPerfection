@@ -30,7 +30,7 @@ import ziqi.project.pursuingperfection.data.Destinations
 import ziqi.project.pursuingperfection.data.Done
 import ziqi.project.pursuingperfection.data.Home
 import ziqi.project.pursuingperfection.data.Category
-import ziqi.project.pursuingperfection.data.EditCategory
+import ziqi.project.pursuingperfection.data.NewCategory
 import ziqi.project.pursuingperfection.data.Priority
 import ziqi.project.pursuingperfection.data.Time
 import ziqi.project.pursuingperfection.data.Title
@@ -87,17 +87,6 @@ fun MainScreen(modifier: Modifier = Modifier) {
                         )
                     }
                 }
-
-//                EditCategory.route -> {
-//                    if (currentBackStack?.arguments?.getString("type") == "new") {
-//                        progressValue = 0.25f
-//                        TransitionScreenTopBar(1,
-//                            animatedProgressValue,
-//                            { navController.navigateSingleTopToWithoutState(Home.route) },
-//                            { navController.navigateSingleTopToWithoutState(Home.route) }
-//                        )
-//                    }
-//                }
 
                 Title.route -> {
                     if (currentBackStack?.arguments?.getString("type") == "new") {
@@ -167,14 +156,14 @@ fun MainScreen(modifier: Modifier = Modifier) {
                     onTaskCardClick = { id -> navController.navigateSingleTopTo(Home.passId(id)) },
                     onNewClick = {
                         navController.navigate(
-                            EditCategory.passCategory(
+                            NewCategory.passCategory(
                                 it, "new"
                             )
                         )
                     },
                     onEditClick = {
                         navController.navigate(
-                            EditCategory.passCategory(
+                            NewCategory.passCategory(
                                 it, "edit"
                             )
                         )
@@ -225,33 +214,15 @@ fun MainScreen(modifier: Modifier = Modifier) {
                         Log.d("transition", it.toString())
                         if (currentType == "new") navController.navigate(Title.passId(it, "new"))
                         else navController.popBackStack()
-                    },
-                    onEditClick = {
-                        navController.navigate(
-                            EditCategory.passCategory(
-                                it,
-                                currentType
-                            )
-                        )
-                    },
-                    onNewClick = {
-                        navController.navigate(
-                            EditCategory.passCategory(
-                                it,
-                                currentType
-                            )
-                        )
                     }
                 )
             }
 
             composable(
-                route = EditCategory.route,
-                arguments = EditCategory.arguments
-            ) { navBackStackEntry ->
-                val currentType = navBackStackEntry.arguments?.getString("type") ?: "new"
+                route = NewCategory.route,
+                arguments = NewCategory.arguments
+            ) {
                 NewCategoryScreen(
-                    onBackClick = { navController.popBackStack() },
                     onNextClick = { navController.popBackStack() }
                 )
             }

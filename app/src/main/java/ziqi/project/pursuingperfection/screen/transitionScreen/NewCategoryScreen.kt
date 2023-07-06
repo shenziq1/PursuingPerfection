@@ -31,14 +31,13 @@ import ziqi.project.pursuingperfection.viewModel.newViewModel.NewCategoryViewMod
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun NewCategoryScreen(
-    onBackClick: () -> Unit,
     onNextClick: () -> Unit,
     viewModel: NewCategoryViewModel = hiltViewModel()
 ) {
 
     val coroutineScope = rememberCoroutineScope()
 
-    val uiState = viewModel.currentUiState.collectAsStateWithLifecycle()
+    val uiState = viewModel.currentUiState.collectAsStateWithLifecycle().value
     var currentValue by remember {
         mutableStateOf(viewModel.category)
     }
@@ -48,7 +47,7 @@ fun NewCategoryScreen(
     LaunchedEffect(Unit){
         viewModel.initialize()
     }
-    Log.d("NewCategoryScreen", uiState.value.category)
+    Log.d("NewCategoryScreen", uiState.category)
 
     Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.Center) {
         Text(text = "EditCategory")
@@ -57,25 +56,30 @@ fun NewCategoryScreen(
             onValueChange = { currentValue = it },
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(onDone = {
-                coroutineScope.launch {
-                    if (viewModel.type == "edit") {
-                        viewModel.updateCategory(currentValue)
-
-                    } else {
-                        viewModel.addCategory(currentValue)
-                    }
-                    onNextClick()
-                }
                 keyboardController?.hide()
             })
         )
         Button(onClick = {
             coroutineScope.launch {
-                viewModel.removeCategory(uiState.value.category)
+                viewModel.removeCategory(uiState.category)
             }
-            Log.d("currentCategory", uiState.value.category)
+            Log.d("currentCategory", uiState.category)
         }) {
             Text(text = "Delete")
+        }
+        Button(onClick = {
+            coroutineScope.launch {
+                if (viewModel.type == "edit") {
+                    Log.d("typeIsEdit", currentValue)
+                    viewModel.updateCategory(currentValue)
+                } else {
+                    viewModel.addCategory(currentValue)
+                }
+                onNextClick()
+            }
+            Log.d("currentCategory", uiState.category)
+        }) {
+            Text(text = "Save")
         }
     }
 }

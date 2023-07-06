@@ -65,7 +65,8 @@ object CategoryRepositoryModule {
             context,
             CategoryDatabase::class.java,
             "CategoryDatabase"
-        ).build()
+        ).createFromAsset("database/CategoryDatabase.db")
+            .build()
     }
 
 

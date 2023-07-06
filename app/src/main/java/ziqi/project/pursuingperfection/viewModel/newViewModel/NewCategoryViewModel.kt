@@ -55,16 +55,13 @@ class NewCategoryViewModel @Inject constructor(
         newCategory: String,
         newIcon: Int = R.drawable.ic_launcher_foreground
     ) {
+        _currentUiState.value = _currentUiState.value.copy(category = newCategory, profilePhoto = newIcon)
         viewModelScope.launch {
             taskRepository.updateTaskCategory(category, newCategory, newIcon)
         }
         viewModelScope.launch {
             categoryRepository.updateCategory(
-                CategoryUiState(
-                    0,
-                    newCategory,
-                    newIcon
-                ).toCategoryEntity()
+                _currentUiState.value.toCategoryEntity()
             )
         }
     }
