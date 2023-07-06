@@ -1,9 +1,6 @@
 package ziqi.project.pursuingperfection.data
 
-import androidx.compose.material.icons.Icons
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
-import ziqi.project.pursuingperfection.R
 import ziqi.project.pursuingperfection.database.CategoryDao
 import ziqi.project.pursuingperfection.database.CategoryEntity
 import javax.inject.Inject
@@ -22,11 +19,11 @@ class CategoryRepository @Inject constructor(private val categoryDao: CategoryDa
         categoryDao.addCategory(categoryEntity)
     }
 
-    suspend fun removeCategory(categoryName: String){
-        categoryDao.removeCategory(categoryName)
+    suspend fun deleteCategory(categoryName: String){
+        categoryDao.deleteCategory(categoryName)
     }
 
-    suspend fun replaceCategory(categoryEntity: CategoryEntity){
-        categoryDao.replaceCategory(categoryEntity)
+    suspend fun updateCategory(categoryEntity: CategoryEntity){
+        categoryDao.updateCategory(categoryEntity)
     }
 }

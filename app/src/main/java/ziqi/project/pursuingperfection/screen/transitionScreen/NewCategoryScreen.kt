@@ -38,7 +38,6 @@ fun NewCategoryScreen(
 
     val coroutineScope = rememberCoroutineScope()
 
-
     val uiState = viewModel.currentUiState.collectAsStateWithLifecycle()
     var currentValue by remember {
         mutableStateOf(viewModel.category)
@@ -60,11 +59,10 @@ fun NewCategoryScreen(
             keyboardActions = KeyboardActions(onDone = {
                 coroutineScope.launch {
                     if (viewModel.type == "edit") {
-                        viewModel.updateTaskRepositoryCategory(currentValue)
-                        viewModel.updateCategoryRepository(uiState.value.copy(category = currentValue))
+                        viewModel.updateCategory(currentValue)
 
                     } else {
-                        viewModel.addNewCategory(CategoryUiState(category = currentValue))
+                        viewModel.addCategory(currentValue)
                     }
                     onNextClick()
                 }

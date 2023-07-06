@@ -25,7 +25,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
 import ziqi.project.pursuingperfection.common.card.CategoryCard
 import ziqi.project.pursuingperfection.uiState.CategoryUiState
-import ziqi.project.pursuingperfection.viewModel.CategoryViewModel
 import ziqi.project.pursuingperfection.viewModel.currentViewModel.CurrentCategoryViewModel
 
 @Composable
@@ -34,19 +33,18 @@ fun CategoryScreen(
     onNextClick: (Int) -> Unit,
     onEditClick: (String) -> Unit,
     onNewClick: (String) -> Unit,
-    categoryViewModel: CategoryViewModel = hiltViewModel(),
-    CurrentCategoryViewModel: CurrentCategoryViewModel = hiltViewModel(),
-
+    viewModel: CurrentCategoryViewModel = hiltViewModel(),
     ) {
-    val categories = categoryViewModel.categories.collectAsStateWithLifecycle()
+
     val coroutineScope = rememberCoroutineScope()
-    val selectedCategoryName = CurrentCategoryViewModel.uiState.collectAsStateWithLifecycle().value.category
-    val selectedCategoryId = CurrentCategoryViewModel.uiState.collectAsStateWithLifecycle().value.id
+    val selectedCategoryName = viewModel.taskUiState.collectAsStateWithLifecycle().value.category
+    val selectedCategoryId = viewModel.taskUiState.collectAsStateWithLifecycle().value.id
     val defaultCategoryUiState = CategoryUiState()
+    val categories = viewModel.categoryUiState.collectAsStateWithLifecycle().value
 
     LaunchedEffect(Unit) {
-        categoryViewModel.initialize()
-        CurrentCategoryViewModel.initialize()
+
+        viewModel.initialize()
     }
 
     Column(modifier = Modifier.padding(16.dp)) {
@@ -82,38 +80,17 @@ fun CategoryScreen(
 //                }
 //            }
 
-            items(items = categories.value, key = { it.id }) { categoryUiState ->
+            items(items = categories, key = { it.id }) { categoryUiState ->
                 CategoryCard(
                     categoryUiState = categoryUiState,
                     selected = selectedCategoryName == categoryUiState.category,
                     onClick = {
-                        CurrentCategoryViewModel.updateNewTaskCategory(categoryUiState)
+                        viewModel.updateNewTaskCategory(categoryUiState)
                     },
                     modifier = Modifier.aspectRatio(1f),
                     shape = MaterialTheme.shapes.large,
                     style = MaterialTheme.typography.titleLarge
                 )
-            }
-        }
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 12.dp),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Button(onClick = { onNewClick("Default") }, shape = MaterialTheme.shapes.small) {
-                Text(text = "Create New Category")
-            }
-        }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 12.dp),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Button(onClick = { onEditClick(selectedCategoryName) }, shape = MaterialTheme.shapes.small) {
-                Text(text = "Edit Category")
             }
         }
 
@@ -130,7 +107,7 @@ fun CategoryScreen(
             Button(onClick = {
                 onNextClick(selectedCategoryId)
                 coroutineScope.launch {
-                    CurrentCategoryViewModel.updateTaskToRepository()
+                    viewModel.updateTaskToRepository()
                 }
             }, shape = MaterialTheme.shapes.small) {
                 Text(text = "Next")

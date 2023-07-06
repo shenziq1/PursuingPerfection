@@ -20,7 +20,7 @@ import javax.inject.Inject
 @HiltViewModel
 class NewCategoryViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val repository: TaskRepository,
+    private val taskRepository: TaskRepository,
     private val categoryRepository: CategoryRepository
 ) : ViewModel() {
     val id = savedStateHandle.get<Int>("id") ?: 0
@@ -51,31 +51,45 @@ class NewCategoryViewModel @Inject constructor(
         }
     }
 
-    suspend fun updateTaskRepositoryCategory(
+    suspend fun updateCategory(
         newCategory: String,
         newIcon: Int = R.drawable.ic_launcher_foreground
     ) {
         viewModelScope.launch {
-            repository.updateTaskCategory(category, newCategory, newIcon)
+            taskRepository.updateTaskCategory(category, newCategory, newIcon)
         }
-    }
-
-    suspend fun addNewCategory(categoryUiState: CategoryUiState) {
         viewModelScope.launch {
-            categoryRepository.addCategory(categoryUiState.toCategoryEntity())
+            categoryRepository.updateCategory(
+                CategoryUiState(
+                    0,
+                    newCategory,
+                    newIcon
+                ).toCategoryEntity()
+            )
         }
     }
 
-    suspend fun updateCategoryRepository(categoryUiState: CategoryUiState
+    suspend fun addCategory(
+        newCategory: String,
+        newIcon: Int = R.drawable.ic_launcher_foreground
     ) {
         viewModelScope.launch {
-            categoryRepository.replaceCategory(categoryUiState.toCategoryEntity())
+            categoryRepository.addCategory(
+                CategoryUiState(
+                    0,
+                    newCategory,
+                    newIcon
+                ).toCategoryEntity()
+            )
         }
     }
 
-    suspend fun removeCategory(categoryName: String){
+    suspend fun removeCategory(category: String) {
         viewModelScope.launch {
-            categoryRepository.removeCategory(categoryName)
+            categoryRepository.deleteCategory(category)
+        }
+        viewModelScope.launch {
+            taskRepository.deleteTaskByCategory(category)
         }
     }
 }

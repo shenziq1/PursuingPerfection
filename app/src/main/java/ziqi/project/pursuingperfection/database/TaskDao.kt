@@ -66,4 +66,7 @@ interface TaskDao {
     @Query("UPDATE taskEntity SET category = :newCategory, profilePhoto = :profilePhoto WHERE category = :oldCategory")
     suspend fun updateTaskCategory(oldCategory: String, newCategory: String, profilePhoto: Int)
 
+    @Query("DELETE FROM taskEntity WHERE category = :category")
+    suspend fun deleteTaskByCategory(category: String)
+
 }

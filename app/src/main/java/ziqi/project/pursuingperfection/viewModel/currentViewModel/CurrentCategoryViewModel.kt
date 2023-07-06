@@ -7,12 +7,14 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import ziqi.project.pursuingperfection.R
 import ziqi.project.pursuingperfection.data.CategoryRepository
 import ziqi.project.pursuingperfection.data.TaskRepository
 import ziqi.project.pursuingperfection.database.CategoryEntity
+import ziqi.project.pursuingperfection.database.toCategoryUiState
 import ziqi.project.pursuingperfection.database.toTaskUiState
 import ziqi.project.pursuingperfection.uiState.CategoryUiState
 import ziqi.project.pursuingperfection.uiState.TaskUiState
@@ -22,13 +24,15 @@ import javax.inject.Inject
 @HiltViewModel
 class CurrentCategoryViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val repository: TaskRepository,
+    private val taskRepository: TaskRepository,
     private val categoryRepository: CategoryRepository
 ) : ViewModel() {
     val id = savedStateHandle.get<Int>("id") ?: 0
     val category = savedStateHandle.get<String>("category") ?: "Default"
-    private var _uiState = MutableStateFlow(TaskUiState())
-    val uiState = _uiState.asStateFlow()
+    private var _taskUiState = MutableStateFlow(TaskUiState())
+    val taskUiState = _taskUiState.asStateFlow()
+    private var _categoryUiState = MutableStateFlow(listOf(CategoryUiState()))
+    val categoryUiState = _categoryUiState.asStateFlow()
 
     private val type = savedStateHandle.get<String>("type") ?: "edit"
 
@@ -36,13 +40,13 @@ class CurrentCategoryViewModel @Inject constructor(
 
     @MainThread
     fun initialize() {
-        if(initializeCalled) return
+        if (initializeCalled) return
         initializeCalled = true
         when (type) {
             "edit" -> {
                 viewModelScope.launch {
-                    repository.getTaskById(id).filterNotNull().collect {
-                        _uiState.value = it.toTaskUiState()
+                    taskRepository.getTaskById(id).filterNotNull().collect {
+                        _taskUiState.value = it.toTaskUiState()
                     }
                 }
             }
@@ -50,18 +54,32 @@ class CurrentCategoryViewModel @Inject constructor(
             "new" -> {
                 val newTaskUiState = TaskUiState()
                 viewModelScope.launch {
-                    val id = repository.insertTask(newTaskUiState.toTaskEntity())
-                    _uiState.value = _uiState.value.copy(id = id.toInt())
+                    val id = taskRepository.insertTask(newTaskUiState.toTaskEntity())
+                    _taskUiState.value = _taskUiState.value.copy(id = id.toInt())
                 }
+//                viewModelScope.launch {
+//                    categoryRepository.addCategory(
+//                        CategoryEntity(
+//                            1,
+//                            R.drawable.ic_launcher_foreground,
+//                            "Default"
+//                        )
+//                    )
+//                }
                 viewModelScope.launch {
-                    categoryRepository.addCategory(CategoryEntity(1, R.drawable.ic_launcher_foreground,"Default"))
+                    categoryRepository.getAllCategories().filterNotNull()
+                        .collect() { categoryEntities ->
+                            _categoryUiState.value = categoryEntities.map {
+                                it.toCategoryUiState()
+                            }
+                        }
                 }
             }
         }
     }
 
     fun updateNewTaskCategory(categoryUiState: CategoryUiState) {
-        _uiState.value = _uiState.value.copy(
+        _taskUiState.value = _taskUiState.value.copy(
             category = categoryUiState.category,
             profilePhoto = categoryUiState.profilePhoto
         )
@@ -69,7 +87,7 @@ class CurrentCategoryViewModel @Inject constructor(
 
     suspend fun updateTaskToRepository() {
         viewModelScope.launch {
-            repository.updateTask(_uiState.value.toTaskEntity())
+            taskRepository.updateTask(_taskUiState.value.toTaskEntity())
         }
     }
 }

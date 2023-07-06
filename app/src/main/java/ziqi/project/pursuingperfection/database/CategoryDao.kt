@@ -1,7 +1,6 @@
 package ziqi.project.pursuingperfection.database
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -23,8 +22,8 @@ interface CategoryDao {
 //    suspend fun removeCategory(categoryEntity: CategoryEntity)
 
     @Query("DELETE from categoryEntity WHERE category = :categoryName")
-    suspend fun removeCategory(categoryName: String)
+    suspend fun deleteCategory(categoryName: String)
 
     @Update
-    suspend fun replaceCategory(categoryEntity: CategoryEntity)
+    suspend fun updateCategory(categoryEntity: CategoryEntity)
 }
