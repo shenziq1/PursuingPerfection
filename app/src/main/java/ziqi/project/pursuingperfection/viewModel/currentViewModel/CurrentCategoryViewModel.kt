@@ -6,9 +6,10 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import ziqi.project.pursuingperfection.data.CategoryRepository
@@ -33,20 +34,30 @@ class CurrentCategoryViewModel @Inject constructor(
     val categoryUiState = _categoryUiState.asStateFlow()
     private val type = savedStateHandle.get<String>("type") ?: "edit"
 
-    private var initializeCalled = false
+    private var initializeCalled1 = false
+    private var initializeCalled2 = false
 
     @MainThread
-    fun initialize() {
-        if (initializeCalled) return
-        initializeCalled = true
+    fun initialize1() {
+        if (initializeCalled1) return
+        initializeCalled1 = true
 
         viewModelScope.launch {
             categoryRepository.getAllCategories().filterNotNull()
                 .collect() { categoryEntities ->
-                    _categoryUiState.value = categoryEntities.map {
-                        it.toCategoryUiState()
+                    _categoryUiState.value = categoryEntities.map { it.toCategoryUiState()
                     }
                 }
+        }
+    }
+
+    @MainThread
+    suspend fun initialize2(){
+        if (initializeCalled2) return
+        initializeCalled2 = true
+
+        val categoryResult = viewModelScope.async {
+            categoryRepository.getAllCategoriesForOnce()
         }
 
         when (type) {
@@ -60,14 +71,12 @@ class CurrentCategoryViewModel @Inject constructor(
 
             "new" -> {
                 viewModelScope.launch {
-                    val id =
-                        taskRepository.insertTask(
-                            TaskUiState(
-                                category = "FFF",
-                                profilePhoto = _categoryUiState.value.last().profilePhoto
-                            ).toTaskEntity()
-                        )
-
+                    taskRepository.insertTask(
+                        TaskUiState(
+                            category = categoryResult.await().last().category,
+                            profilePhoto = categoryResult.await().last().profilePhoto
+                        ).toTaskEntity()
+                    )
                 }
                 viewModelScope.launch {
                     taskRepository.getMostRecentTask().filterNotNull().collect() {
@@ -75,20 +84,10 @@ class CurrentCategoryViewModel @Inject constructor(
                     }
 
                 }
-                Log.d("whyyyyyy", _categoryUiState.value.last().category)
-                Log.d("whyyyyyy", _taskUiState.value.toString())
-                Log.d("whyyyyyy", type)
+                //Log.d("thisShouldWork", _taskUiState.value.toString())
             }
         }
-
     }
-
-//    fun updateNewTaskCategoryWithDefault() {
-//        _taskUiState.value = _taskUiState.value.copy(
-//            category = _categoryUiState.value.last().category,
-//            profilePhoto = _categoryUiState.value.last().profilePhoto,
-//        )
-//    }
 
     suspend fun saveTaskToRepository(categoryUiState: CategoryUiState) {
         _taskUiState.value = _taskUiState.value.copy(

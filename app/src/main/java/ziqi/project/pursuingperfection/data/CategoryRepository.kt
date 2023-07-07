@@ -11,6 +11,10 @@ class CategoryRepository @Inject constructor(private val categoryDao: CategoryDa
         return categoryDao.getAllCategories()
     }
 
+    suspend fun getAllCategoriesForOnce(): List<CategoryEntity>{
+        return categoryDao.getAllCategoriesForOnce()
+    }
+
     fun getCurrentCategory(categoryName: String): Flow<CategoryEntity>{
         return categoryDao.getCategory(categoryName)
     }

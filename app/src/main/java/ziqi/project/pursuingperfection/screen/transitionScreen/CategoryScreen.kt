@@ -35,7 +35,8 @@ fun CategoryScreen(
 ) {
 
     LaunchedEffect(Unit) {
-        viewModel.initialize()
+        viewModel.initialize1()
+        viewModel.initialize2()
     }
 //    LaunchedEffect(Unit){
 //        //viewModel.updateNewTaskCategoryWithDefault()
