@@ -1,5 +1,6 @@
 package ziqi.project.pursuingperfection.viewModel.currentViewModel
 
+import android.util.Log
 import androidx.annotation.MainThread
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -7,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import ziqi.project.pursuingperfection.data.CategoryRepository
@@ -59,28 +61,40 @@ class CurrentCategoryViewModel @Inject constructor(
             "new" -> {
                 viewModelScope.launch {
                     val id =
-                        taskRepository.insertTask(TaskUiState().toTaskEntity())
-                    _taskUiState.value = _taskUiState.value.copy(id = id.toInt())
+                        taskRepository.insertTask(
+                            TaskUiState(
+                                category = "FFF",
+                                profilePhoto = _categoryUiState.value.last().profilePhoto
+                            ).toTaskEntity()
+                        )
+
                 }
+                viewModelScope.launch {
+                    taskRepository.getMostRecentTask().filterNotNull().collect() {
+                        _taskUiState.value = it.toTaskUiState()
+                    }
+
+                }
+                Log.d("whyyyyyy", _categoryUiState.value.last().category)
+                Log.d("whyyyyyy", _taskUiState.value.toString())
+                Log.d("whyyyyyy", type)
             }
         }
+
     }
 
-    fun updateNewTaskCategory(categoryUiState: CategoryUiState) {
+//    fun updateNewTaskCategoryWithDefault() {
+//        _taskUiState.value = _taskUiState.value.copy(
+//            category = _categoryUiState.value.last().category,
+//            profilePhoto = _categoryUiState.value.last().profilePhoto,
+//        )
+//    }
+
+    suspend fun saveTaskToRepository(categoryUiState: CategoryUiState) {
         _taskUiState.value = _taskUiState.value.copy(
             category = categoryUiState.category,
             profilePhoto = categoryUiState.profilePhoto
         )
-    }
-
-    fun updateNewTaskCategoryWithDefault() {
-        _taskUiState.value = _taskUiState.value.copy(
-            category = _categoryUiState.value.last().category,
-            profilePhoto = _categoryUiState.value.last().profilePhoto,
-        )
-    }
-
-    suspend fun saveTaskToRepository() {
         viewModelScope.launch {
             taskRepository.updateTask(_taskUiState.value.toTaskEntity())
         }

@@ -32,18 +32,21 @@ fun CategoryScreen(
     onBackClick: () -> Unit,
     onNextClick: (Int) -> Unit,
     viewModel: CurrentCategoryViewModel = hiltViewModel(),
-    ) {
+) {
 
     LaunchedEffect(Unit) {
         viewModel.initialize()
-        viewModel.updateNewTaskCategoryWithDefault()
-        viewModel.saveTaskToRepository()
     }
+//    LaunchedEffect(Unit){
+//        //viewModel.updateNewTaskCategoryWithDefault()
+//        viewModel.saveTaskToRepository()
+//    }
 
     val coroutineScope = rememberCoroutineScope()
     val selectedCategoryName = viewModel.taskUiState.collectAsStateWithLifecycle().value.category
     val selectedTaskId = viewModel.taskUiState.collectAsStateWithLifecycle().value.id
     val categories = viewModel.categoryUiState.collectAsStateWithLifecycle().value
+
 
 
     Column(modifier = Modifier.padding(16.dp)) {
@@ -66,13 +69,13 @@ fun CategoryScreen(
         ) {
 
             items(items = categories, key = { it.id }) { categoryUiState ->
-                Log.d("categoryTest1", selectedCategoryName)
-                Log.d("categoryTest2", categoryUiState.category)
                 CategoryCard(
                     categoryUiState = categoryUiState,
                     selected = selectedCategoryName == categoryUiState.category,
                     onClick = {
-                        viewModel.updateNewTaskCategory(categoryUiState)
+                        coroutineScope.launch {
+                            viewModel.saveTaskToRepository(categoryUiState)
+                        }
                     },
                     modifier = Modifier.aspectRatio(1f),
                     shape = MaterialTheme.shapes.large,
@@ -93,9 +96,7 @@ fun CategoryScreen(
             Spacer(modifier = Modifier.width(24.dp))
             Button(onClick = {
                 onNextClick(selectedTaskId)
-                coroutineScope.launch {
-                    viewModel.saveTaskToRepository()
-                }
+                Log.d("whyyyyy", selectedCategoryName)
             }, shape = MaterialTheme.shapes.small) {
                 Text(text = "Next")
             }
