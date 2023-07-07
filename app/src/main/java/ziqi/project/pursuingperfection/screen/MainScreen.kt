@@ -186,7 +186,9 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 )
             }
             composable(route = Done.route) {
-                DoneScreen({ id -> navController.navigate(Done.passId(id)) })
+                DoneScreen(
+                    onTaskCardClick = { id -> navController.navigateSingleTopTo(Done.passId(id)) },
+                )
             }
             composable(
                 route = Done.detail,

@@ -36,6 +36,7 @@ fun CategoryScreen(
 
     LaunchedEffect(Unit) {
         viewModel.initialize1()
+        Log.d("initialize1", "initialize1")
         viewModel.initialize2()
     }
 //    LaunchedEffect(Unit){
@@ -47,6 +48,8 @@ fun CategoryScreen(
     val selectedCategoryName = viewModel.taskUiState.collectAsStateWithLifecycle().value.category
     val selectedTaskId = viewModel.taskUiState.collectAsStateWithLifecycle().value.id
     val categories = viewModel.categoryUiState.collectAsStateWithLifecycle().value
+
+    Log.d("initialize2", categories.toString())
 
 
 

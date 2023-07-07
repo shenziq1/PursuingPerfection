@@ -30,78 +30,36 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ziqi.project.pursuingperfection.common.card.CategoryCard
 import ziqi.project.pursuingperfection.common.card.TaskOverviewCard
+import ziqi.project.pursuingperfection.common.topBar.CategoryReadOnlyBar
 import ziqi.project.pursuingperfection.uiState.CategoryUiState
 import ziqi.project.pursuingperfection.viewModel.DoneListViewModel
+import ziqi.project.pursuingperfection.viewModel.HomeListViewModel
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DoneScreen(
-    onClick: (Int) -> Unit,
+    onTaskCardClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: DoneListViewModel = hiltViewModel()
+    viewModel: DoneListViewModel = hiltViewModel(),
 ) {
-    var categoryName by remember {
-        mutableStateOf("All")
-    }
 
     var visible by remember {
         mutableStateOf(true)
     }
     val taskOverViewListState = rememberLazyListState()
     val tasks = viewModel.checkedTasks.collectAsStateWithLifecycle()
-    val categories = viewModel.categories.collectAsStateWithLifecycle()
-    val coroutineScope = rememberCoroutineScope()
-    val allCategory = CategoryUiState(category = "All")
 
-    LaunchedEffect(Unit){
+    LaunchedEffect(Unit) {
         viewModel.initialize()
         //viewModel.updateTaskList(categoryName)
     }
 
     Box(modifier = modifier) {
         Column(modifier = Modifier.fillMaxSize()) {
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(start = 16.dp, bottom = 8.dp)
-            ) {
-                item {
-                    CategoryCard(
-                        categoryUiState = allCategory,
-                        selected = categoryName == "All",
-                        onClick = {
-                            categoryName = it
-                            viewModel.updateTaskList(categoryName)
-                            coroutineScope.launch {
-                                visible = false
-                                delay(300)
-                                taskOverViewListState.scrollToItem(0)
-                                //taskOverViewListState.animateScrollToItem(0)
-                                visible = true
-                            }
-                        }
-                    )
-                }
-                items(items = categories.value) { categoryUiState ->
-                    CategoryCard(
-                        categoryUiState = categoryUiState,
-                        selected = categoryUiState.category == categoryName,
-                        onClick = {
-                            categoryName = it
-                            viewModel.updateTaskList(categoryName)
-                            coroutineScope.launch {
-                                visible = false
-                                delay(300)
-                                taskOverViewListState.scrollToItem(0)
-                                visible = true
-
-                            }
-                        }
-                    )
-                }
-                item {
-                    Spacer(modifier = Modifier.width(8.dp))
-                }
-            }
+            CategoryReadOnlyBar(
+                onCategoryClick = { viewModel.updateTaskList(it) },
+                setVisible = { visible = it }
+            )
             AnimatedVisibility(visible = visible) {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -112,14 +70,9 @@ fun DoneScreen(
                         key = { it.id }
                     ) { taskUiState ->
                         TaskOverviewCard(
-                            currentChecked = true,
+                            currentChecked = false,
                             uiState = taskUiState,
-                            onCheck = {
-                                coroutineScope.launch {
-                                    viewModel.uncheckTask(it)
-                                }
-                            },
-                            onClick = onClick,
+                            onClick = onTaskCardClick,
                             modifier = Modifier.animateItemPlacement()
                         )
                     }
@@ -130,5 +83,4 @@ fun DoneScreen(
             }
         }
     }
-
 }

@@ -46,7 +46,6 @@ import ziqi.project.pursuingperfection.utils.shortConvert
 fun TaskOverviewCard(
     currentChecked: Boolean,
     uiState: TaskUiState,
-    onCheck: (TaskUiState) -> Unit,
     onClick: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -54,11 +53,7 @@ fun TaskOverviewCard(
     var expanded by remember { mutableStateOf(false) }
     val constraintHeight = 100.dp
     val expandedModifier = if (expanded) Modifier else Modifier.height(constraintHeight)
-//    val cardContainerColor = when (uiState.priority) {
-//        "High" -> MaterialTheme.colorScheme.surfaceColorAtElevation(6.dp)
-//        "Medium" -> MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
-//        else -> MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
-//    }
+
     val cardContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(6.dp)
     val priority = when (uiState.priority) {
         0 -> R.drawable.bolt
