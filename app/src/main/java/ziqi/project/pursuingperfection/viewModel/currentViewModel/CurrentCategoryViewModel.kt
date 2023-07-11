@@ -54,7 +54,7 @@ class CurrentCategoryViewModel @Inject constructor(
     }
 
     @MainThread
-    suspend fun initialize2() {
+    suspend fun initialize2(selectedCategory: String) {
         if (initializeCalled2) return
         initializeCalled2 = true
 
@@ -75,8 +75,10 @@ class CurrentCategoryViewModel @Inject constructor(
             "new" -> {
                 viewModelScope.launch {
                     val newTask = if (categoryResult.isNotEmpty()) TaskUiState(
-                        category = categoryResult.last().category,
-                        profilePhoto = categoryResult.last().profilePhoto
+                        category = categoryResult.find { it.category == selectedCategory }?.category
+                            ?: categoryResult.first().category,
+                        profilePhoto = categoryResult.find { it.category == selectedCategory }?.profilePhoto
+                            ?: categoryResult.first().profilePhoto
                     ) else TaskUiState()
                     taskRepository.insertTask(
                         newTask.toTaskEntity()
@@ -89,8 +91,13 @@ class CurrentCategoryViewModel @Inject constructor(
                         _taskUiState.value = it.toTaskUiState()
                     }
                 }
-                //Log.d("thisShouldWork", _taskUiState.value.toString())
             }
+        }
+    }
+
+    suspend fun cancelTask() {
+        viewModelScope.launch {
+            taskRepository.deleteMostRecentTask()
         }
     }
 

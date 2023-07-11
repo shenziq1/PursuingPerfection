@@ -69,15 +69,20 @@ class NewCategoryViewModel @Inject constructor(
     suspend fun addCategory(
         newCategory: String,
         newIcon: Int = R.drawable.ic_launcher_foreground
-    ) {
-        viewModelScope.launch {
-            categoryRepository.addCategory(
-                CategoryUiState(
-                    0,
-                    newCategory,
-                    newIcon
-                ).toCategoryEntity()
-            )
+    ): Boolean {
+        return if (newCategory !in _listUiState.value.map { it.category }){
+            viewModelScope.launch {
+                categoryRepository.addCategory(
+                    CategoryUiState(
+                        0,
+                        newCategory,
+                        newIcon
+                    ).toCategoryEntity()
+                )
+            }
+            true
+        } else {
+            false
         }
     }
 

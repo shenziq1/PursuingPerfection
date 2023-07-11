@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -27,9 +29,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
 import ziqi.project.pursuingperfection.viewModel.newViewModel.NewCategoryViewModel
 
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun NewCategoryScreen(
+    setNewCategory: (String) -> Unit,
     onNextClick: () -> Unit,
     viewModel: NewCategoryViewModel = hiltViewModel()
 ) {
@@ -37,6 +40,10 @@ fun NewCategoryScreen(
 
     var currentCategory by remember {
         mutableStateOf(viewModel.category)
+    }
+
+    var showAlertDialog by remember {
+        mutableStateOf(false)
     }
 
     val coroutineScope = rememberCoroutineScope()
@@ -71,17 +78,32 @@ fun NewCategoryScreen(
             Text(text = "Delete")
         }
         TextButton(onClick = {
-            coroutineScope.launch {
-                if (viewModel.type == "edit") {
+            if (viewModel.type == "edit") {
+                coroutineScope.launch {
                     Log.d("typeIsEdit", currentCategory)
                     viewModel.updateCategory(currentCategory)
-                } else {
-                    viewModel.addCategory(currentCategory)
+                    setNewCategory(currentCategory)
+                    onNextClick()
                 }
-                onNextClick()
+            } else {
+                coroutineScope.launch {
+                    val success = viewModel.addCategory(currentCategory)
+                    if (!success) {
+                        showAlertDialog = true
+                    } else {
+                        setNewCategory(currentCategory)
+                        onNextClick()
+                    }
+                }
             }
         }) {
             Text(text = "Save")
+        }
+    }
+
+    if (showAlertDialog) {
+        AlertDialog(onDismissRequest = { showAlertDialog = false }) {
+            Text(text = "Category already exists!")
         }
     }
 }

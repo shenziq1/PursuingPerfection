@@ -23,26 +23,7 @@ class DoneListViewModel @Inject constructor(private val taskRepository: TaskRepo
     private var _checkedTasks: MutableStateFlow<List<TaskUiState>> = MutableStateFlow(emptyList())
     val checkedTasks: StateFlow<List<TaskUiState>> = _checkedTasks.asStateFlow()
 
-    private var _categories: MutableStateFlow<List<CategoryUiState>> = MutableStateFlow(emptyList())
-    val categories: StateFlow<List<CategoryUiState>> = _categories.asStateFlow()
-
     private var initializeCalled = false
-
-    @MainThread
-    fun initialize() {
-        if(initializeCalled) return
-        initializeCalled = true
-        viewModelScope.launch {
-            taskRepository.getCheckedTasks("All").collect { taskEntities ->
-                _checkedTasks.value = taskEntities.map { it.toTaskUiState() }
-            }
-        }
-        viewModelScope.launch {
-            taskRepository.getAllCategories().collect { taskEntities ->
-                _categories.value = taskEntities.map { it.toCategoryUiState() }
-            }
-        }
-    }
 
     fun updateTaskList(category: String) {
         viewModelScope.launch {

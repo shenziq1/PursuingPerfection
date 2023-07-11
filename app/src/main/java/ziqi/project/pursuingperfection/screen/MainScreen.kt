@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -57,6 +58,10 @@ fun MainScreen(modifier: Modifier = Modifier) {
     val animatedProgressValue by animateFloatAsState(
         targetValue = progressValue
     )
+
+    var selectedCategory by rememberSaveable() {
+        mutableStateOf("All")
+    }
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -132,7 +137,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 )
         },
         floatingActionButton = {
-            if (currentNavDestination?.route in listOf(Home.route, Done.route))
+            if (currentNavDestination?.route == Home.route)
                 FloatingActionButton(
                     modifier = Modifier,
                     shape = MaterialTheme.shapes.medium,
@@ -153,7 +158,10 @@ fun MainScreen(modifier: Modifier = Modifier) {
             composable(route = Home.route) { navBackStackEntry ->
                 Log.d("nav", navBackStackEntry.destination.route.toString())
                 HomeScreen(
+                    selectedCategory = selectedCategory,
+                    onCategorySelect = { selectedCategory = it },
                     onTaskCardClick = { id -> navController.navigateSingleTopTo(Home.passId(id)) },
+
                     onNewClick = {
                         navController.navigate(
                             NewCategory.passCategory(
@@ -168,7 +176,8 @@ fun MainScreen(modifier: Modifier = Modifier) {
                             )
                         )
                         Log.d("category", it)
-                    })
+                    },
+                )
             }
             composable(
                 route = Home.detail,
@@ -187,6 +196,8 @@ fun MainScreen(modifier: Modifier = Modifier) {
             }
             composable(route = Done.route) {
                 DoneScreen(
+                    selectedCategory = selectedCategory,
+                    onCategorySelect = { selectedCategory = it },
                     onTaskCardClick = { id -> navController.navigateSingleTopTo(Done.passId(id)) },
                 )
             }
@@ -211,6 +222,11 @@ fun MainScreen(modifier: Modifier = Modifier) {
             ) { navBackStackEntry ->
                 val currentType = navBackStackEntry.arguments?.getString("type") ?: "new"
                 CategoryScreen(
+                    selectedCategory = selectedCategory,
+                    onCategorySelect = {
+                        selectedCategory = it
+                        Log.d("selectedCategory2", selectedCategory)
+                    },
                     onBackClick = { navController.popBackStack() },
                     onNextClick = {
                         Log.d("transition", it.toString())
@@ -225,6 +241,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 arguments = NewCategory.arguments
             ) {
                 NewCategoryScreen(
+                    setNewCategory = { selectedCategory = it },
                     onNextClick = { navController.popBackStack() }
                 )
             }

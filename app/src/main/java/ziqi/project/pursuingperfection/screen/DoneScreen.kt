@@ -38,6 +38,8 @@ import ziqi.project.pursuingperfection.viewModel.HomeListViewModel
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DoneScreen(
+    selectedCategory: String,
+    onCategorySelect: (String) -> Unit,
     onTaskCardClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: DoneListViewModel = hiltViewModel(),
@@ -49,15 +51,18 @@ fun DoneScreen(
     val taskOverViewListState = rememberLazyListState()
     val tasks = viewModel.checkedTasks.collectAsStateWithLifecycle()
 
-    LaunchedEffect(Unit) {
-        viewModel.initialize()
-        //viewModel.updateTaskList(categoryName)
+    LaunchedEffect(selectedCategory) {
+        viewModel.updateTaskList(selectedCategory)
     }
 
     Box(modifier = modifier) {
         Column(modifier = Modifier.fillMaxSize()) {
             CategoryReadOnlyBar(
-                onCategoryClick = { viewModel.updateTaskList(it) },
+                selectedCategory = selectedCategory,
+                onCategoryClick = {
+                    viewModel.updateTaskList(it)
+                    onCategorySelect(it)
+                },
                 setVisible = { visible = it }
             )
             AnimatedVisibility(visible = visible) {

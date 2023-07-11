@@ -30,19 +30,17 @@ import ziqi.project.pursuingperfection.viewModel.newViewModel.NewCategoryViewMod
 
 @Composable
 fun CategoryBar(
+    selectedCategory: String,
+    onCategoryClick: (String) -> Unit,
     onNewClick: (String) -> Unit,
     onEditClick: (String) -> Unit,
-    onCategoryClick: (String) -> Unit,
     setVisible: (Boolean) -> Unit,
     viewModel: NewCategoryViewModel = hiltViewModel(),
 ) {
     LaunchedEffect(Unit) {
         viewModel.initialize()
     }
-    var categoryName by rememberSaveable {
-        mutableStateOf("All")
-    }
-    //val taskOverViewListState = rememberLazyListState()
+
     val categories = viewModel.listUiState.collectAsStateWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
     val allCategory = CategoryUiState(category = "All")
@@ -53,10 +51,8 @@ fun CategoryBar(
         item {
             CategoryCard(
                 categoryUiState = allCategory,
-                selected = categoryName == "All",
+                selected = selectedCategory == "All",
                 onClick = {
-                    Log.d("categoryName", categoryName)
-                    categoryName = it
                     onCategoryClick(it)
                     coroutineScope.launch {
                         setVisible(false)
@@ -74,9 +70,8 @@ fun CategoryBar(
         ) { categoryUiState ->
             CategoryCard(
                 categoryUiState = categoryUiState,
-                selected = categoryUiState.category == categoryName,
+                selected = categoryUiState.category == selectedCategory,
                 onClick = {
-                    categoryName = it
                     onCategoryClick(it)
                     //viewModel.saveCurrentCategory(categoryName)
                     coroutineScope.launch {
@@ -94,7 +89,7 @@ fun CategoryBar(
         }
         item {
             CategoryCardVariant(
-                onClick = { onEditClick(categoryName) },
+                onClick = { onEditClick(selectedCategory) },
                 imageVector = Icons.Default.Edit
             )
         }

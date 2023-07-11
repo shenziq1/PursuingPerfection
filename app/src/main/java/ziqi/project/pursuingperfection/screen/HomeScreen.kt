@@ -51,35 +51,35 @@ import ziqi.project.pursuingperfection.viewModel.newViewModel.NewCategoryViewMod
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreen(
+    selectedCategory: String,
+    onCategorySelect: (String) -> Unit,
     onTaskCardClick: (Int) -> Unit,
     onNewClick: (String) -> Unit,
     onEditClick: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeListViewModel = hiltViewModel(),
 ) {
-    var categoryName by rememberSaveable {
-        mutableStateOf("All")
-    }
     var visible by remember {
         mutableStateOf(true)
     }
     val taskOverViewListState = rememberLazyListState()
     val tasks = viewModel.plannedTasks.collectAsStateWithLifecycle()
-    val categories = viewModel.categories.collectAsStateWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
-    val allCategory = CategoryUiState(category = "All")
 
-    LaunchedEffect(Unit) {
-        viewModel.initialize()
-        //viewModel.updateTaskList(categoryName)
+    LaunchedEffect(selectedCategory) {
+        viewModel.updateTaskList(selectedCategory)
     }
 
     Box(modifier = modifier) {
         Column(modifier = Modifier.fillMaxSize()) {
             CategoryBar(
+                selectedCategory = selectedCategory,
+                onCategoryClick = {
+                    viewModel.updateTaskList(it)
+                    onCategorySelect(it)
+                },
                 onNewClick = onNewClick,
                 onEditClick = onEditClick,
-                onCategoryClick = { viewModel.updateTaskList(it) },
                 setVisible = { visible = it }
             )
             AnimatedVisibility(visible = visible) {

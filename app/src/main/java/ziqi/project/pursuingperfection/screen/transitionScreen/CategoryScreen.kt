@@ -29,6 +29,8 @@ import ziqi.project.pursuingperfection.viewModel.currentViewModel.CurrentCategor
 
 @Composable
 fun CategoryScreen(
+    selectedCategory: String,
+    onCategorySelect: (String) -> Unit,
     onBackClick: () -> Unit,
     onNextClick: (Int) -> Unit,
     viewModel: CurrentCategoryViewModel = hiltViewModel(),
@@ -36,22 +38,13 @@ fun CategoryScreen(
 
     LaunchedEffect(Unit) {
         viewModel.initialize1()
-        Log.d("initialize1", "initialize1")
-        viewModel.initialize2()
+        viewModel.initialize2(selectedCategory)
     }
-//    LaunchedEffect(Unit){
-//        //viewModel.updateNewTaskCategoryWithDefault()
-//        viewModel.saveTaskToRepository()
-//    }
 
     val coroutineScope = rememberCoroutineScope()
     val selectedCategoryName = viewModel.taskUiState.collectAsStateWithLifecycle().value.category
     val selectedTaskId = viewModel.taskUiState.collectAsStateWithLifecycle().value.id
     val categories = viewModel.categoryUiState.collectAsStateWithLifecycle().value
-
-    Log.d("initialize2", categories.toString())
-
-
 
     Column(modifier = Modifier.padding(16.dp)) {
         Row(
@@ -80,6 +73,7 @@ fun CategoryScreen(
                         coroutineScope.launch {
                             viewModel.saveTaskToRepository(categoryUiState)
                         }
+                        onCategorySelect(it)
                     },
                     modifier = Modifier.aspectRatio(1f),
                     shape = MaterialTheme.shapes.large,
@@ -94,7 +88,12 @@ fun CategoryScreen(
                 .padding(vertical = 8.dp),
             horizontalArrangement = Arrangement.Center
         ) {
-            Button(onClick = onBackClick, shape = MaterialTheme.shapes.small) {
+            Button(onClick = {
+                onBackClick()
+                coroutineScope.launch {
+                    viewModel.cancelTask()
+                }
+            }, shape = MaterialTheme.shapes.small) {
                 Text(text = "Back")
             }
             Spacer(modifier = Modifier.width(24.dp))

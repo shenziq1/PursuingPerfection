@@ -30,6 +30,7 @@ import ziqi.project.pursuingperfection.viewModel.newViewModel.NewCategoryViewMod
 
 @Composable
 fun CategoryReadOnlyBar(
+    selectedCategory: String,
     onCategoryClick: (String) -> Unit,
     setVisible: (Boolean) -> Unit,
     viewModel: NewCategoryViewModel = hiltViewModel(),
@@ -37,10 +38,7 @@ fun CategoryReadOnlyBar(
     LaunchedEffect(Unit) {
         viewModel.initialize()
     }
-    var categoryName by rememberSaveable {
-        mutableStateOf("All")
-    }
-    //val taskOverViewListState = rememberLazyListState()
+
     val categories = viewModel.listUiState.collectAsStateWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
     val allCategory = CategoryUiState(category = "All")
@@ -51,10 +49,8 @@ fun CategoryReadOnlyBar(
         item {
             CategoryCard(
                 categoryUiState = allCategory,
-                selected = categoryName == "All",
+                selected = selectedCategory == "All",
                 onClick = {
-                    Log.d("categoryName", categoryName)
-                    categoryName = it
                     onCategoryClick(it)
                     coroutineScope.launch {
                         setVisible(false)
@@ -72,9 +68,8 @@ fun CategoryReadOnlyBar(
         ) { categoryUiState ->
             CategoryCard(
                 categoryUiState = categoryUiState,
-                selected = categoryUiState.category == categoryName,
+                selected = categoryUiState.category == selectedCategory,
                 onClick = {
-                    categoryName = it
                     onCategoryClick(it)
                     //viewModel.saveCurrentCategory(categoryName)
                     coroutineScope.launch {
