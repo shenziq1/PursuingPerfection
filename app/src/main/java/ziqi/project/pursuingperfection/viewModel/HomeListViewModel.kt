@@ -6,6 +6,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -40,7 +41,7 @@ class HomeListViewModel @Inject constructor(
     }
 
     fun updateTaskList(category: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             taskRepository.getPlannedTasks(category).collect { taskEntities ->
                 _plannedTasks.value = taskEntities.map { it.toTaskUiState() }
             }
@@ -50,7 +51,7 @@ class HomeListViewModel @Inject constructor(
 
     //
     suspend fun insertAllTasks() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             LocalTaskDataProvider.allTasks.forEach {
                 taskRepository.insertTask(it.toTaskEntity())
             }
@@ -58,15 +59,8 @@ class HomeListViewModel @Inject constructor(
     }
 
     suspend fun deleteAllTasks() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             taskRepository.deleteAllTasks()
         }
     }
-
-    suspend fun checkTask(taskUiState: TaskUiState) {
-        viewModelScope.launch {
-            taskRepository.updateTask(taskUiState.toTaskEntity().copy(checked = true))
-        }
-    }
-
 }

@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
@@ -26,7 +27,7 @@ class SearchResultViewModel @Inject constructor(private val taskRepository: Task
 
     fun updateSearchResult(route: String, searchInput: String) {
         if (route == Home.route) {
-            viewModelScope.launch {
+            viewModelScope.launch(Dispatchers.IO) {
                 taskRepository.searchTask(searchInput, false).filterNotNull()
                     .collect { taskEntities ->
                         _homeScreenSearchResult.value =
@@ -34,7 +35,7 @@ class SearchResultViewModel @Inject constructor(private val taskRepository: Task
                     }
             }
         } else {
-            viewModelScope.launch {
+            viewModelScope.launch(Dispatchers.IO) {
                 taskRepository.searchTask(searchInput, true).filterNotNull()
                     .collect { taskEntities ->
                         _doneScreenSearchResult.value =

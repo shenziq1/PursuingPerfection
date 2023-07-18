@@ -7,6 +7,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
@@ -36,7 +37,7 @@ class TaskDetailViewModel @Inject constructor(
     fun initialize() {
         if(initializeCalled) return
         initializeCalled = true
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             repository.getTaskById(id).filterNotNull().collect {
                 _uiState.value = it.toTaskUiState()
             }
@@ -52,7 +53,7 @@ class TaskDetailViewModel @Inject constructor(
                     !it.checked
                 ) else it
             })
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             repository.updateTask(_uiState.value.toTaskEntity())
         }
     }
@@ -62,27 +63,27 @@ class TaskDetailViewModel @Inject constructor(
             _uiState.value.copy(contents = _uiState.value.contents.map {
                 if (old == it) new else it
             })
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             repository.updateTask(_uiState.value.toTaskEntity())
         }
     }
 
     suspend fun addTaskItem(item: Item) {
         _uiState.value = _uiState.value.copy(contents = _uiState.value.contents + item)
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             repository.updateTask(_uiState.value.toTaskEntity())
         }
     }
 
     suspend fun removeTaskItem(item: Item) {
         _uiState.value = _uiState.value.copy(contents = _uiState.value.contents - item)
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             repository.updateTask(_uiState.value.toTaskEntity())
         }
     }
 
     suspend fun removeTask() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             repository.deleteTaskById(id)
         }
     }

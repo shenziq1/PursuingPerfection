@@ -4,6 +4,7 @@ import androidx.annotation.MainThread
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,19 +24,11 @@ class DoneListViewModel @Inject constructor(private val taskRepository: TaskRepo
     private var _checkedTasks: MutableStateFlow<List<TaskUiState>> = MutableStateFlow(emptyList())
     val checkedTasks: StateFlow<List<TaskUiState>> = _checkedTasks.asStateFlow()
 
-    private var initializeCalled = false
-
     fun updateTaskList(category: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             taskRepository.getCheckedTasks(category).collect { taskEntities ->
                 _checkedTasks.value = taskEntities.map { it.toTaskUiState() }
             }
-        }
-    }
-
-    suspend fun uncheckTask(taskUiState: TaskUiState) {
-        viewModelScope.launch {
-            taskRepository.updateTask(taskUiState.toTaskEntity().copy(checked = false))
         }
     }
 }

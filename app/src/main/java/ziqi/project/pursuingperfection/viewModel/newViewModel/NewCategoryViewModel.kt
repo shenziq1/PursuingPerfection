@@ -5,6 +5,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
@@ -39,12 +40,12 @@ class NewCategoryViewModel @Inject constructor(
     fun initialize() {
         if (initializeCalled) return
         initializeCalled = true
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             categoryRepository.getAllCategories().filterNotNull().collect { categoryEntities ->
                 _listUiState.value = categoryEntities.map { it.toCategoryUiState() }
             }
         }
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             categoryRepository.getCurrentCategory(category).filterNotNull().collect {
                 _currentUiState.value = it.toCategoryUiState()
             }
@@ -56,10 +57,10 @@ class NewCategoryViewModel @Inject constructor(
         newIcon: Int = R.drawable.ic_launcher_foreground
     ) {
         _currentUiState.value = _currentUiState.value.copy(category = newCategory, profilePhoto = newIcon)
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             taskRepository.updateTaskCategory(category, newCategory, newIcon)
         }
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             categoryRepository.updateCategory(
                 _currentUiState.value.toCategoryEntity()
             )
@@ -71,7 +72,7 @@ class NewCategoryViewModel @Inject constructor(
         newIcon: Int = R.drawable.ic_launcher_foreground
     ): Boolean {
         return if (newCategory !in _listUiState.value.map { it.category }){
-            viewModelScope.launch {
+            viewModelScope.launch(Dispatchers.IO) {
                 categoryRepository.addCategory(
                     CategoryUiState(
                         0,

@@ -6,6 +6,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
@@ -31,7 +32,7 @@ class CurrentPriorityViewModel @Inject constructor(
     fun initialize() {
         if(initializeCalled) return
         initializeCalled = true
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             repository.getTaskById(id).filterNotNull().collect {
                 _uiState.value = it.toTaskUiState()
             }
@@ -44,7 +45,7 @@ class CurrentPriorityViewModel @Inject constructor(
     }
 
     suspend fun updateTaskToRepository() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             repository.updateTask(_uiState.value.toTaskEntity())
         }
     }
